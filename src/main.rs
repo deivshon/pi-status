@@ -3,12 +3,12 @@ pub mod status;
 use actix_web::{web, App, HttpServer, Responder};
 use serde::Serialize;
 
-use std::{thread, time};
+use std::thread;
 use std::sync::{Arc, RwLock};
 
 #[derive(Serialize)]
-struct Status {
-    temp: f32
+pub struct Status {
+    pub temp: f32
 }
 
 async fn index(r: web::Data<Arc<RwLock<Status>>>) -> impl Responder {
@@ -21,31 +21,23 @@ async fn index(r: web::Data<Arc<RwLock<Status>>>) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // Initialize the logger
     std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
 
+    // Setup the structure
     let data = Arc::new(RwLock::new(Status {
-        temp: 0.0
+        temp: -1.0
     }));
 
-    let data_clone = Arc::clone(&data);
-    
-    thread::spawn(move || {
-        loop {
-            match status::temp::get() {
-                Ok(t) => {
-                    let mut d = data_clone.write().unwrap();
-                    d.temp = t;
-                },
-                Err(_) => ()
-            };
+    // Spawn status updating threads
+    let temp_ptr = Arc::clone(&data);
+    thread::spawn(move || status::temp::continous_update(temp_ptr, 1000));
 
-            thread::sleep(time::Duration::from_millis(1000));
-        }
-    });
-
+    // Encapsule structure in web::Data
     let web_data = web::Data::new(data);
 
+    // Start the server
     HttpServer::new(move || {
         App::new()
             .app_data(web_data.clone())
@@ -55,4 +47,3 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
-
