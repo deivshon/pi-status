@@ -44,13 +44,11 @@ async fn main() -> std::io::Result<()> {
         }
     });
 
-    // Note: web::Data created _outside_ HttpServer::new closure
     let web_data = web::Data::new(data);
 
     HttpServer::new(move || {
-        // move counter into the closure
         App::new()
-            .app_data(web_data.clone()) // <- register the created data
+            .app_data(web_data.clone())
             .route("/", web::get().to(index))
     })
     .bind(("127.0.0.1", 8080))?
