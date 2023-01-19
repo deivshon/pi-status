@@ -21,17 +21,17 @@ pub enum StatusFields {
     Dummy(Option<DummyStruct>)
 }
 
-async fn index(r: web::Data<Arc<RwLock<Status>>>) -> impl Responder {
-    let data = r.read().unwrap();
-    let obj = serde_json::to_string(&*data).unwrap();
-    return HttpResponse::Ok().insert_header(ContentType::json()).body(obj);
+async fn index(data: web::Data<Arc<RwLock<String>>>) -> impl Responder {
+    let data_ref = data.read().unwrap();
+    
+    return HttpResponse::Ok().insert_header(ContentType::json()).body(String::from(&*data_ref));
 }
 
 async fn hello() -> impl Responder {
     format!("Hello world!")
 }
 
-pub fn continous_update(status: Arc<RwLock<Status>>, field: StatusFields, ms: u64) {
+pub fn continous_update(status: Arc<RwLock<Status>>, status_str: Arc<RwLock<String>>, field: StatusFields, ms: u64) {
     let mut get_func: fn() -> StatusFields;
     loop {
         match &field {
@@ -42,11 +42,17 @@ pub fn continous_update(status: Arc<RwLock<Status>>, field: StatusFields, ms: u6
 
         let data = get_func();
         {
-            let mut d = status.write().unwrap();
+            let mut status_ref = status.write().unwrap();
             match data {
-                StatusFields::Temp(t) => d.temp = t,
-                StatusFields::Dummy(v) => d.dummy = v,
+                StatusFields::Temp(t) => status_ref.temp = t,
+                StatusFields::Dummy(v) => status_ref.dummy = v,
             };
+        }
+
+        {
+            let status_ref = status.read().unwrap();
+            let mut status_str_ref = status_str.write().unwrap();
+            *status_str_ref = serde_json::to_string(&*status_ref).unwrap();
         }
 
         thread::sleep(time::Duration::from_millis(ms));
@@ -59,6 +65,7 @@ async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
 
+    let data_str: Arc<RwLock<String>> = Arc::new(RwLock::new(String::new()));
     // Setup the structure
     let data = Arc::new(RwLock::new(Status {
         temp: None,
@@ -67,13 +74,15 @@ async fn main() -> std::io::Result<()> {
 
     // Spawn status updating threads
     let temp_ptr = Arc::clone(&data);
-    thread::spawn(move || continous_update(temp_ptr, StatusFields::Temp(None), 1000));
+    let temp_ptr_str = Arc::clone(&data_str);
+    thread::spawn(move || continous_update(temp_ptr, temp_ptr_str, StatusFields::Temp(None), 1000));
 
     let dummy_ptr = Arc::clone(&data);
-    thread::spawn(move || continous_update(dummy_ptr, StatusFields::Dummy(None), 1000));
+    let dummy_ptr_str = Arc::clone(&data_str);
+    thread::spawn(move || continous_update(dummy_ptr, dummy_ptr_str, StatusFields::Dummy(None), 1000));
 
     // Encapsule structure in web::Data
-    let web_data = web::Data::new(data);
+    let web_data = web::Data::new(data_str);
 
     // Start the server
     HttpServer::new(move || {
