@@ -11,11 +11,11 @@ pub fn get() -> crate::StatusFields {
 
     match fs::read_to_string(TEMP_PATH) {
         Ok(t) => temp = t.replace("\n", "").parse::<f32>(),
-        Err(e) => return crate::StatusFields::Temp(-1.0)
+        Err(e) => return crate::StatusFields::Temp(None)
     }
     
     match temp {
-        Ok(t) => return crate::StatusFields::Temp(t / 1e3),
-        Err(e) => crate::StatusFields::Temp(-1.0)
+        Ok(t) => return crate::StatusFields::Temp(Some(t / 1e3)),
+        Err(e) => crate::StatusFields::Temp(None)
     }
 }

@@ -9,8 +9,5 @@ pub struct DummyStruct {
 }
 
 pub fn get() -> StatusFields {
-    StatusFields::Dummy(DummyStruct {
-        x: 1,
-        y: 1
-    })
+    return crate::StatusFields::Dummy(None)
 }

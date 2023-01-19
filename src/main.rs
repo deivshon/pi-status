@@ -12,13 +12,13 @@ use std::time;
 
 #[derive(Serialize)]
 pub struct Status {
-    pub temp: f32,
-    pub dummy: status::dummy::DummyStruct
+    pub temp: Option<f32>,
+    pub dummy: Option<status::dummy::DummyStruct>
 }
 
 pub enum StatusFields {
-    Temp(f32),
-    Dummy(DummyStruct)
+    Temp(Option<f32>),
+    Dummy(Option<DummyStruct>)
 }
 
 async fn index(r: web::Data<Arc<RwLock<Status>>>) -> impl Responder {
@@ -32,17 +32,18 @@ async fn hello() -> impl Responder {
 }
 
 pub fn continous_update(status: Arc<RwLock<Status>>, field: StatusFields, ms: u64) {
-    let mut getFunc: fn() -> StatusFields;
+    let mut get_func: fn() -> StatusFields;
     loop {
         match &field {
-            StatusFields::Temp(_) => getFunc = status::temp::get,
-            StatusFields::Dummy(_) => getFunc = status::dummy::get
+            StatusFields::Temp(_) => get_func = status::temp::get,
+            StatusFields::Dummy(_) => get_func = status::dummy::get
         }
 
 
+        let data = get_func();
         {
             let mut d = status.write().unwrap();
-            match getFunc() {
+            match data {
                 StatusFields::Temp(t) => d.temp = t,
                 StatusFields::Dummy(v) => d.dummy = v,
             };
@@ -59,17 +60,17 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     // Setup the structure
-    let mut data = Arc::new(RwLock::new(Status {
-        temp: -1.0,
-        dummy: status::dummy::DummyStruct {
-            x: 0,
-            y: 0
-        }
+    let data = Arc::new(RwLock::new(Status {
+        temp: None,
+        dummy: None
     }));
 
     // Spawn status updating threads
     let temp_ptr = Arc::clone(&data);
-    thread::spawn(move || continous_update(temp_ptr, StatusFields::Temp(0.0), 1000));
+    thread::spawn(move || continous_update(temp_ptr, StatusFields::Temp(None), 1000));
+
+    let dummy_ptr = Arc::clone(&data);
+    thread::spawn(move || continous_update(dummy_ptr, StatusFields::Dummy(None), 1000));
 
     // Encapsule structure in web::Data
     let web_data = web::Data::new(data);
