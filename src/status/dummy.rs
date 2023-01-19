@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::StatusFields;
+use crate::status::StatusFields;
 
 #[derive(Serialize)]
 pub struct DummyStruct {
@@ -9,5 +9,5 @@ pub struct DummyStruct {
 }
 
 pub fn get() -> StatusFields {
-    return crate::StatusFields::Dummy(None)
+    return StatusFields::Dummy(None)
 }
