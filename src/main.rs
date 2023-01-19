@@ -23,8 +23,8 @@ pub enum StatusFields {
 
 async fn index(data: web::Data<Arc<RwLock<String>>>) -> impl Responder {
     let data_ref = data.read().unwrap();
-    
-    return HttpResponse::Ok().insert_header(ContentType::json()).body(String::from(&*data_ref));
+
+    return HttpResponse::Ok().insert_header(ContentType::json()).body((&*data_ref).to_owned());
 }
 
 async fn hello() -> impl Responder {
