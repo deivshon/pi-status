@@ -1,4 +1,5 @@
 pub mod status;
+pub mod utils;
 
 use status::{StatusFields, Status, continous_update};
 
@@ -17,14 +18,15 @@ async fn index(data: web::Data<Arc<RwLock<String>>>) -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Initialize the logger
-    std::env::set_var("RUST_LOG", "debug");
-    env_logger::init();
+    // std::env::set_var("RUST_LOG", "debug");
+    // env_logger::init();
 
     let data_str: Arc<RwLock<String>> = Arc::new(RwLock::new(String::new()));
     // Setup the structure
     let data = Arc::new(RwLock::new(Status {
         temp: None,
-        dummy: None
+        dummy: None,
+        net_stats: None
     }));
 
     // Spawn status updating threads
@@ -35,6 +37,10 @@ async fn main() -> std::io::Result<()> {
     let dummy_ptr = Arc::clone(&data);
     let dummy_ptr_str = Arc::clone(&data_str);
     thread::spawn(move || continous_update(dummy_ptr, dummy_ptr_str, StatusFields::Dummy(None), 1000));
+
+    let net_ptr = Arc::clone(&data);
+    let net_ptr_str = Arc::clone(&data_str);
+    thread::spawn(move || continous_update(net_ptr, net_ptr_str, StatusFields::NetStats(None), 1000));
 
     // Encapsule structure in web::Data
     let web_data = web::Data::new(data_str);

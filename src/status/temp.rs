@@ -11,7 +11,7 @@ pub fn get() -> StatusFields {
         Ok(t) => temp = t.replace("\n", "").parse::<f32>(),
         Err(_) => return StatusFields::Temp(None)
     }
-    
+
     match temp {
         Ok(t) => return StatusFields::Temp(Some(t / 1e3)),
         Err(_) => StatusFields::Temp(None)
