@@ -18,25 +18,20 @@ async fn index(data: web::Data<Arc<RwLock<String>>>) -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Initialize the logger
-    // std::env::set_var("RUST_LOG", "debug");
-    // env_logger::init();
+    std::env::set_var("RUST_LOG", "debug");
+    env_logger::init();
 
     let data_str: Arc<RwLock<String>> = Arc::new(RwLock::new(String::new()));
     // Setup the structure
     let data = Arc::new(RwLock::new(Status {
         temp: None,
-        dummy: None,
         net_stats: None
     }));
 
     // Spawn status updating threads
     let temp_ptr = Arc::clone(&data);
     let temp_ptr_str = Arc::clone(&data_str);
-    thread::spawn(move || continous_update(temp_ptr, temp_ptr_str, StatusFields::Temp(None), 1000));
-
-    let dummy_ptr = Arc::clone(&data);
-    let dummy_ptr_str = Arc::clone(&data_str);
-    thread::spawn(move || continous_update(dummy_ptr, dummy_ptr_str, StatusFields::Dummy(None), 1000));
+    thread::spawn(move || continous_update(temp_ptr, temp_ptr_str, StatusFields::Temp(None), 500));
 
     let net_ptr = Arc::clone(&data);
     let net_ptr_str = Arc::clone(&data_str);
@@ -49,9 +44,9 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(web_data.clone())
-            .route("/", web::get().to(index))
+            .route("/data", web::get().to(index))
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("0.0.0.0", 8080))?
     .run()
     .await
 }

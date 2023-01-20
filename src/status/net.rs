@@ -1,4 +1,4 @@
-use std::sync::{Arc, RwLock};
+use std::time::UNIX_EPOCH;
 use std::fs;
 
 use crate::utils;
@@ -7,13 +7,19 @@ use std::error::Error;
 
 use super::StatusFields;
 
+const NET_DIR: &str = "/sys/class/net/";
+const RX_DIR: &str = "statistics/tx_bytes";
+const TX_DIR: &str = "statistics/rx_bytes";
+
 #[derive(Serialize)]
 pub struct NetStats {
     interface: String,
     total_uploaded: u64,
     total_downloaded: u64,
-    download_speed: u64,
-    upload_speed: u64
+
+    download_speed: f64,
+    upload_speed: f64,
+    ts: f64
 }
 
 fn add_interface_dir(dst: &mut Vec<fs::DirEntry>, dir: Result<fs::DirEntry, std::io::Error>) -> Result<(), Box<dyn Error>>  {
@@ -28,7 +34,7 @@ fn add_interface_dir(dst: &mut Vec<fs::DirEntry>, dir: Result<fs::DirEntry, std:
 
 fn get_max_interface() -> Result<String, Box<dyn Error>> {
     let mut ifas: Vec<fs::DirEntry>  = vec![];
-    let files = fs::read_dir("/sys/class/net/")?;
+    let files = fs::read_dir(NET_DIR)?;
 
     for file in files {
         add_interface_dir(&mut ifas, file).unwrap_or(());
@@ -37,36 +43,76 @@ fn get_max_interface() -> Result<String, Box<dyn Error>> {
     let mut max_ifa: Option<NetStats> = None;
     for interface in ifas {
         if let Some(ifa) = interface.path().to_str() {
-            if let Some(ns) = get_net_stats(String::from(ifa)) {
-                if let Some(m) = &max_ifa {
-                    if ns.total_uploaded + ns.total_uploaded < m.total_uploaded + m.total_downloaded {
-                        max_ifa = Some(ns);
+            match get_net_stats(&String::from(ifa)) {
+                Ok(ns) => {
+                    if let Some(m) = &max_ifa {
+                        if ns.total_uploaded + ns.total_downloaded > m.total_uploaded + m.total_downloaded {
+                            max_ifa = Some(ns);
+                        }
                     }
-                }
-                else {
-                    max_ifa = Some(ns);
-                    continue;
-                }
+                    else {
+                        max_ifa = Some(ns);
+                        continue;
+                    }
+                },
+                Err(_) => continue
             }
         }
     }
 
-    return Ok(String::from("/"))
+    match max_ifa {
+        Some(ifa) => return Ok(ifa.interface),
+        None => return Ok(String::from("/\\/\\"))
+    }
 }
 
-fn get_net_stats(interface: String) -> Option<NetStats> {
-    return Some(NetStats {
-        interface: String::from("/"),
-        total_uploaded: 0,
-        total_downloaded: 0,
-        download_speed: 0,
-        upload_speed: 0
+fn get_net_stats(interface: &String) -> Result<NetStats, Box<dyn Error>> {
+    return Ok(NetStats {
+        total_uploaded: utils::u64_from_file(format!("{}/{}", interface, RX_DIR))?,
+        total_downloaded: utils::u64_from_file(format!("{}/{}", interface, TX_DIR))?,
+        ts: UNIX_EPOCH.elapsed().unwrap().as_millis() as f64,
+
+        download_speed: 0.0,
+        upload_speed: 0.0,
+
+        interface: interface.to_owned()
     })
 }
 
+fn get_first_result() -> Result<StatusFields, Box<dyn Error>> {
+    let max_ifa = get_max_interface()?;
+    let max_ifa_stats = get_net_stats(&max_ifa)?;
+
+    return Ok(StatusFields::NetStats(Some(max_ifa_stats)));
+}
+
+fn get_diff(current: &NetStats, old: &NetStats) -> NetStats {
+    let elapsed = current.ts - old.ts;
+
+    return NetStats {
+        interface: old.interface.to_owned(),
+        total_uploaded: current.total_uploaded,
+        total_downloaded: current.total_downloaded,
+
+        upload_speed: (((current.total_uploaded - old.total_uploaded) as f64 / elapsed) * 1024.0).round(),
+        download_speed: (((current.total_downloaded - old.total_downloaded) as f64 / elapsed) * 1024.0).round(),
+
+        ts: current.ts
+    }
+}
+
 pub fn get(current_stats: &Option<NetStats>) -> StatusFields {
-    get_max_interface().unwrap();
-    if matches!(current_stats, None) {return StatusFields::NetStats(get_net_stats(String::from("/")))}
+    if let Some(ns) = current_stats {
+        match get_net_stats(&ns.interface) {
+            Ok(current_stats) => {
+                return StatusFields::NetStats(Some(get_diff(&current_stats, ns)))
+            },
+            Err(_) => ()
+        }
+    }
     
-    return StatusFields::NetStats(None)
+    match get_first_result() {
+        Err(_) => return StatusFields::NetStats(None),
+        Ok(res) => return res
+    }
 }

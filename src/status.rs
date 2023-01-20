@@ -1,5 +1,4 @@
 pub mod temp;
-pub mod dummy;
 pub mod net;
 
 use std::sync::{Arc, RwLock};
@@ -11,13 +10,11 @@ use std::time;
 #[derive(Serialize)]
 pub struct Status {
     pub temp: Option<f32>,
-    pub dummy: Option<dummy::DummyStruct>,
     pub net_stats: Option<net::NetStats>
 }
 
 pub enum StatusFields {
     Temp(Option<f32>),
-    Dummy(Option<dummy::DummyStruct>),
     NetStats(Option<net::NetStats>)
 }
 
@@ -26,7 +23,6 @@ pub fn continous_update(status: Arc<RwLock<Status>>, status_str: Arc<RwLock<Stri
         let data: StatusFields;
         match &field {
             StatusFields::Temp(_) => data = temp::get(),
-            StatusFields::Dummy(_) => data = dummy::get(),
             StatusFields::NetStats(_) => {
                 let status_ref = status.read().unwrap();
                 data = net::get(&status_ref.net_stats);
@@ -37,7 +33,6 @@ pub fn continous_update(status: Arc<RwLock<Status>>, status_str: Arc<RwLock<Stri
             let mut status_ref = status.write().unwrap();
             match data {
                 StatusFields::Temp(t) => status_ref.temp = t,
-                StatusFields::Dummy(v) => status_ref.dummy = v,
                 StatusFields::NetStats(n) => status_ref.net_stats = n,
             };
         }
