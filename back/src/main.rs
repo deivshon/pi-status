@@ -14,7 +14,7 @@ use std::path::PathBuf;
 use std::error::Error;
 
 async fn index() -> Result<NamedFile, Box<dyn Error>> {
-    let path: PathBuf = std::fs::canonicalize("./front/html/index.html")?;
+    let path: PathBuf = std::fs::canonicalize("./front/pi-status-front/dist/index.html")?;
     
     return Ok(NamedFile::open(path)?)
 }
@@ -53,11 +53,10 @@ async fn main() -> std::io::Result<()> {
     // Start the server
     HttpServer::new(move || {
         App::new()
-            .service(actix_files::Files::new("/js", "./front/js/"))
-            .service(actix_files::Files::new("/css", "./front/css/"))
-            .route("/", web::get().to(index))
-            .app_data(web_data.clone())
             .route("/data", web::get().to(serve_data))
+            .route("/", web::get().to(index))
+            .service(actix_files::Files::new("/", "./front/pi-status-front/dist/"))
+            .app_data(web_data.clone())
     })
     .bind(("0.0.0.0", 8080))?
     .run()

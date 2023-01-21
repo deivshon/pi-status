@@ -1,0 +1,32 @@
+#root {
+  width: 100vw;
+  height: 100vw;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.temp-chart {
+    width: 50vw;
+    height: 50vh;
+    margin-bottom: 25px;
+}
+
+.main-container {
+    margin: 0;
+    padding: 2vw;
+    display: flex;
+    min-width: 320px;
+    min-height: 100vh;
+}
+
+
+@media screen and (max-aspect-ratio: 4/5) {
+    .main-container {
+        flex-direction: column;
+    }
+    
+    .temp-chart {
+        width: 96vw;
+        height: 35vh;
+    }
+}
