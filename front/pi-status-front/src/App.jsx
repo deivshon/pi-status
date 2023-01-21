@@ -4,12 +4,8 @@ import { useState } from 'react'
 import './App.css'
 
 import {
-    LineChart,
-    Line,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
+    AreaChart,
+    Area,
     Legend,
     ResponsiveContainer
 } from "recharts";
@@ -33,12 +29,12 @@ export default function App() {
 
     const changeData = async () => {
         let newData = await (await fetch("/data")).json()
-        if(net.length > 10) net.shift()
+        if(net.length > 30) net.shift()
 
         setNet([
             ...net,
             {
-                upload: newData.net_stats.upload_speed,
+                upload: -newData.net_stats.upload_speed,
                 download: newData.net_stats.download_speed
 
             }
@@ -55,28 +51,30 @@ export default function App() {
     return (
         <div className="main-container">
             <div className="temp-chart">
-                {net.length != 0 ? `↓ ${formatBytes(net[net.length - 1].download, true)} | ↑ ${formatBytes(net[net.length - 1].upload, true)}` : ""}
+                {net.length != 0 ? `↓ ${formatBytes(net[net.length - 1].download, true)} | ↑ ${formatBytes(-net[net.length - 1].upload, true)}` : ""}
                 <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
+                    <AreaChart
                         data={net}
                         style={{border: "2px solid black"}}
                     >
                         <Legend />
-                        <Line
+                        <Area
                             type="monotone"
                             dataKey="download"
                             stroke="#f9cf9a"
+                            fill="#f9cf9a"
                             isAnimationActive={false}
-                            activeDot={{ r: 8 }}
+                            dot={false}
                         />
-                        <Line
+                        <Area
                             type="monotone"
                             dataKey="upload"
                             stroke="#82ca9d"
+                            fill="#82ca9d"
                             isAnimationActive={false}
-                            activeDot={{ r: 8 }}
+                            dot={false}
                         />
-                    </LineChart>
+                    </AreaChart>
                 </ResponsiveContainer>
             </div>
             <div className="temp">
