@@ -40,7 +40,7 @@ export default function App() {
             }
         ])
 
-        setTemp(newData.temp)
+        setTemp(Math.round(newData.temp))
     }
 
     useEffect(() => {
@@ -57,7 +57,6 @@ export default function App() {
                         data={net}
                         style={{border: "2px solid black"}}
                     >
-                        <Legend />
                         <Area
                             type="monotone"
                             dataKey="download"
