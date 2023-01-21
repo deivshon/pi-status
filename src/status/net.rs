@@ -14,11 +14,12 @@ const TX_DIR: &str = "statistics/rx_bytes";
 #[derive(Serialize)]
 pub struct NetStats {
     interface: String,
-    total_uploaded: u64,
-    total_downloaded: u64,
+    upload_total: u64,
+    download_total: u64,
 
-    download_speed: f64,
     upload_speed: f64,
+    download_speed: f64,
+
     ts: f64
 }
 
@@ -46,7 +47,7 @@ fn get_max_interface() -> Result<String, Box<dyn Error>> {
             match get_net_stats(&String::from(ifa)) {
                 Ok(ns) => {
                     if let Some(m) = &max_ifa {
-                        if ns.total_uploaded + ns.total_downloaded > m.total_uploaded + m.total_downloaded {
+                        if ns.upload_total + ns.download_total > m.upload_total + m.download_total {
                             max_ifa = Some(ns);
                         }
                     }
@@ -68,8 +69,8 @@ fn get_max_interface() -> Result<String, Box<dyn Error>> {
 
 fn get_net_stats(interface: &String) -> Result<NetStats, Box<dyn Error>> {
     return Ok(NetStats {
-        total_uploaded: utils::u64_from_file(format!("{}/{}", interface, RX_DIR))?,
-        total_downloaded: utils::u64_from_file(format!("{}/{}", interface, TX_DIR))?,
+        upload_total: utils::u64_from_file(format!("{}/{}", interface, RX_DIR))?,
+        download_total: utils::u64_from_file(format!("{}/{}", interface, TX_DIR))?,
         ts: UNIX_EPOCH.elapsed().unwrap().as_millis() as f64,
 
         download_speed: 0.0,
@@ -91,11 +92,11 @@ fn get_diff(current: &NetStats, old: &NetStats) -> NetStats {
 
     return NetStats {
         interface: old.interface.to_owned(),
-        total_uploaded: current.total_uploaded,
-        total_downloaded: current.total_downloaded,
+        upload_total: current.upload_total,
+        download_total: current.download_total,
 
-        upload_speed: (((current.total_uploaded - old.total_uploaded) as f64 / elapsed) * 1024.0).round(),
-        download_speed: (((current.total_downloaded - old.total_downloaded) as f64 / elapsed) * 1024.0).round(),
+        upload_speed: (((current.upload_total - old.upload_total) as f64 / elapsed) * 1024.0).round(),
+        download_speed: (((current.download_total - old.download_total) as f64 / elapsed) * 1024.0).round(),
 
         ts: current.ts
     }

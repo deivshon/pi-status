@@ -5,11 +5,21 @@ use status::{StatusFields, Status, continous_update};
 
 use actix_web::{web, App, HttpServer, Responder, HttpResponse};
 use actix_web::http::header::ContentType;
+use actix_files::NamedFile;
 
 use std::thread;
 use std::sync::{Arc, RwLock};
+use std::path::PathBuf;
 
-async fn index(data: web::Data<Arc<RwLock<String>>>) -> impl Responder {
+use std::error::Error;
+
+async fn index() -> Result<NamedFile, Box<dyn Error>> {
+    let path: PathBuf = std::fs::canonicalize("./front/html/index.html")?;
+    
+    return Ok(NamedFile::open(path)?)
+}
+
+async fn serve_data(data: web::Data<Arc<RwLock<String>>>) -> impl Responder {
     let data_ref = data.read().unwrap();
 
     return HttpResponse::Ok().insert_header(ContentType::json()).body((&*data_ref).to_owned());
@@ -43,8 +53,11 @@ async fn main() -> std::io::Result<()> {
     // Start the server
     HttpServer::new(move || {
         App::new()
+            .service(actix_files::Files::new("/js", "./front/js/"))
+            .service(actix_files::Files::new("/css", "./front/css/"))
+            .route("/", web::get().to(index))
             .app_data(web_data.clone())
-            .route("/data", web::get().to(index))
+            .route("/data", web::get().to(serve_data))
     })
     .bind(("0.0.0.0", 8080))?
     .run()
