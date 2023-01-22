@@ -86,7 +86,7 @@ export default function App() {
                                 dataKey="download"
                                 stroke="#f28779"
                                 fill="#f28779"
-                                isAnimationActive={false}
+                                animationDuration={100}
                                 dot={false}
                             />
                             </AreaChart>
@@ -105,7 +105,7 @@ export default function App() {
                                 dataKey="upload"
                                 stroke="#6ccdff"
                                 fill="#6ccdff"
-                                isAnimationActive={false}
+                                animationDuration={100}
                                 dot={false}
                             />
                             </AreaChart>
