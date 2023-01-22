@@ -6,6 +6,7 @@ import './App.css'
 import {
     AreaChart,
     Area,
+    YAxis,
     Legend,
     ResponsiveContainer
 } from "recharts";
@@ -26,6 +27,7 @@ const formatBytes = (bytes, isSpeed = false) => {
 export default function App() {
     const [netSpeeds, setNetSpeeds] = useState([])
     const [netTotals, setNetTotals] = useState({})
+    const [netMax, setNetMax] = useState(0)
     const [temp, setTemp] = useState(0)
 
     const changeData = async () => {
@@ -40,11 +42,16 @@ export default function App() {
             }
         ])
 
+        setNetMax(Math.max(
+            ...(netSpeeds.map(v => v.download)),
+            ...(netSpeeds.map(v => v.upload)))
+        )
+
         setNetTotals({
             download: newData.net_stats.download_total,
             upload: newData.net_stats.upload_total,
         })
-
+        
         setTemp(Math.round(newData.temp))
     }
 
@@ -73,14 +80,15 @@ export default function App() {
                                 data={netSpeeds}
                                 style={{ border: "2px solid #f28779" }}
                             >
-                                <Area
-                                    type="monotone"
-                                    dataKey="download"
-                                    stroke="#f28779"
-                                    fill="#f28779"
-                                    isAnimationActive={false}
-                                    dot={false}
-                                />
+                            <YAxis domain={[0, netMax]} hide={true} allowDataOverflow={true}/>
+                            <Area
+                                type="monotone"
+                                dataKey="download"
+                                stroke="#f28779"
+                                fill="#f28779"
+                                isAnimationActive={false}
+                                dot={false}
+                            />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -91,14 +99,15 @@ export default function App() {
                                 data={netSpeeds}
                                 style={{ border: "2px solid #6ccdff" }}
                             >
-                                <Area
-                                    type="monotone"
-                                    dataKey="upload"
-                                    stroke="#6ccdff"
-                                    fill="#6ccdff"
-                                    isAnimationActive={false}
-                                    dot={false}
-                                />
+                            <YAxis domain={[0, netMax]} hide={true} allowDataOverflow={true}/>
+                            <Area
+                                type="monotone"
+                                dataKey="upload"
+                                stroke="#6ccdff"
+                                fill="#6ccdff"
+                                isAnimationActive={false}
+                                dot={false}
+                            />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>

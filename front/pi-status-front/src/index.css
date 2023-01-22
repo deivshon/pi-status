@@ -11,6 +11,10 @@
   -webkit-text-size-adjust: 100%;
 }
 
+.recharts-yAxis {
+    display: none !important;
+}
+
 body {
   margin: 0;
   min-width: 320px;
