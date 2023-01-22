@@ -1,27 +1,60 @@
+body {
+    color: lightgray;
+    background-color: #0b0e14;
+}
+
 #root {
   width: 100vw;
-  height: 100vw;
+  height: 100vh;
   margin: 0 auto;
   text-align: center;
+
 }
 
 .temp-chart {
     width: 50vw;
-    height: 40vh;
+    height: 70vh;
     margin-bottom: 1.5rem;
 }
 
-.main-container {
-    margin: 0;
+.nav {
     padding: 2vw;
-    display: flex;
-    min-width: 320px;
-    min-height: 100vh;
 }
 
+.nav-pills .net-pill .nav-link:not(.active) {
+    background-color: #0b0e14 !important;
+    color: #f28779 !important;
+}
+
+.nav-pills .net-pill .nav-link {
+    background-color: #f28779 !important;
+    color: #0b0e14 !important;
+}
+
+.nav-pills .cpu-pill .nav-link:not(.active) {
+    background-color: #0b0e14 !important;
+    color: #dfbfff !important;
+}
+
+.nav-pills .cpu-pill .nav-link {
+    background-color: #dfbfff !important;
+    color: #0b0e14 !important;
+}
+
+.tab-pane {
+    margin: 0;
+    padding: 0 2vw;
+}
+
+.stats-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 2vw;
+}
 
 @media screen and (max-aspect-ratio: 4/5) {
-    .main-container {
+    .stats-container {
         flex-direction: column;
     }
     
