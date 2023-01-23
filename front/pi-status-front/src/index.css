@@ -11,12 +11,26 @@
   -webkit-text-size-adjust: 100%;
 }
 
-.recharts-yAxis {
-    display: none !important;
-}
-
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
 }
+
+.recharts-yAxis {
+    display: none !important;
+}
+
+.stats-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 2vw;
+}
+
+@media screen and (max-aspect-ratio: 4/5) {
+    .stats-container {
+        flex-direction: column;
+    }
+}
+

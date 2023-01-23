@@ -1,0 +1,28 @@
+import './Cpu.css'
+
+import CpuBar from './CpuBar'
+
+export default function Cpu({temp, cpuUsage}) {
+    return <div class="stats-container">
+        <div className="temp">
+            Temperature: {temp} °C
+        </div>
+        <div className="bars-container w-100">
+            {
+                cpuUsage.length != 0 ?
+                <div class="core-container">
+                        <div>All</div>
+                        <CpuBar coreUsage={cpuUsage[0]} />
+                </div> 
+                :
+                ""
+            }
+            <div></div>
+            {cpuUsage.map((coreUsage, index) => <div class="core-container">
+                    <div>Core {index + 1}</div>
+                    <CpuBar coreUsage={coreUsage} />
+                </div> 
+            )}
+        </div>
+    </div>
+}

@@ -1,0 +1,41 @@
+body {
+    color: lightgray;
+    background-color: #0b0e14;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  margin: 0 auto;
+  text-align: center;
+
+}
+
+.nav {
+    padding: 2vw;
+}
+
+.nav-pills .net-pill .nav-link:not(.active) {
+    background-color: #0b0e14;
+    color: #f28779;
+}
+
+.nav-pills .net-pill .nav-link {
+    background-color: #f28779;
+    color: #0b0e14;
+}
+
+.nav-pills .cpu-pill .nav-link:not(.active) {
+    background-color: #0b0e14;
+    color: #dfbfff;
+}
+
+.nav-pills .cpu-pill .nav-link {
+    background-color: #dfbfff;
+    color: #0b0e14;
+}
+
+.tab-pane {
+    margin: 0;
+    padding: 0 2vw;
+}
