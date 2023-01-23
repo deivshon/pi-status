@@ -5,7 +5,7 @@ import CpuBar from './CpuBar'
 export default function Cpu({temp, cpuUsage}) {
     return <div class="stats-container">
         <div className="temp">
-            Temperature: {temp} °C
+            {temp} °C
         </div>
         <div className="bars-container w-100">
             {
@@ -18,7 +18,7 @@ export default function Cpu({temp, cpuUsage}) {
                 ""
             }
             <div></div>
-            {cpuUsage.map((coreUsage, index) => <div class="core-container">
+            {cpuUsage.slice(1).map((coreUsage, index) => <div class="core-container">
                     <div>Core {index + 1}</div>
                     <CpuBar coreUsage={coreUsage} />
                 </div> 
