@@ -1,5 +1,6 @@
 pub mod temp;
 pub mod net;
+pub mod cpu;
 
 use std::sync::{Arc, RwLock};
 use serde::Serialize;
@@ -10,12 +11,14 @@ use std::time;
 #[derive(Serialize)]
 pub struct Status {
     pub temp: Option<f32>,
-    pub net_stats: Option<net::NetStats>
+    pub net_stats: Option<net::NetStats>,
+    pub cpu_usage: Option<Vec<cpu::CpuUsage>>
 }
 
 pub enum StatusFields {
     Temp(Option<f32>),
-    NetStats(Option<net::NetStats>)
+    NetStats(Option<net::NetStats>),
+    CpuUsage(Option<Vec<cpu::CpuUsage>>)
 }
 
 pub fn continous_update(status: Arc<RwLock<Status>>, status_str: Arc<RwLock<String>>, field: StatusFields, ms: u64) {
@@ -27,6 +30,7 @@ pub fn continous_update(status: Arc<RwLock<Status>>, status_str: Arc<RwLock<Stri
                 let status_ref = status.read().unwrap();
                 data = net::get(&status_ref.net_stats);
             },
+            StatusFields::CpuUsage(_) => data = cpu::get()
         }
 
         {
@@ -34,6 +38,7 @@ pub fn continous_update(status: Arc<RwLock<Status>>, status_str: Arc<RwLock<Stri
             match data {
                 StatusFields::Temp(t) => status_ref.temp = t,
                 StatusFields::NetStats(n) => status_ref.net_stats = n,
+                StatusFields::CpuUsage(u) => status_ref.cpu_usage = u
             };
         }
 

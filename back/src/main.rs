@@ -35,7 +35,8 @@ async fn main() -> std::io::Result<()> {
     // Setup the structure
     let data = Arc::new(RwLock::new(Status {
         temp: None,
-        net_stats: None
+        net_stats: None,
+        cpu_usage: None
     }));
 
     // Spawn status updating threads
@@ -46,6 +47,10 @@ async fn main() -> std::io::Result<()> {
     let net_ptr = Arc::clone(&data);
     let net_ptr_str = Arc::clone(&data_str);
     thread::spawn(move || continous_update(net_ptr, net_ptr_str, StatusFields::NetStats(None), 1000));
+
+    let cpu_ptr = Arc::clone(&data);
+    let cpu_ptr_str = Arc::clone(&data_str);
+    thread::spawn(move || continous_update(cpu_ptr, cpu_ptr_str, StatusFields::CpuUsage(None), 1000));
 
     // Encapsule structure in web::Data
     let web_data = web::Data::new(data_str);
