@@ -4,6 +4,14 @@
     margin-bottom: 1.5rem;
 }
 
+.down-chart-container {
+    border: 2px solid #f28779;
+}
+
+.up-chart-container {
+    border: 2px solid #6ccdff;
+}
+
 @media screen and (max-aspect-ratio: 4/5) {
     .net-chart {
         width: 96vw;

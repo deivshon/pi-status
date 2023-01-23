@@ -7,6 +7,8 @@
     align-items: center;
     gap: 1rem;
     white-space: pre;
+    width: 95vw;
+    max-width: 1000px;
 }
 
 .progress {

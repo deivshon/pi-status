@@ -7,7 +7,7 @@ export default function Cpu({temp, cpuUsage}) {
         <div className="temp">
             {temp} °C
         </div>
-        <div className="bars-container w-100">
+        <div className="bars-container w-100 align-items-center">
             {
                 cpuUsage.length != 0 ?
                 <div class="core-container">
