@@ -3,7 +3,7 @@ import './Cpu.css'
 import CpuBar from './CpuBar'
 
 export default function Cpu({temp, cpuUsage}) {
-    return <div class="stats-container">
+    return <div class="stats-container cpu-stats-container">
         <div className="temp">
             {temp} °C
         </div>
