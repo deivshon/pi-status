@@ -1,12 +1,10 @@
 import React from "react";
-import { useState } from 'react'
-
-import './App.css'
+import { useState, useEffect } from 'react'
 
 import Cpu from '../cpu/Cpu'
 import Net from '../net/Net'
 
-import { useEffect } from "react";
+import './App.css'
 
 export default function App() {
     const [netSpeeds, setNetSpeeds] = useState([])
@@ -43,6 +41,7 @@ export default function App() {
         setCpuUsage(newData.cpu_usage)
     }
 
+    useEffect(changeData, [])
     useEffect(() => {
         const interval = setInterval(changeData, 1000)
         return () => clearInterval(interval)
