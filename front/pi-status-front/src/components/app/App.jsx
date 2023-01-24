@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import Cpu from '../cpu/Cpu'
 import Net from '../net/Net'
 
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './App.css'
 
 export default function App() {

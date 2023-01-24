@@ -1,20 +1,16 @@
+import NetChart from './NetChart'
 import { formatBytes } from "../../utils"
 
 import './Net.css'
 
-import {
-    AreaChart,
-    Area,
-    YAxis,
-    ResponsiveContainer
-} from "recharts";
-
-import NetChart from './NetChart'
-
 export default function Net({netSpeeds, netMax, netTotals}) {
     return <div class="stats-container">
         <div className="net-chart">
-            {netSpeeds.length != 0 ? `↓ ${formatBytes(netSpeeds[netSpeeds.length - 1].download, true)} | ${formatBytes(netTotals.download)}` : ""}
+            {netSpeeds.length != 0
+            ?
+            `↓ ${formatBytes(netSpeeds[netSpeeds.length - 1].download, true)} | ${formatBytes(netTotals.download)}`
+            :
+            ""}
             <NetChart
                 netSpeeds={netSpeeds}
                 netMax={netMax}
@@ -24,7 +20,11 @@ export default function Net({netSpeeds, netMax, netTotals}) {
             />
         </div>
         <div className="net-chart">
-            {netSpeeds.length != 0 ? `↑ ${formatBytes(netSpeeds[netSpeeds.length - 1].upload, true)} | ${formatBytes(netTotals.upload)}` : ""}
+            {netSpeeds.length != 0
+            ?
+            `↑ ${formatBytes(netSpeeds[netSpeeds.length - 1].upload, true)} | ${formatBytes(netTotals.upload)}`
+            :
+            ""}
             <NetChart
                 netSpeeds={netSpeeds}
                 netMax={netMax}

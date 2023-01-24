@@ -12,7 +12,7 @@
 }
 
 .progress {
-    background-color: #565b66;
+    background-color: #565b66 !important;
 }
 
 .bars-container {
@@ -22,6 +22,6 @@
     gap: 1vh;
 }
 
-.cpu-bar {
+.progress-bar.cpu-bar {
     background-color: #dfbfff;
 }
