@@ -8,7 +8,7 @@ use std::error::Error;
 
 use serde::Serialize;
 
-use lazy_static::{lazy_static};
+use lazy_static::lazy_static;
 
 lazy_static! {
     static ref LAST: Mutex<Vec<CpuUsage>> = Mutex::new(vec![]);

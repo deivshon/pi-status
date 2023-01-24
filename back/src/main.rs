@@ -1,17 +1,16 @@
 pub mod status;
 pub mod utils;
 
-use status::{StatusFields, Status, continous_update};
+use status::{STATUS_STR, StatusFields, continous_update};
 
 use actix_web::{web, App, HttpServer, Responder, HttpResponse};
 use actix_web::http::header::ContentType;
 use actix_files::NamedFile;
 
-use std::thread;
-use std::sync::{Arc, RwLock};
-use std::path::PathBuf;
-
 use std::error::Error;
+use std::path::PathBuf;
+use std::thread;
+
 
 async fn index() -> Result<NamedFile, Box<dyn Error>> {
     let path: PathBuf = std::fs::canonicalize("./front/pi-status-front/dist/index.html")?;
@@ -19,8 +18,8 @@ async fn index() -> Result<NamedFile, Box<dyn Error>> {
     return Ok(NamedFile::open(path)?)
 }
 
-async fn serve_data(data: web::Data<Arc<RwLock<String>>>) -> impl Responder {
-    let data_ref = data.read().unwrap();
+async fn serve_data() -> impl Responder {
+    let data_ref = STATUS_STR.read().unwrap();
 
     return HttpResponse::Ok().insert_header(ContentType::json()).body((&*data_ref).to_owned());
 }
@@ -31,29 +30,10 @@ async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
 
-    let data_str: Arc<RwLock<String>> = Arc::new(RwLock::new(String::new()));
-    // Setup the structure
-    let data = Arc::new(RwLock::new(Status {
-        temp: None,
-        net_stats: None,
-        cpu_usage: None
-    }));
-
     // Spawn status updating threads
-    let temp_ptr = Arc::clone(&data);
-    let temp_ptr_str = Arc::clone(&data_str);
-    thread::spawn(move || continous_update(temp_ptr, temp_ptr_str, StatusFields::Temp(None), 500));
-
-    let net_ptr = Arc::clone(&data);
-    let net_ptr_str = Arc::clone(&data_str);
-    thread::spawn(move || continous_update(net_ptr, net_ptr_str, StatusFields::NetStats(None), 1000));
-
-    let cpu_ptr = Arc::clone(&data);
-    let cpu_ptr_str = Arc::clone(&data_str);
-    thread::spawn(move || continous_update(cpu_ptr, cpu_ptr_str, StatusFields::CpuUsage(None), 1000));
-
-    // Encapsule structure in web::Data
-    let web_data = web::Data::new(data_str);
+    thread::spawn(move || continous_update(StatusFields::Temp(None), 500));
+    thread::spawn(move || continous_update(StatusFields::NetStats(None), 1000));
+    thread::spawn(move || continous_update(StatusFields::CpuUsage(None), 1000));
 
     // Start the server
     HttpServer::new(move || {
@@ -61,7 +41,6 @@ async fn main() -> std::io::Result<()> {
             .route("/data", web::get().to(serve_data))
             .route("/", web::get().to(index))
             .service(actix_files::Files::new("/", "./front/pi-status-front/dist/"))
-            .app_data(web_data.clone())
     })
     .bind(("0.0.0.0", 8080))?
     .run()
