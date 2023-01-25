@@ -28,6 +28,10 @@ body {
     gap: 2vw;
 }
 
+.progress {
+    background-color: #565b66 !important;
+}
+
 @media screen and (max-aspect-ratio: 4/5) {
     .stats-container {
         flex-direction: column;

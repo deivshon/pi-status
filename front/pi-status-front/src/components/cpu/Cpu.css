@@ -11,10 +11,6 @@
     max-width: 1000px;
 }
 
-.progress {
-    background-color: #565b66 !important;
-}
-
 .bars-container {
     display: flex;
     flex-direction: column;

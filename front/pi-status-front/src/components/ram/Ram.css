@@ -1,4 +1,3 @@
-.ram-container {
-    height: 50vh;
-    width: 50vw;
+.progress-bar.ram-bar {
+    background-color: #95e6cb;
 }
