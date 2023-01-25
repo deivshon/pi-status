@@ -56,25 +56,18 @@ export default function App() {
     return (
         <div>
             <ul class="nav nav-pills mb-3 flex flex-wrap justify-content-center" id="pills-tab" role="tablist">
-                <li class="nav-item fs-6 net-pill" role="presentation">
-                    <button class="nav-link active" id="pills-net-tab" data-bs-toggle="pill" data-bs-target="#pills-net" type="button" role="tab">Net</button>
-                </li>
                 <li class="nav-item fs-6 cpu-pill" role="presentation">
-                    <button class="nav-link" id="pills-cpu-tab" data-bs-toggle="pill" data-bs-target="#pills-cpu" type="button" role="tab">CPU</button>
+                    <button class="nav-link active" id="pills-cpu-tab" data-bs-toggle="pill" data-bs-target="#pills-cpu" type="button" role="tab">CPU</button>
                 </li>
                 <li class="nav-item fs-6 ram-pill" role="presentation">
                     <button class="nav-link" id="pills-ram-tab" data-bs-toggle="pill" data-bs-target="#pills-ram" type="button" role="tab">RAM</button>
                 </li>
+                <li class="nav-item fs-6 net-pill" role="presentation">
+                    <button class="nav-link" id="pills-net-tab" data-bs-toggle="pill" data-bs-target="#pills-net" type="button" role="tab">Net</button>
+                </li>
             </ul>
             <div class="tab-content w-100" id="pills-tabContent">
-                <div class="tab-pane fade show active w-100" id="pills-net" role="tabpanel" aria-labelledby="pills-net-tab">
-                    <Net
-                        netSpeeds={netSpeeds}
-                        netMax={netMax}
-                        netTotals={netTotals}
-                    />
-                </div>
-                <div class="tab-pane fade w-100" id="pills-cpu" role="tabpanel">
+                <div class="tab-pane fade w-100 show active" id="pills-cpu" role="tabpanel">
                     <Cpu
                         temp={temp}
                         cpuUsage={cpuUsage}
@@ -83,6 +76,13 @@ export default function App() {
                 <div class="tab-pane fade w-100" id="pills-ram" role="tabpanel">
                     <Ram
                         ramUsage={ramData}
+                    />
+                </div>
+                <div class="tab-pane fade w-100" id="pills-net" role="tabpanel" aria-labelledby="pills-net-tab">
+                    <Net
+                        netSpeeds={netSpeeds}
+                        netMax={netMax}
+                        netTotals={netTotals}
                     />
                 </div>
             </div>
