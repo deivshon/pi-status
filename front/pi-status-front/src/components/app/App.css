@@ -35,6 +35,16 @@ body {
     color: #0b0e14;
 }
 
+.nav-pills .ram-pill .nav-link:not(.active) {
+    background-color: #0b0e14;
+    color: #95e6cb;
+}
+
+.nav-pills .ram-pill .nav-link {
+    background-color: #95e6cb;
+    color: #0b0e14;
+}
+
 .tab-pane {
     margin: 0;
     padding: 0 2vw;

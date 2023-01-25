@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 
 import Cpu from '../cpu/Cpu'
 import Net from '../net/Net'
+import Ram from '../ram/Ram'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
@@ -12,6 +13,7 @@ export default function App() {
     const [netSpeeds, setNetSpeeds] = useState([])
     const [netTotals, setNetTotals] = useState({})
     const [netMax, setNetMax] = useState(0)
+    const [ramData, setRamData] = useState({})
 
     const [temp, setTemp] = useState(0)
     const [cpuUsage, setCpuUsage] = useState([])
@@ -41,6 +43,8 @@ export default function App() {
         setTemp(Math.round(newData.temp))
 
         setCpuUsage(newData.cpu_usage)
+
+        setRamData(newData.ram)
     }
 
     useEffect(changeData, [])
@@ -58,6 +62,9 @@ export default function App() {
                 <li class="nav-item fs-6 cpu-pill" role="presentation">
                     <button class="nav-link" id="pills-cpu-tab" data-bs-toggle="pill" data-bs-target="#pills-cpu" type="button" role="tab">CPU</button>
                 </li>
+                <li class="nav-item fs-6 ram-pill" role="presentation">
+                    <button class="nav-link" id="pills-ram-tab" data-bs-toggle="pill" data-bs-target="#pills-ram" type="button" role="tab">RAM</button>
+                </li>
             </ul>
             <div class="tab-content w-100" id="pills-tabContent">
                 <div class="tab-pane fade show active w-100" id="pills-net" role="tabpanel" aria-labelledby="pills-net-tab">
@@ -71,6 +78,11 @@ export default function App() {
                     <Cpu
                         temp={temp}
                         cpuUsage={cpuUsage}
+                    />
+                </div>
+                <div class="tab-pane fade w-100" id="pills-ram" role="tabpanel">
+                    <Ram
+                        ramUsage={ramData}
                     />
                 </div>
             </div>
