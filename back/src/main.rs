@@ -31,9 +31,10 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     // Spawn status updating threads
-    thread::spawn(move || continous_update(StatusFields::Temp(None), 500));
+    thread::spawn(move || continous_update(StatusFields::Temp(None), 1000));
     thread::spawn(move || continous_update(StatusFields::NetStats(None), 1000));
     thread::spawn(move || continous_update(StatusFields::CpuUsage(None), 1000));
+    thread::spawn(move || continous_update(StatusFields::Ram(None), 1000));
 
     // Start the server
     HttpServer::new(move || {
