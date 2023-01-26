@@ -2,6 +2,7 @@ pub mod temp;
 pub mod net;
 pub mod cpu;
 pub mod ram;
+pub mod proc;
 
 use std::thread;
 use std::sync::RwLock;
@@ -18,7 +19,8 @@ lazy_static! {
         temp: None,
         net_stats: None,
         cpu_usage: None,
-        ram: None
+        ram: None,
+        proc: None
     });
     pub static ref STATUS_STR: RwLock<String> = RwLock::new(String::new());
 }
@@ -28,14 +30,16 @@ pub struct Status {
     pub temp: Option<f32>,
     pub net_stats: Option<net::NetStats>,
     pub cpu_usage: Option<Vec<cpu::CpuUsage>>,
-    pub ram: Option<ram::Ram>
+    pub ram: Option<ram::Ram>,
+    pub proc: Option<Vec<proc::Process>>
 }
 
 pub enum StatusFields {
     Temp(Option<f32>),
     NetStats(Option<net::NetStats>),
     CpuUsage(Option<Vec<cpu::CpuUsage>>),
-    Ram(Option<ram::Ram>)
+    Ram(Option<ram::Ram>),
+    Proc(Option<Vec<proc::Process>>)
 }
 
 pub fn continous_update(field: StatusFields, ms: u64) {
@@ -48,7 +52,8 @@ pub fn continous_update(field: StatusFields, ms: u64) {
                 data = net::get(&status_ref.net_stats);
             },
             StatusFields::CpuUsage(_) => data = cpu::get(),
-            StatusFields::Ram(_) => data = ram::get()
+            StatusFields::Ram(_) => data = ram::get(),
+            StatusFields::Proc(_) => data = proc::get()
         }
 
         {
@@ -57,7 +62,8 @@ pub fn continous_update(field: StatusFields, ms: u64) {
                 StatusFields::Temp(t) => status_ref.temp = t,
                 StatusFields::NetStats(n) => status_ref.net_stats = n,
                 StatusFields::CpuUsage(u) => status_ref.cpu_usage = u,
-                StatusFields::Ram(r) => status_ref.ram = r
+                StatusFields::Ram(r) => status_ref.ram = r,
+                StatusFields::Proc(p) => status_ref.proc = p
             };
         }
 
