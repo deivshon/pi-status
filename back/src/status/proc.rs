@@ -5,7 +5,8 @@ use std::io;
 use std::error::Error;
 use std::fmt;
 
-use regex;
+use regex::Regex;
+use lazy_static::lazy_static;
 
 use serde::Serialize;
 
@@ -20,12 +21,24 @@ impl fmt::Display for NotPidDir {
     }
 }
 
+lazy_static! {
+    // Matches /proc/pid directories
+    static ref PROC_PID_RE: Regex = Regex::new(r"/proc/[0-9]+$").unwrap();
+
+    // Captures values of interest in the /proc/pid/status file
+    static ref PROC_VALUE_RE: Regex = Regex::new(
+        r"Name:\s*(.*)|[A-Za-z]*:\s*([0-9]*[^\sa-zA-Z])"
+    ).unwrap();
+}
+
 const PROC_DIR: &str = "/proc/";
 
-const NAME: usize = 1;
-const PID: usize = 2;
-const MEM: usize = 3;
-const THREADS: usize = 4;
+const NAME: &str = "Name";
+const PID: &str = "Pid";
+const MEM: &str = "VmRSS";
+const THREADS: &str = "Threads";
+
+const FIELDS: &[&str] = &[NAME, PID, MEM, THREADS];
 
 #[derive(Serialize)]
 pub struct Process {
@@ -37,7 +50,6 @@ pub struct Process {
 
 fn validate_pid_dir(dir: io::Result<fs::DirEntry>) -> Result<fs::DirEntry, Box<dyn Error>> {
     let valid_dir = dir?;
-    let pid_regex = regex::Regex::new(r"/proc/[0-9]+$").unwrap();
 
     let dir_name: String;
     match valid_dir.path().into_os_string().into_string() {
@@ -45,14 +57,14 @@ fn validate_pid_dir(dir: io::Result<fs::DirEntry>) -> Result<fs::DirEntry, Box<d
         Err(_) => return Err(Box::new(NotPidDir))
     }
 
-    if !pid_regex.is_match(&dir_name) {
+    if !PROC_PID_RE.is_match(&dir_name) {
         return Err(Box::new(NotPidDir));
     }
 
     return Ok(valid_dir)
 }
 
-fn get_proc_data(proc_captures: regex::Captures) -> Option<Process> {
+fn get_proc_data(proc_captures: String) -> Option<Process> {
     let mut res: Process = Process {
         pid: 0,
         name: String::from(""),
@@ -60,38 +72,52 @@ fn get_proc_data(proc_captures: regex::Captures) -> Option<Process> {
         threads: 0
     };
 
-    if let Some(name) = proc_captures.get(NAME) {
-        res.name = String::from(name.as_str());
-    } else {return None}
-    
-    if let Some(pid) = proc_captures.get(PID) {
-        if let Ok(pid_num) = pid.as_str().parse::<u64>() {
-            res.pid = pid_num;
-        } else {return None}
-    } else {return None}
-    
-    if let Some(mem) = proc_captures.get(MEM) {
-        if let Ok(mem_num) = mem.as_str().parse::<u64>() {
-            res.mem = mem_num;
-        } else {return None}
-    } else {return None}
-    
-    if let Some(threads) = proc_captures.get(THREADS) {
-        if let Ok(threads_num) = threads.as_str().parse::<u16>() {
-            res.threads = threads_num;
-        } else {return None}
-    } else {return None}
+    let mut capture: regex::Captures;
+    for line in proc_captures.lines() {
+        let line_split = line.split(":").collect::<Vec<&str>>();
+        if line_split.len() < 2 {continue}
+        if !FIELDS.contains(&line_split[0]) {continue}
+        if let Some(c) = PROC_VALUE_RE.captures(line) {
+            capture = c;
+        } else {
+            println!("Does not match {}", line);
+            continue;
+        }
 
-    return Some(res)
+        // Handle numeric values
+        if let Some(n) = capture.get(2) {
+            let value;
+            if let Ok(v) = n.as_str().parse::<u64>() {
+                value = v;
+            } else {continue}
+
+            match line_split[0] {
+                PID => res.pid = value,
+                MEM => res.mem = value,
+                THREADS => res.threads = value as u16,
+                _ => continue
+            }
+        }
+        // Handle name
+        else if let Some(n) = capture.get(1) {
+            res.name = String::from(n.as_str());
+        }
+
+    }
+
+    if res.pid != 0 {
+        return Some(res)
+    } else {
+        return None
+    }
 }
 
 fn get_procs() -> Result<Vec<Process>, Box<dyn Error>> {
     let mut procs: Vec<Process> = vec![];
     let files = fs::read_dir(PROC_DIR)?;
 
-    let proc_regex = regex::Regex::new(r"(?m)Name:\t *(.*)\n(?:.|\n)*?^Pid:\t *(.*)\n(?:.|\n)*?^VmRSS:\t *(.*) (?:.|\n)*?^Threads:\t *(.*)").unwrap();
     for pid in files {
-        let mut pid_dir: String = String::new();
+        let pid_dir: String;
 
         match validate_pid_dir(pid) {
             Ok(d) =>
@@ -106,16 +132,12 @@ fn get_procs() -> Result<Vec<Process>, Box<dyn Error>> {
             proc_status = content;
         } else {continue}
 
-        match proc_regex.captures(&proc_status) {
-            Some(c) => {
-                if let Some(p) = get_proc_data(c) {
-                    procs.push(p);
-                }
-            },
-            None => continue
+        if let Some(p) = get_proc_data(proc_status) {
+            procs.push(p);
         }
 
     }
+
     return Ok(procs)
 }
 
