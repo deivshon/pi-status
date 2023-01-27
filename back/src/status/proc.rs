@@ -80,7 +80,6 @@ fn get_proc_data(proc_captures: String) -> Option<Process> {
         if let Some(c) = PROC_VALUE_RE.captures(line) {
             capture = c;
         } else {
-            println!("Does not match {}", line);
             continue;
         }
 
