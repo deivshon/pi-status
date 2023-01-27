@@ -27,18 +27,16 @@ lazy_static! {
 
     // Captures values of interest in the /proc/pid/status file
     static ref PROC_VALUE_RE: Regex = Regex::new(
-        r"Name:\s*(.*)|[A-Za-z]*:\s*([0-9]*[^\sa-zA-Z])"
+        r"(?m)Name:\t *(.*)|^Pid:\t *(.*)|VmRSS:\t *(.*) |Threads:\t *(.*)"
     ).unwrap();
 }
 
 const PROC_DIR: &str = "/proc/";
 
-const NAME: &str = "Name";
-const PID: &str = "Pid";
-const MEM: &str = "VmRSS";
-const THREADS: &str = "Threads";
-
-const FIELDS: &[&str] = &[NAME, PID, MEM, THREADS];
+const NAME: usize =  1;
+const PID: usize = 2;
+const MEM: usize = 3;
+const THREADS: usize = 4;
 
 #[derive(Serialize)]
 pub struct Process {
@@ -72,36 +70,34 @@ fn get_proc_data(proc_captures: String) -> Option<Process> {
         threads: 0
     };
 
-    let mut capture: regex::Captures;
-    for line in proc_captures.lines() {
-        let line_split = line.split(":").collect::<Vec<&str>>();
-        if line_split.len() < 2 {continue}
-        if !FIELDS.contains(&line_split[0]) {continue}
-        if let Some(c) = PROC_VALUE_RE.captures(line) {
-            capture = c;
-        } else {
+    let captures: regex::CaptureMatches = PROC_VALUE_RE.captures_iter(&proc_captures);
+
+    for c in captures {
+        if let Some(n) = c.get(NAME) {
+            res.name = n.as_str().to_string();
             continue;
         }
 
-        // Handle numeric values
-        if let Some(n) = capture.get(2) {
-            let value;
-            if let Ok(v) = n.as_str().parse::<u64>() {
-                value = v;
-            } else {continue}
-
-            match line_split[0] {
-                PID => res.pid = value,
-                MEM => res.mem = value * 1024,
-                THREADS => res.threads = value as u16,
-                _ => continue
+        if let Some(p) = c.get(PID) {
+            if let Ok(pid) = p.as_str().parse::<u64>() {
+                res.pid = pid;
             }
-        }
-        // Handle name
-        else if let Some(n) = capture.get(1) {
-            res.name = String::from(n.as_str());
+            continue;
         }
 
+        if let Some(m) = c.get(MEM) {
+            if let Ok(mem) = m.as_str().parse::<u64>() {
+                res.mem = mem * 1024;
+            }
+            continue;
+        }
+
+        if let Some(t) = c.get(THREADS) {
+            if let Ok(threads) = t.as_str().parse::<u16>() {
+                res.threads = threads;
+            }
+            continue;
+        }
     }
 
     if res.pid != 0 {
@@ -120,9 +116,9 @@ fn get_procs() -> Result<Vec<Process>, Box<dyn Error>> {
 
         match validate_pid_dir(pid) {
             Ok(d) =>
-                if let Some(dir_str) = d.path().to_str() {
-                    pid_dir = dir_str.to_string();
-                } else {continue},
+            if let Some(dir_str) = d.path().to_str() {
+                pid_dir = dir_str.to_string();
+            } else {continue},
             Err(_) => continue
         }
 
@@ -134,7 +130,6 @@ fn get_procs() -> Result<Vec<Process>, Box<dyn Error>> {
         if let Some(p) = get_proc_data(proc_status) {
             procs.push(p);
         }
-
     }
 
     return Ok(procs)
