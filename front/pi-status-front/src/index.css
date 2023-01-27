@@ -33,6 +33,10 @@ body {
 }
 
 @media screen and (max-aspect-ratio: 4/5) {
+    body {
+        overflow: hidden;
+    }
+
     .stats-container {
         flex-direction: column;
     }
