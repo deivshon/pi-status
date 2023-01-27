@@ -27,7 +27,7 @@ lazy_static! {
 
     // Captures values of interest in the /proc/pid/status file
     static ref PROC_VALUE_RE: Regex = Regex::new(
-        r"(?m)^Name:\t *(.*)|^Pid:\t *(.*)|^VmRSS:\t *(.*) |^Threads:\t *(.*)"
+        r"(?m)^(?:Name:\t *(.*)|Pid:\t *(.*)|VmRSS:\t *(.*) |Threads:\t *(.*))"
     ).unwrap();
 }
 
