@@ -92,7 +92,7 @@ fn get_proc_data(proc_captures: String) -> Option<Process> {
 
             match line_split[0] {
                 PID => res.pid = value,
-                MEM => res.mem = value,
+                MEM => res.mem = value * 1024,
                 THREADS => res.threads = value as u16,
                 _ => continue
             }
