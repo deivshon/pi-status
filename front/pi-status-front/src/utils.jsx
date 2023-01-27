@@ -7,5 +7,5 @@ export const formatBytes = (bytes, isSpeed = false) => {
         i++
     }
 
-    return `${bytes.toFixed(2)} ${prefixes[i]}${isSpeed ? "/s" : ""}`
+    return `${bytes.toFixed(i != 0 ? 2 : 0)} ${prefixes[i]}${isSpeed ? "/s" : ""}`
 }

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Cpu from '../cpu/Cpu'
 import Net from '../net/Net'
 import Ram from '../ram/Ram'
+import Proc from '../procs/Procs'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
@@ -14,6 +15,7 @@ export default function App() {
     const [netTotals, setNetTotals] = useState({})
     const [netMax, setNetMax] = useState(0)
     const [ramData, setRamData] = useState({})
+    const [processes, setProcesses] = useState([])
 
     const [temp, setTemp] = useState(0)
     const [cpuUsage, setCpuUsage] = useState([])
@@ -45,6 +47,9 @@ export default function App() {
         setCpuUsage(newData.cpu_usage)
 
         setRamData(newData.ram)
+
+        newData.proc.sort((p1, p2) => p1.mem - p2.mem)
+        setProcesses(newData.proc.reverse())
     }
 
     useEffect(changeData, [])
@@ -65,6 +70,9 @@ export default function App() {
                 <li class="nav-item fs-6 net-pill" role="presentation">
                     <button class="nav-link" id="pills-net-tab" data-bs-toggle="pill" data-bs-target="#pills-net" type="button" role="tab">Net</button>
                 </li>
+                <li class="nav-item fs-6 proc-pill" role="presentation">
+                    <button class="nav-link" id="pills-proc-tab" data-bs-toggle="pill" data-bs-target="#pills-proc" type="button" role="tab">Ps</button>
+                </li>
             </ul>
             <div class="tab-content w-100" id="pills-tabContent">
                 <div class="tab-pane fade w-100 show active" id="pills-cpu" role="tabpanel">
@@ -83,6 +91,11 @@ export default function App() {
                         netSpeeds={netSpeeds}
                         netMax={netMax}
                         netTotals={netTotals}
+                    />
+                </div>
+                <div class="tab-pane fade w-100" id="pills-proc" role="tabpanel">
+                    <Proc
+                        procs={processes}
                     />
                 </div>
             </div>

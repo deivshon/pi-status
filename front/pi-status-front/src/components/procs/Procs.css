@@ -1,0 +1,45 @@
+.proc-container {
+    border: 2px solid #eeba45;
+    height: 60vh;
+    overflow: scroll;
+    overflow-wrap: anywhere;
+}
+
+.proc-col {
+    text-align: left;
+    margin: 0 2px;
+}
+
+.col-content {
+    min-height: 4vh;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.pid-col {
+    width: 25%;
+}
+
+.name-col {
+    width: 40%;
+}
+
+.memory-col {
+    width: 20%;
+}
+
+.threads-col {
+    width: 15%;
+    text-align: right;
+}
+
+@media screen and (max-aspect-ratio: 4/5) {
+    .proc-col {
+        font-size: small;
+        font-weight: bold;
+    }
+
+    .col-content {
+        min-height: 2vh;
+    }
+}

@@ -45,6 +45,16 @@ body {
     color: #0b0e14;
 }
 
+.nav-pills .proc-pill .nav-link:not(.active) {
+    background-color: #0b0e14;
+    color: #eeba45;
+}
+
+.nav-pills .proc-pill .nav-link {
+    background-color: #eeba45;
+    color: #0b0e14;
+}
+
 .tab-pane {
     margin: 0;
     padding: 0 2vw;
