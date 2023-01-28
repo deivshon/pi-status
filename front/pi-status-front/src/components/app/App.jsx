@@ -11,18 +11,37 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './App.css'
 
 export default function App() {
+    const [hostname, setHostname] = useState("")
+    const [uptime, setUptime] = useState("")
+
+    const [temp, setTemp] = useState(0)
+
     const [netSpeeds, setNetSpeeds] = useState([])
     const [netTotals, setNetTotals] = useState({})
     const [netMax, setNetMax] = useState(0)
-    const [ramData, setRamData] = useState({})
-    const [processes, setProcesses] = useState([])
 
-    const [temp, setTemp] = useState(0)
     const [cpuUsage, setCpuUsage] = useState([])
+
+    const [ramData, setRamData] = useState({})
+
+    const [processes, setProcesses] = useState([])
 
     const changeData = async () => {
         let newData = await (await fetch("/data")).json()
         if (netSpeeds.length > 30) netSpeeds.shift()
+        
+        if(newData.host) {
+            setHostname(newData.host.name)
+
+            let uptime = newData.host.uptime
+            if(uptime) {
+                if(uptime < 3600) {
+                    setUptime(`${(uptime / 60).toFixed(0)} min`)
+                } else {
+                    setUptime(`${(uptime / 3600).toFixed(0)} hours`)
+                }
+            }
+        }
 
         setNetSpeeds([
             ...netSpeeds,
@@ -60,6 +79,10 @@ export default function App() {
 
     return (
         <div>
+            <div class="host-bar">
+                <div>{hostname}</div>
+                <div>Up {uptime}</div>
+            </div>
             <ul class="nav nav-pills mb-3 flex flex-wrap justify-content-center" id="pills-tab" role="tablist">
                 <li class="nav-item fs-6 cpu-pill" role="presentation">
                     <button class="nav-link active" id="pills-cpu-tab" data-bs-toggle="pill" data-bs-target="#pills-cpu" type="button" role="tab">CPU</button>

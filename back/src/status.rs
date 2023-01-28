@@ -3,6 +3,7 @@ pub mod net;
 pub mod cpu;
 pub mod ram;
 pub mod proc;
+pub mod host;
 
 use std::thread;
 use std::sync::{RwLock, Barrier};
@@ -19,6 +20,7 @@ pub static PROC_AND_CPU: AtomicBool = AtomicBool::new(false);
 // use static instead of Arcs
 lazy_static! {
     pub static ref STATUS: RwLock<Status> = RwLock::new(Status {
+        host: None,
         temp: None,
         net_stats: None,
         cpu_usage: None,
@@ -31,6 +33,7 @@ lazy_static! {
 
 #[derive(Serialize)]
 pub struct Status {
+    pub host: Option<host::Host>,
     pub temp: Option<f32>,
     pub net_stats: Option<net::NetStats>,
     pub cpu_usage: Option<Vec<cpu::CpuUsage>>,
@@ -39,6 +42,7 @@ pub struct Status {
 }
 
 pub enum StatusFields {
+    Host(Option<host::Host>),
     Temp(Option<f32>),
     NetStats(Option<net::NetStats>),
     CpuUsage(Option<Vec<cpu::CpuUsage>>),
@@ -50,6 +54,7 @@ pub fn continous_update(field: StatusFields, ms: u64) {
     loop {
         let data: StatusFields;
         match &field {
+            StatusFields::Host(_) => data = host::get(),
             StatusFields::Temp(_) => data = temp::get(),
             StatusFields::NetStats(_) => {
                 let status_ref = STATUS.read().unwrap();
@@ -63,6 +68,7 @@ pub fn continous_update(field: StatusFields, ms: u64) {
         {
             let mut status_ref = STATUS.write().unwrap();
             match data {
+                StatusFields::Host(h) => status_ref.host = h,
                 StatusFields::Temp(t) => status_ref.temp = t,
                 StatusFields::NetStats(n) => status_ref.net_stats = n,
                 StatusFields::CpuUsage(u) => status_ref.cpu_usage = u,

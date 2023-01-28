@@ -34,6 +34,7 @@ async fn main() -> std::io::Result<()> {
     PROC_AND_CPU.store(true, Ordering::Relaxed);
 
     // Spawn status updating threads
+    thread::spawn(move || continous_update(StatusFields::Host(None), 5000));
     thread::spawn(move || continous_update(StatusFields::Temp(None), 1000));
     thread::spawn(move || continous_update(StatusFields::NetStats(None), 1000));
     thread::spawn(move || continous_update(StatusFields::CpuUsage(None), 1000));

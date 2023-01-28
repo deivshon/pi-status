@@ -11,8 +11,15 @@ body {
 
 }
 
-.nav {
-    padding: 2vw;
+.host-bar {
+    padding: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.nav-pills {
+    padding: 0 0.5rem;
+    justify-content: space-between !important;
 }
 
 .nav-pills .net-pill .nav-link:not(.active) {
@@ -58,4 +65,10 @@ body {
 .tab-pane {
     margin: 0;
     padding: 0 2vw;
+}
+
+@media screen and (min-aspect-ratio: 4/5) {
+    .nav-pills {
+        justify-content: center !important;
+    }
 }
