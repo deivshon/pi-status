@@ -16,7 +16,14 @@ const bytePrefixes = [
     "PiB"
 ]
 
-export const formatBytes = (bytes, isSpeed = false, short = false, roundTreshold = 1025) => {
+export const formatBytes = (bytes, {
+    isSpeed = false,
+    short = false,
+    roundTreshold = 1025,
+    absoluteRoundTreshold = 0
+}) => {
+    let roundAbsolute = bytes > absoluteRoundTreshold
+
     let i = 0
 
     while (bytes > 1024 && i < bytePrefixes.length - 1) {
@@ -24,5 +31,5 @@ export const formatBytes = (bytes, isSpeed = false, short = false, roundTreshold
         i++
     }
 
-    return `${bytes.toFixed(i != 0 && bytes < roundTreshold ? 2 : 0)} ${short ? shortBytePrefixes[i] : bytePrefixes[i]}${isSpeed ? "/s" : ""}`
+    return `${bytes.toFixed(i != 0 && bytes < roundTreshold && roundAbsolute ? 2 : 0)} ${short ? shortBytePrefixes[i] : bytePrefixes[i]}${isSpeed ? "/s" : ""}`
 }

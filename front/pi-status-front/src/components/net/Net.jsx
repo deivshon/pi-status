@@ -8,7 +8,7 @@ export default function Net({netSpeeds, netMax, netTotals}) {
         <div className="net-chart">
             {netSpeeds.length != 0
             ?
-            `↓ ${formatBytes(netSpeeds[netSpeeds.length - 1].download, true)} | ${formatBytes(netTotals.download)}`
+            `↓ ${formatBytes(netSpeeds[netSpeeds.length - 1].download, {speed: true})} | ${formatBytes(netTotals.download, {})}`
             :
             ""}
             <NetChart
@@ -22,7 +22,7 @@ export default function Net({netSpeeds, netMax, netTotals}) {
         <div className="net-chart">
             {netSpeeds.length != 0
             ?
-            `↑ ${formatBytes(netSpeeds[netSpeeds.length - 1].upload, true)} | ${formatBytes(netTotals.upload)}`
+            `↑ ${formatBytes(netSpeeds[netSpeeds.length - 1].upload, {speed: true})} | ${formatBytes(netTotals.upload, {})}`
             :
             ""}
             <NetChart

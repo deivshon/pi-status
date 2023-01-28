@@ -6,7 +6,7 @@ import RamStat from './RamStat'
 export default function Ram({ramUsage}) {
     return <div class="stats-container flex-column align-items-center w-100">
             <div>
-                {ramUsage.total ? formatBytes(ramUsage.total) : 0}
+                {ramUsage.total ? formatBytes(ramUsage.total, {}) : 0}
             </div>
             <div></div>
             <div className="w-100 d-flex flex-column align-items-center">

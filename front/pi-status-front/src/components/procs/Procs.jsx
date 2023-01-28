@@ -19,7 +19,7 @@ export default function Procs({procs}) {
             <div class="memory-col proc-col d-flex flex-column">
                 <div className="col-content">Mem</div>
                 <div></div>
-                {procs.map(p => <div className="col-content">{formatBytes(p.mem, false, true, 10)}</div>)}
+                {procs.map(p => <div className="col-content">{formatBytes(p.mem, {short: true, roundTreshold: 10, absoluteRoundTreshold: 1024 ** 3})}</div>)}
             </div>
             <div class="threads-col proc-col d-flex flex-column">
                 <div className="col-content">Threads</div>
