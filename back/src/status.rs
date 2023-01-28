@@ -5,12 +5,15 @@ pub mod ram;
 pub mod proc;
 
 use std::thread;
-use std::sync::RwLock;
+use std::sync::{RwLock, Barrier};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time;
 
 use serde::Serialize;
 
 use lazy_static::lazy_static;
+
+pub static PROC_AND_CPU: AtomicBool = AtomicBool::new(false);
 
 // Since the status data is going to live for the whole execution anyways,
 // use static instead of Arcs
@@ -23,6 +26,7 @@ lazy_static! {
         proc: None
     });
     pub static ref STATUS_STR: RwLock<String> = RwLock::new(String::new());
+    pub static ref PROC_CPU_SYNC: Barrier = Barrier::new(2);
 }
 
 #[derive(Serialize)]
@@ -61,11 +65,29 @@ pub fn continous_update(field: StatusFields, ms: u64) {
             match data {
                 StatusFields::Temp(t) => status_ref.temp = t,
                 StatusFields::NetStats(n) => status_ref.net_stats = n,
-                StatusFields::CpuUsage(u) => status_ref.cpu_usage = u,
+                StatusFields::CpuUsage(u) => {
+                    status_ref.cpu_usage = u;
+                    println!("Set CPU!");
+                },
                 StatusFields::Ram(r) => status_ref.ram = r,
-                StatusFields::Proc(p) => status_ref.proc = p
+                StatusFields::Proc(p) => {
+                    status_ref.proc = p;
+                    println!("Set proc!");
+                }
             };
         }
+
+
+        // Make sure CPU and processes data does not go out of sync
+        match &field {
+            StatusFields::CpuUsage(_) | StatusFields::Proc(_) => {
+                if PROC_AND_CPU.load(Ordering::Relaxed) {
+                    PROC_CPU_SYNC.wait();
+                }
+            },
+            _ => ()
+        }
+
 
         {
             let status_ref = STATUS.read().unwrap();

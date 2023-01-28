@@ -1,7 +1,7 @@
 pub mod status;
 pub mod utils;
 
-use status::{STATUS_STR, StatusFields, continous_update};
+use status::{STATUS_STR, PROC_AND_CPU, StatusFields, continous_update};
 
 use actix_web::{web, App, HttpServer, Responder, HttpResponse};
 use actix_web::http::header::ContentType;
@@ -10,6 +10,7 @@ use actix_files::NamedFile;
 use std::error::Error;
 use std::path::PathBuf;
 use std::thread;
+use std::sync::atomic::Ordering;
 
 
 async fn index() -> Result<NamedFile, Box<dyn Error>> {
@@ -29,6 +30,8 @@ async fn main() -> std::io::Result<()> {
     // Initialize the logger
     std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
+
+    PROC_AND_CPU.store(true, Ordering::Relaxed);
 
     // Spawn status updating threads
     thread::spawn(move || continous_update(StatusFields::Temp(None), 1000));
