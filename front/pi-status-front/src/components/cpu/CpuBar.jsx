@@ -7,7 +7,13 @@ export default function Cpu({coreUsage}) {
     const [usage, setUsage] = useState(0)
 
     useEffect(() => {
-        let total = Object.values(coreUsage).reduce((a, b) => a + b);
+        let total = coreUsage.user +
+                    coreUsage.system +
+                    coreUsage.irq +
+                    coreUsage.softirq +
+                    coreUsage.idle +
+                    coreUsage.iowait;
+
         let idle = coreUsage.idle + coreUsage.iowait
 
         setUsage(((total - idle) / total) * 100)
