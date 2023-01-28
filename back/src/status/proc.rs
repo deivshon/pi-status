@@ -24,26 +24,25 @@ impl fmt::Display for NotPidDir {
 lazy_static! {
     // Matches /proc/pid directories
     static ref PROC_PID_RE: Regex = Regex::new(r"/proc/[0-9]+$").unwrap();
-
-    // Captures values of interest in the /proc/pid/status file
-    static ref PROC_VALUE_RE: Regex = Regex::new(
-        r"(?m)^(?:Name:\t *(.*)|Pid:\t *(.*)|VmRSS:\t *(.*) |Threads:\t *(.*))"
-    ).unwrap();
 }
 
 const PROC_DIR: &str = "/proc/";
 
-const NAME: usize =  1;
-const PID: usize = 2;
-const MEM: usize = 3;
-const THREADS: usize = 4;
+const STATE_OFFSET: usize = 2;
+
+const PID: usize = 0;
+
+const THREADS: usize = 19 - STATE_OFFSET;
+const USER_TIME: usize = 13 - STATE_OFFSET;
+const SYSTEM_TIME: usize = 14 - STATE_OFFSET;
 
 #[derive(Serialize)]
 pub struct Process {
     pid: u64,
     name: String,
     mem: u64,
-    threads: u16
+    threads: u16,
+    cpu_usage: u64
 }
 
 fn validate_pid_dir(dir: io::Result<fs::DirEntry>) -> Result<fs::DirEntry, Box<dyn Error>> {
@@ -62,49 +61,69 @@ fn validate_pid_dir(dir: io::Result<fs::DirEntry>) -> Result<fs::DirEntry, Box<d
     return Ok(valid_dir)
 }
 
-fn get_proc_data(proc_captures: String) -> Option<Process> {
+fn get_proc_data(status: String, stat: String) -> Option<Process> {
     let mut res: Process = Process {
         pid: 0,
-        name: String::from(""),
+        name: String::new(),
         mem: 0,
-        threads: 0
+        threads: 0,
+        cpu_usage: 0
     };
 
-    let captures: regex::CaptureMatches = PROC_VALUE_RE.captures_iter(&proc_captures);
+    // Parse name
+    if let Some(name_line) = status.lines().nth(0) {
+        res.name = name_line.split_whitespace().collect::<Vec<&str>>().drain(1..).collect::<Vec<&str>>().join(" ");
+    }
 
-    for c in captures {
-        if let Some(n) = c.get(NAME) {
-            res.name = n.as_str().to_string();
-            continue;
-        }
+    // Parse mem
+    for l in status.lines() {
+        if !l.starts_with("VmRSS:") {continue}
 
-        if let Some(p) = c.get(PID) {
-            if let Ok(pid) = p.as_str().parse::<u64>() {
-                res.pid = pid;
-            }
-            continue;
-        }
-
-        if let Some(m) = c.get(MEM) {
-            if let Ok(mem) = m.as_str().parse::<u64>() {
+        if let Some(mem_str) = l.split_whitespace().nth(1) {
+            if let Ok(mem) = mem_str.parse::<u64>() {
                 res.mem = mem * 1024;
-            }
-            continue;
-        }
-
-        if let Some(t) = c.get(THREADS) {
-            if let Ok(threads) = t.as_str().parse::<u16>() {
-                res.threads = threads;
-            }
-            continue;
+            } else {return None}
+            break;
         }
     }
 
-    if res.pid != 0 {
-        return Some(res)
-    } else {
-        return None
+    let split_stat = stat.split_whitespace().collect::<Vec<&str>>();
+
+    // Parse pid
+    if let Ok(pid) = split_stat[PID].parse::<u64>() {
+        res.pid = pid;
+    } else {return None}
+    
+    // Second field is not the name, can't go on with parsing
+    if !split_stat[1].starts_with("(") {return None}
+
+    // State index will be used to correctly index the rest of the field,
+    // since whitespaces in names mess with indexes
+    let mut state_index: usize = 2;
+    if !split_stat[1].ends_with(")") {
+        // Name has spaces, find end and set state index accordingly
+        while !split_stat[state_index].ends_with(")") {
+            state_index += 1;
+        }
+        state_index += 1;
     }
+    
+    // Parse threads
+    if let Ok(threads) = split_stat[THREADS + state_index].parse::<u16>() {
+        res.threads = threads;
+    } else {return None}
+
+    // Parse CPU usage
+    if let (Ok(user), Ok(sys)) =
+           (split_stat[USER_TIME + state_index].parse::<u64>(),
+            split_stat[SYSTEM_TIME + state_index].parse::<u64>(),
+           )
+    {
+        res.cpu_usage = user + sys;
+    }
+    else {return None}
+
+    return Some(res)
 }
 
 fn get_procs() -> Result<Vec<Process>, Box<dyn Error>> {
@@ -123,11 +142,16 @@ fn get_procs() -> Result<Vec<Process>, Box<dyn Error>> {
         }
 
         let proc_status: String;
-        if let Ok(content) = fs::read_to_string(format!("{}/status", pid_dir)) {
-            proc_status = content;
+        let proc_stat: String;
+        if let (Ok(proc_status_content), Ok(proc_stat_content)) =
+               (fs::read_to_string(format!("{}/status", pid_dir)),
+                fs::read_to_string(format!("{}/stat", pid_dir)))
+        {
+            proc_status = proc_status_content;
+            proc_stat = proc_stat_content;
         } else {continue}
 
-        if let Some(p) = get_proc_data(proc_status) {
+        if let Some(p) = get_proc_data(proc_status, proc_stat) {
             procs.push(p);
         }
     }
