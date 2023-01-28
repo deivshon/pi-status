@@ -65,15 +65,9 @@ pub fn continous_update(field: StatusFields, ms: u64) {
             match data {
                 StatusFields::Temp(t) => status_ref.temp = t,
                 StatusFields::NetStats(n) => status_ref.net_stats = n,
-                StatusFields::CpuUsage(u) => {
-                    status_ref.cpu_usage = u;
-                    println!("Set CPU!");
-                },
+                StatusFields::CpuUsage(u) => status_ref.cpu_usage = u,
                 StatusFields::Ram(r) => status_ref.ram = r,
-                StatusFields::Proc(p) => {
-                    status_ref.proc = p;
-                    println!("Set proc!");
-                }
+                StatusFields::Proc(p) => status_ref.proc = p
             };
         }
 
