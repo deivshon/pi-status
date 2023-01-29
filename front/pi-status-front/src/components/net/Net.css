@@ -4,6 +4,11 @@
     margin-bottom: 1.5rem;
 }
 
+.net-stats-container {
+    display: flex;
+    justify-content: space-between;
+}
+
 .down-chart-container {
     border: 2px solid #f28779;
 }

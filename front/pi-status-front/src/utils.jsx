@@ -17,7 +17,7 @@ const bytePrefixes = [
 ]
 
 export const formatBytes = (bytes, {
-    isSpeed = false,
+    isSpeed: speed = false,
     short = false,
     roundTreshold = 1025,
     absoluteRoundTreshold = 0
@@ -31,5 +31,5 @@ export const formatBytes = (bytes, {
         i++
     }
 
-    return `${bytes.toFixed(i != 0 && bytes < roundTreshold && roundAbsolute ? 2 : 0)} ${short ? shortBytePrefixes[i] : bytePrefixes[i]}${isSpeed ? "/s" : ""}`
+    return `${bytes.toFixed(i != 0 && bytes < roundTreshold && roundAbsolute ? 2 : 0)} ${short ? shortBytePrefixes[i] : bytePrefixes[i]}${speed ? "/s" : ""}`
 }
