@@ -4,7 +4,7 @@ use std::fs;
 use std::io;
 use std::fmt;
 use std::error::Error;
-use std::sync::atomic::AtomicU64;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use serde::Serialize;
 use regex::Regex;
@@ -33,10 +33,14 @@ const PROC_DIR: &str = "/proc/";
 const STATE_OFFSET: usize = 2;
 
 const PID: usize = 0;
+const NAME: usize = 1;
 
 const THREADS: usize = 19 - STATE_OFFSET;
 const USER_TIME: usize = 13 - STATE_OFFSET;
 const SYSTEM_TIME: usize = 14 - STATE_OFFSET;
+const RSS: usize = 23 - STATE_OFFSET;
+
+const POSSIBLE_STATES: [&str; 13] = ["R", "S", "D", "Z", "T", "t", "W", "X", "x", "K", "W", "P", "I"];
 
 #[derive(Serialize)]
 pub struct Process {
@@ -63,7 +67,7 @@ fn validate_pid_dir(dir: io::Result<fs::DirEntry>) -> Result<fs::DirEntry, Box<d
     return Ok(valid_dir)
 }
 
-fn get_proc_data(status: String, stat: String) -> Option<Process> {
+fn get_proc_data(stat: String) -> Option<Process> {
     let mut res: Process = Process {
         pid: 0,
         name: String::new(),
@@ -71,23 +75,6 @@ fn get_proc_data(status: String, stat: String) -> Option<Process> {
         threads: 0,
         cpu_usage: 0
     };
-
-    // Parse name
-    if let Some(name_line) = status.lines().nth(0) {
-        res.name = name_line.split_whitespace().collect::<Vec<&str>>().drain(1..).collect::<Vec<&str>>().join(" ");
-    }
-
-    // Parse mem
-    for l in status.lines() {
-        if !l.starts_with("VmRSS:") {continue}
-
-        if let Some(mem_str) = l.split_whitespace().nth(1) {
-            if let Ok(mem) = mem_str.parse::<u64>() {
-                res.mem = mem * 1024;
-            } else {return None}
-            break;
-        }
-    }
 
     let split_stat = stat.split_whitespace().collect::<Vec<&str>>();
 
@@ -97,18 +84,27 @@ fn get_proc_data(status: String, stat: String) -> Option<Process> {
     } else {return None}
     
     // Second field is not the name, can't go on with parsing
-    if !split_stat[1].starts_with("(") {return None}
+    if !split_stat[NAME].starts_with("(") {return None}
+    
+    // Push into process name first (and possibly only) part of name
+    res.name.push_str(split_stat[NAME]);
 
     // State index will be used to correctly index the rest of the field,
-    // since whitespaces in names mess with indexes
+    // since whitespaces in names mess with the successive indexes
     let mut state_index: usize = 2;
-    if !split_stat[1].ends_with(")") {
-        // Name has spaces, find end and set state index accordingly
-        while !split_stat[state_index].ends_with(")") {
+    if !split_stat[NAME].ends_with(")") {
+        // Name has spaces, find end and set state index and name accordingly
+        while split_stat[state_index].len() != 1 &&
+              !POSSIBLE_STATES.contains(&split_stat[state_index])
+        {
+            res.name.push_str(" ");
+            res.name.push_str(split_stat[state_index]);
+
             state_index += 1;
         }
-        state_index += 1;
     }
+    res.name.remove(0);
+    res.name.pop();
     
     // Parse threads
     if let Ok(threads) = split_stat[THREADS + state_index].parse::<u16>() {
@@ -124,6 +120,10 @@ fn get_proc_data(status: String, stat: String) -> Option<Process> {
         res.cpu_usage = user + sys;
     }
     else {return None}
+
+    // Parse memory usage
+    let Ok(mem) = split_stat[RSS + state_index].parse::<u64>() else {return None};
+    res.mem = mem * PAGE_SIZE.load(Ordering::Relaxed);
 
     return Some(res)
 }
@@ -143,17 +143,9 @@ fn get_procs() -> Result<Vec<Process>, Box<dyn Error>> {
             Err(_) => continue
         }
 
-        let proc_status: String;
-        let proc_stat: String;
-        if let (Ok(proc_status_content), Ok(proc_stat_content)) =
-               (fs::read_to_string(format!("{}/status", pid_dir)),
-                fs::read_to_string(format!("{}/stat", pid_dir)))
-        {
-            proc_status = proc_status_content;
-            proc_stat = proc_stat_content;
-        } else {continue}
+        let Ok(proc_stat) = fs::read_to_string(format!("{}/stat", pid_dir)) else {continue};
 
-        if let Some(p) = get_proc_data(proc_status, proc_stat) {
+        if let Some(p) = get_proc_data(proc_stat) {
             procs.push(p);
         }
     }
