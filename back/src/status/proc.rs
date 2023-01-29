@@ -4,7 +4,10 @@ use std::fs;
 use std::io;
 use std::fmt;
 use std::error::Error;
+use std::sync::MutexGuard;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::collections::HashMap;
+use std::sync::Mutex;
 
 use serde::Serialize;
 use regex::Regex;
@@ -26,6 +29,16 @@ pub static PAGE_SIZE: AtomicU64 = AtomicU64::new(0);
 lazy_static! {
     // Matches /proc/pid directories
     static ref PROC_PID_RE: Regex = Regex::new(r"/proc/[0-9]+$").unwrap();
+
+    static ref CPU_PROC_OLD: Mutex<HashMap<u64, u64>> = Mutex::new(HashMap::new());
+    static ref CPU_PROC_NEW: Mutex<HashMap<u64, u64>> = Mutex::new(HashMap::new());
+}
+
+// https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+macro_rules! cantor {
+    ($a:expr, $b:expr) => {
+        (($a + $b) * ($a + $b + 1) / 2) + $b
+    };
 }
 
 const PROC_DIR: &str = "/proc/";
@@ -38,17 +51,20 @@ const NAME: usize = 1;
 const THREADS: usize = 19 - STATE_OFFSET;
 const USER_TIME: usize = 13 - STATE_OFFSET;
 const SYSTEM_TIME: usize = 14 - STATE_OFFSET;
+const START_TIME: usize = 21 - STATE_OFFSET;
 const RSS: usize = 23 - STATE_OFFSET;
 
 const POSSIBLE_STATES: [&str; 13] = ["R", "S", "D", "Z", "T", "t", "W", "X", "x", "K", "W", "P", "I"];
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Process {
+    uid: u64,
     pid: u64,
     name: String,
     mem: u64,
     threads: u16,
-    cpu_usage: u64
+    cpu_usage: u64,
+    start_time: u64
 }
 
 fn validate_pid_dir(dir: io::Result<fs::DirEntry>) -> Result<fs::DirEntry, Box<dyn Error>> {
@@ -67,13 +83,20 @@ fn validate_pid_dir(dir: io::Result<fs::DirEntry>) -> Result<fs::DirEntry, Box<d
     return Ok(valid_dir)
 }
 
-fn get_proc_data(stat: String) -> Option<Process> {
+fn get_proc_data(
+    stat: &String,
+    old_procs: &MutexGuard<HashMap<u64, u64>>,
+    new_procs: &mut MutexGuard<HashMap<u64, u64>>
+) -> Option<Process> 
+{
     let mut res: Process = Process {
+        uid: 0,
         pid: 0,
         name: String::new(),
         mem: 0,
         threads: 0,
-        cpu_usage: 0
+        cpu_usage: 0,
+        start_time: 0
     };
 
     let split_stat = stat.split_whitespace().collect::<Vec<&str>>();
@@ -111,24 +134,40 @@ fn get_proc_data(stat: String) -> Option<Process> {
         res.threads = threads;
     } else {return None}
 
+    // Parse memory usage
+    let Ok(mem) = split_stat[RSS + state_index].parse::<u64>() else {return None};
+    res.mem = mem * PAGE_SIZE.load(Ordering::Relaxed);
+    
+    let Ok(start_time) = split_stat[START_TIME + state_index].parse::<u64>() else {return None};
+    res.start_time = start_time;
+    
+    // Gain robust unique id by combining PID and start time
+    res.uid = cantor!(res.pid, res.start_time);
+    
     // Parse CPU usage
     if let (Ok(user), Ok(sys)) =
            (split_stat[USER_TIME + state_index].parse::<u64>(),
             split_stat[SYSTEM_TIME + state_index].parse::<u64>(),
            )
     {
-        res.cpu_usage = user + sys;
+        if let Some(old) = old_procs.get(&res.uid) {
+            res.cpu_usage = (user + sys) - old;
+            new_procs.insert(res.uid, user + sys);
+        } else {
+            res.cpu_usage = user + sys;
+            new_procs.insert(res.uid, res.cpu_usage);
+        }
     }
     else {return None}
-
-    // Parse memory usage
-    let Ok(mem) = split_stat[RSS + state_index].parse::<u64>() else {return None};
-    res.mem = mem * PAGE_SIZE.load(Ordering::Relaxed);
 
     return Some(res)
 }
 
 fn get_procs() -> Result<Vec<Process>, Box<dyn Error>> {
+    let old_procs = CPU_PROC_OLD.lock().unwrap();
+    let mut new_procs = CPU_PROC_NEW.lock().unwrap();
+    new_procs.clear();
+
     let mut procs: Vec<Process> = vec![];
     let files = fs::read_dir(PROC_DIR)?;
 
@@ -145,7 +184,7 @@ fn get_procs() -> Result<Vec<Process>, Box<dyn Error>> {
 
         let Ok(proc_stat) = fs::read_to_string(format!("{}/stat", pid_dir)) else {continue};
 
-        if let Some(p) = get_proc_data(proc_stat) {
+        if let Some(p) = get_proc_data(&proc_stat, &old_procs, &mut new_procs) {
             procs.push(p);
         }
     }
@@ -153,8 +192,16 @@ fn get_procs() -> Result<Vec<Process>, Box<dyn Error>> {
     return Ok(procs)
 }
 
+fn replace_old_map() {
+    let mut proc_old = CPU_PROC_OLD.lock().unwrap();
+    let proc_new = CPU_PROC_NEW.lock().unwrap();
+
+    *proc_old = proc_new.clone();
+}
+
 pub fn get() -> StatusFields {
     if let Ok(proc_data) = get_procs() {
+        replace_old_map();
         return StatusFields::Proc(Some(proc_data));
     };
 
