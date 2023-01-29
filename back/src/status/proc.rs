@@ -2,13 +2,13 @@ use super::StatusFields;
 
 use std::fs;
 use std::io;
-use std::error::Error;
 use std::fmt;
-
-use regex::Regex;
-use lazy_static::lazy_static;
+use std::error::Error;
+use std::sync::atomic::AtomicU64;
 
 use serde::Serialize;
+use regex::Regex;
+use lazy_static::lazy_static;
 
 #[derive(Debug)]
 struct NotPidDir;
@@ -20,6 +20,8 @@ impl fmt::Display for NotPidDir {
         write!(f, "The passed directory is not a PID directory")
     }
 }
+
+pub static PAGE_SIZE: AtomicU64 = AtomicU64::new(0);
 
 lazy_static! {
     // Matches /proc/pid directories
