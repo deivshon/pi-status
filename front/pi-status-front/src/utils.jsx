@@ -20,7 +20,9 @@ export const formatBytes = (bytes, {
     speed = false,
     short = false,
     roundTreshold = 1025,
-    absoluteRoundTreshold = 0
+    absoluteRoundTreshold = 0,
+    roundingDigits = 2,
+    space = true
 }) => {
     let roundAbsolute = bytes > absoluteRoundTreshold
 
@@ -31,5 +33,5 @@ export const formatBytes = (bytes, {
         i++
     }
 
-    return `${bytes.toFixed(i != 0 && bytes < roundTreshold && roundAbsolute ? 2 : 0)} ${short ? shortBytePrefixes[i] : bytePrefixes[i]}${speed ? "/s" : ""}`
+    return `${bytes.toFixed(i != 0 && bytes < roundTreshold && roundAbsolute ? roundingDigits : 0)}${space ? " " : ""}${short ? shortBytePrefixes[i] : bytePrefixes[i]}${speed ? "/s" : ""}`
 }

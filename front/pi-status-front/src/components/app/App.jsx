@@ -84,16 +84,16 @@ export default function App() {
                 <div>Up {uptime}</div>
             </div>
             <ul class="nav nav-pills mb-3 flex flex-wrap justify-content-center" id="pills-tab" role="tablist">
-                <li class="nav-item fs-6 cpu-pill" role="presentation">
+                <li class="nav-item cpu-pill" role="presentation">
                     <button class="nav-link active" id="pills-cpu-tab" data-bs-toggle="pill" data-bs-target="#pills-cpu" type="button" role="tab">CPU</button>
                 </li>
-                <li class="nav-item fs-6 ram-pill" role="presentation">
+                <li class="nav-item ram-pill" role="presentation">
                     <button class="nav-link" id="pills-ram-tab" data-bs-toggle="pill" data-bs-target="#pills-ram" type="button" role="tab">RAM</button>
                 </li>
-                <li class="nav-item fs-6 net-pill" role="presentation">
+                <li class="nav-item net-pill" role="presentation">
                     <button class="nav-link" id="pills-net-tab" data-bs-toggle="pill" data-bs-target="#pills-net" type="button" role="tab">Net</button>
                 </li>
-                <li class="nav-item fs-6 proc-pill" role="presentation">
+                <li class="nav-item proc-pill" role="presentation">
                     <button class="nav-link" id="pills-proc-tab" data-bs-toggle="pill" data-bs-target="#pills-proc" type="button" role="tab">Ps</button>
                 </li>
             </ul>
@@ -119,6 +119,7 @@ export default function App() {
                 <div class="tab-pane fade w-100" id="pills-proc" role="tabpanel">
                     <Proc
                         procs={processes}
+                        mainCpuUsage={cpuUsage.length > 0 ? cpuUsage[0] : []}
                     />
                 </div>
             </div>

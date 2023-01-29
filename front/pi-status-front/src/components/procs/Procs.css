@@ -1,6 +1,8 @@
 .proc-container {
+    font-family: monospace;
     border: 2px solid #eeba45;
     height: 60vh;
+    padding: .25rem .5rem;
     overflow: scroll;
     overflow-wrap: anywhere;
 }
@@ -8,7 +10,6 @@
 .proc-col {
     text-align: left;
     margin: 0 2px;
-    font-weight: bold;
 }
 
 .col-content {
@@ -17,27 +18,49 @@
     white-space: nowrap;
 }
 
+.col-label {
+    text-decoration: underline;
+}
+
 .pid-col {
     text-align: right;
     margin-right: 0.5rem;
 }
 
 .name-col {
-    width: 35%;
+    max-width: 35%;
+    flex-grow: 1;
 }
 
 .memory-col {
-    width: 20%;
+    flex-grow: 1;
     text-align: right;
+    margin-right: 0.25rem;
 }
 
 .threads-col {
+    width: 10%;
+    text-align: right;
+    margin-right: 0.25rem;
+}
+
+.cpu-col {
     flex-grow: 1;
     text-align: right;
 }
 
+.cpu-percs {
+    white-space: pre;
+}
+
 @media screen and (max-aspect-ratio: 4/5) {
     .proc-col {
-        font-size: small;
+        font-size: 0.55rem;
+    }
+}
+
+@media screen and (max-width: 356px) {
+    .memory-col, .threads-col {
+        margin-right: 0;
     }
 }

@@ -72,3 +72,16 @@ body {
         justify-content: center !important;
     }
 }
+
+@media screen and (max-width: 376px) {
+    .nav-pills {
+        font-size: 0.8rem !important;
+    }
+}
+
+@media screen and (max-width: 356px) {
+    .nav-pills {
+        font-size: 0.6rem !important;
+    }
+}
+
