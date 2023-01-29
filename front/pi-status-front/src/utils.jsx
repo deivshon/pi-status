@@ -17,7 +17,7 @@ const bytePrefixes = [
 ]
 
 export const formatBytes = (bytes, {
-    isSpeed: speed = false,
+    speed = false,
     short = false,
     roundTreshold = 1025,
     absoluteRoundTreshold = 0
