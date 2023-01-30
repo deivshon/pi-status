@@ -59,7 +59,7 @@ export default function Procs({procs, mainCpuUsage}) {
                 <div
                 className={`col-content${ordering.ord == PID ? " text-decoration-underline" : ""}`}
                 onClick={() => sortBy(PID)}>
-                    PID
+                    {ordering.ord === PID ? (ordering.rev ? "↑" : "↓") : ""}PID
                 </div>
                 <div></div>
                 {procs.map(p => <div className="col-content">{p.pid}</div>)}
@@ -68,7 +68,7 @@ export default function Procs({procs, mainCpuUsage}) {
                 <div
                 className={`col-content${ordering.ord == NAME ? " text-decoration-underline" : ""}`}
                 onClick={() => sortBy(NAME)}>
-                    Name
+                    Name{ordering.ord === NAME ? (ordering.rev ? "↑" : "↓") : ""}
                 </div>
                 <div></div>
                 {procs.map(p => <div className="col-content">{p.name}</div>)}
@@ -77,7 +77,7 @@ export default function Procs({procs, mainCpuUsage}) {
                 <div
                 className={`col-content${ordering.ord == THREADS ? " text-decoration-underline" : ""}`}
                 onClick={() => sortBy(THREADS)}>
-                    Thds
+                    {ordering.ord === THREADS ? (ordering.rev ? "↑" : "↓") : ""}Thds
                 </div>
                 <div></div>
                 {procs.map(p => <div className="col-content">{p.threads}</div>)}
@@ -86,7 +86,7 @@ export default function Procs({procs, mainCpuUsage}) {
                 <div
                 className={`col-content${ordering.ord == MEM ? " text-decoration-underline" : ""}`}
                 onClick={() => sortBy(MEM)}>
-                    Mem
+                    {ordering.ord === MEM ? (ordering.rev ? "↑" : "↓") : ""}Mem
                 </div>
                 <div></div>
                 {procs.map(p =>
@@ -99,7 +99,7 @@ export default function Procs({procs, mainCpuUsage}) {
                 <div
                 className={`col-content${ordering.ord == CPU ? " text-decoration-underline" : ""}`}
                 onClick={() => sortBy(CPU)}>
-                    CPU
+                    {ordering.ord === CPU ? (ordering.rev ? "↑" : "↓") : ""}CPU
                 </div>
                 <div></div>
                 {procs.map(p => <div className="col-content cpu-percs">{((p.cpu_usage / currentTotal) * 100).toFixed(1).padStart(5, " ")}%</div>)}
