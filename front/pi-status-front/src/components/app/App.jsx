@@ -90,10 +90,10 @@ export default function App() {
                     <button class="nav-link" id="pills-ram-tab" data-bs-toggle="pill" data-bs-target="#pills-ram" type="button" role="tab">RAM</button>
                 </li>
                 <li class="nav-item net-pill" role="presentation">
-                    <button class="nav-link" id="pills-net-tab" data-bs-toggle="pill" data-bs-target="#pills-net" type="button" role="tab">Net</button>
+                    <button class="nav-link" id="pills-net-tab" data-bs-toggle="pill" data-bs-target="#pills-net" type="button" role="tab">NET</button>
                 </li>
                 <li class="nav-item proc-pill" role="presentation">
-                    <button class="nav-link" id="pills-proc-tab" data-bs-toggle="pill" data-bs-target="#pills-proc" type="button" role="tab">Ps</button>
+                    <button class="nav-link" id="pills-proc-tab" data-bs-toggle="pill" data-bs-target="#pills-proc" type="button" role="tab">PS</button>
                 </li>
             </ul>
             <div class="tab-content w-100" id="pills-tabContent">
