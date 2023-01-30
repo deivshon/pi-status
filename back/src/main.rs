@@ -57,6 +57,7 @@ async fn main() -> std::io::Result<()> {
     thread::spawn(move || continous_update(StatusFields::NetStats(None), 1000));
     thread::spawn(move || continous_update(StatusFields::CpuUsage(None), 1000));
     thread::spawn(move || continous_update(StatusFields::Ram(None), 1000));
+    thread::spawn(move || continous_update(StatusFields::Disk(None), 1000));
     thread::spawn(move || continous_update(StatusFields::Proc(None), 1000));
 
     // Start the server
