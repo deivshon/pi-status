@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 
 import Cpu from '../cpu/Cpu'
 import Net from '../net/Net'
-import Ram from '../ram/Ram'
+import Mem from '../mem/Mem'
 import Proc from '../procs/Procs'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -23,6 +23,8 @@ export default function App() {
     const [cpuUsage, setCpuUsage] = useState([])
 
     const [ramData, setRamData] = useState({})
+
+    const [disks, setDisks] = useState([])
 
     const [processes, setProcesses] = useState([])
 
@@ -67,6 +69,8 @@ export default function App() {
 
         setRamData(newData.ram)
 
+        setDisks(newData.disk || [])
+
         setProcesses(newData.proc)
     }
 
@@ -86,8 +90,8 @@ export default function App() {
                 <li class="nav-item cpu-pill" role="presentation">
                     <button class="nav-link active" id="pills-cpu-tab" data-bs-toggle="pill" data-bs-target="#pills-cpu" type="button" role="tab">CPU</button>
                 </li>
-                <li class="nav-item ram-pill" role="presentation">
-                    <button class="nav-link" id="pills-ram-tab" data-bs-toggle="pill" data-bs-target="#pills-ram" type="button" role="tab">RAM</button>
+                <li class="nav-item mem-pill" role="presentation">
+                    <button class="nav-link" id="pills-mem-tab" data-bs-toggle="pill" data-bs-target="#pills-mem" type="button" role="tab">MEM</button>
                 </li>
                 <li class="nav-item net-pill" role="presentation">
                     <button class="nav-link" id="pills-net-tab" data-bs-toggle="pill" data-bs-target="#pills-net" type="button" role="tab">NET</button>
@@ -103,9 +107,10 @@ export default function App() {
                         cpuUsage={cpuUsage}
                     />
                 </div>
-                <div class="tab-pane fade w-100" id="pills-ram" role="tabpanel">
-                    <Ram
+                <div class="tab-pane fade w-100" id="pills-mem" role="tabpanel">
+                    <Mem
                         ramUsage={ramData}
+                        disks={disks}
                     />
                 </div>
                 <div class="tab-pane fade w-100" id="pills-net" role="tabpanel" aria-labelledby="pills-net-tab">

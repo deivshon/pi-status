@@ -1,0 +1,28 @@
+.progress-bar.ram-bar {
+    background-color: #95e6cb;
+}
+
+.disks-container {
+    font-family: monospace;
+    text-align: left;
+    width: 100%;
+}
+
+table, th, td {
+    border: 1px solid #95e6cb !important;
+    padding: 0 0.25rem;
+}
+
+@media screen and (max-aspect-ratio: 4/5) {
+    .disks-container {
+        font-size: 0.55rem;
+    }
+
+    table, th, td {
+        padding: 0 0.15rem;
+    }
+
+    th {
+        text-decoration: underline;
+    }
+}
