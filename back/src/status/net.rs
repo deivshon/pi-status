@@ -1,7 +1,6 @@
 use std::time::UNIX_EPOCH;
 use std::fs;
 
-use crate::utils;
 use serde::Serialize;
 use std::error::Error;
 
@@ -21,6 +20,13 @@ pub struct NetStats {
     download_speed: f64,
 
     ts: f64
+}
+
+fn u64_from_file(path: String) -> Result<u64, Box<dyn Error>> {
+    let file_content = fs::read_to_string(path)?;
+    let num = file_content.replace("\n", "").parse::<u64>()?;
+
+    return Ok(num);
 }
 
 fn add_interface_dir(dst: &mut Vec<fs::DirEntry>, dir: Result<fs::DirEntry, std::io::Error>) -> Result<(), Box<dyn Error>>  {
@@ -69,8 +75,8 @@ fn get_max_interface() -> Result<String, Box<dyn Error>> {
 
 fn get_net_stats(interface: &String) -> Result<NetStats, Box<dyn Error>> {
     return Ok(NetStats {
-        upload_total: utils::u64_from_file(format!("{}/{}", interface, RX_DIR))?,
-        download_total: utils::u64_from_file(format!("{}/{}", interface, TX_DIR))?,
+        upload_total: u64_from_file(format!("{}/{}", interface, RX_DIR))?,
+        download_total: u64_from_file(format!("{}/{}", interface, TX_DIR))?,
         ts: UNIX_EPOCH.elapsed().unwrap().as_millis() as f64,
 
         download_speed: 0.0,

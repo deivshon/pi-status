@@ -1,5 +1,4 @@
 pub mod status;
-pub mod utils;
 
 use status::{STATUS_STR, PROC_AND_CPU, StatusFields, continous_update};
 use status::proc::PAGE_SIZE;
