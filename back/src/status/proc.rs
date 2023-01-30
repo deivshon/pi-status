@@ -3,7 +3,6 @@ use super::StatusFields;
 use std::fs;
 use std::io;
 use std::fmt;
-use std::error::Error;
 use std::sync::MutexGuard;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::collections::HashMap;
@@ -13,10 +12,12 @@ use serde::Serialize;
 use regex::Regex;
 use lazy_static::lazy_static;
 
+use anyhow::{Result, Error};
+
 #[derive(Debug)]
 struct NotPidDir;
 
-impl Error for NotPidDir {}
+impl std::error::Error for NotPidDir {}
 
 impl fmt::Display for NotPidDir {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -56,7 +57,7 @@ const RSS: usize = 23 - STATE_OFFSET;
 
 const POSSIBLE_STATES: [&str; 13] = ["R", "S", "D", "Z", "T", "t", "W", "X", "x", "K", "W", "P", "I"];
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Serialize, Clone)]
 pub struct Process {
     uid: u64,
     pid: u64,
@@ -67,17 +68,17 @@ pub struct Process {
     start_time: u64
 }
 
-fn validate_pid_dir(dir: io::Result<fs::DirEntry>) -> Result<fs::DirEntry, Box<dyn Error>> {
+fn validate_pid_dir(dir: io::Result<fs::DirEntry>) -> Result<fs::DirEntry> {
     let valid_dir = dir?;
 
     let dir_name: String;
     match valid_dir.path().into_os_string().into_string() {
         Ok(d) => dir_name = d,
-        Err(_) => return Err(Box::new(NotPidDir))
+        Err(_) => return Err(Error::new(NotPidDir))
     }
 
     if !PROC_PID_RE.is_match(&dir_name) {
-        return Err(Box::new(NotPidDir));
+        return Err(Error::new(NotPidDir));
     }
 
     return Ok(valid_dir)
@@ -163,7 +164,7 @@ fn get_proc_data(
     return Some(res)
 }
 
-fn get_procs() -> Result<Vec<Process>, Box<dyn Error>> {
+fn get_procs() -> Result<Vec<Process>> {
     let old_procs = CPU_PROC_OLD.lock().unwrap();
     let mut new_procs = CPU_PROC_NEW.lock().unwrap();
     new_procs.clear();
@@ -200,10 +201,14 @@ fn replace_old_map() {
 }
 
 pub fn get() -> StatusFields {
-    if let Ok(proc_data) = get_procs() {
-        replace_old_map();
-        return StatusFields::Proc(Some(proc_data));
+    match get_procs() {
+        Ok(proc_data) => {
+            replace_old_map();
+            return StatusFields::Proc(Some(proc_data));
+        }
+        Err(e) => {
+            eprintln!("Error in Proc component: {}", e);
+            return StatusFields::Proc(None)
+        }
     };
-
-    return StatusFields::Proc(None)
 }

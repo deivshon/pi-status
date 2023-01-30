@@ -1,11 +1,10 @@
 use super::StatusFields;
 
-use std::error::Error;
 use std::fs;
 
-use serde::Serialize;
-
 use regex;
+use serde::Serialize;
+use anyhow::Result;
 
 const PROC_MEMINFO: &str = "/proc/meminfo";
 
@@ -35,7 +34,7 @@ pub struct Ram {
     cached: u64
 }
 
-fn get_ram() -> Result<Ram, Box<dyn Error>> {
+fn get_ram() -> Result<Ram> {
     let meminfo = fs::read_to_string(PROC_MEMINFO)?;
     let mem_line_regex = regex::Regex::new(r"(: *| kB)").unwrap();
 
@@ -58,9 +57,11 @@ fn get_ram() -> Result<Ram, Box<dyn Error>> {
 }
 
 pub fn get() -> StatusFields {
-    if let Ok(ram_data) = get_ram() {
-        return StatusFields::Ram(Some(ram_data));
-    };
-
-    return StatusFields::Ram(None)
+    match get_ram() {
+        Ok(ram_data) => StatusFields::Ram(Some(ram_data)),
+        Err(e) => {
+            eprintln!("Error in RAM component: {}", e);
+            StatusFields::Ram(None)
+        }
+    }
 }

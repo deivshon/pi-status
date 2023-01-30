@@ -4,9 +4,10 @@ use std::fs;
 use std::sync::Mutex;
 
 use std::fmt;
-use std::error::Error;
 
 use serde::Serialize;
+
+use anyhow::{Result, Error};
 
 use lazy_static::lazy_static;
 
@@ -42,17 +43,17 @@ pub struct CpuUsage {
 }
 
 #[derive(Debug)]
-struct CpuNumberChanged;
+struct CoresChanged;
 
-impl Error for CpuNumberChanged {}
+impl std::error::Error for CoresChanged {}
 
-impl fmt::Display for CpuNumberChanged {
+impl fmt::Display for CoresChanged {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "The CPU number has changed")
+        write!(f, "The number of cores changed")
     }
 }
 
-fn get_cpu_data() -> Result<Vec<CpuUsage>, Box<dyn Error>> {
+fn get_cpu_data() -> Result<Vec<CpuUsage>> {
     let mut last_usage = LAST.lock().unwrap();
     let first = last_usage.is_empty();
 
@@ -83,7 +84,7 @@ fn get_cpu_data() -> Result<Vec<CpuUsage>, Box<dyn Error>> {
             let i = cpu_usage.len() - 1;
 
             if last_usage.len() <= i {
-                return Err(Box::new(CpuNumberChanged));
+                return Err(Error::new(CoresChanged));
             }
 
             let cur_cpu_usage = cpu_usage[i].clone();
@@ -104,16 +105,18 @@ fn get_cpu_data() -> Result<Vec<CpuUsage>, Box<dyn Error>> {
     }
 
     if last_usage.len() != cpu_usage.len() {
-        return Err(Box::new(CpuNumberChanged));
+        return Err(Error::new(CoresChanged));
     }
 
     return Ok(cpu_usage)
 }
 
 pub fn get() -> StatusFields {
-    if let Ok(usage) = get_cpu_data() {
-        return StatusFields::CpuUsage(Some(usage))
+    match get_cpu_data() {
+        Ok(usage) => StatusFields::CpuUsage(Some(usage)),
+        Err(e) => {
+            eprintln!("Error in CPU component: {}", e);
+            StatusFields::CpuUsage(None)
+        }
     }
-
-    return StatusFields::CpuUsage(None);
 }

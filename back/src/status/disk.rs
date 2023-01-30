@@ -45,9 +45,11 @@ fn get_disks() -> Result<Vec<Disk>, std::io::Error> {
 }
 
 pub fn get() -> StatusFields {
-    if let Ok(disks) = get_disks() {
-        return StatusFields::Disk(Some(disks))
+    match get_disks() {
+        Ok(disks) => StatusFields::Disk(Some(disks)),
+        Err(e) => {
+            eprintln!("Error in disks component: {}", e);
+            StatusFields::Disk(None)
+        }
     }
-
-    return StatusFields::Disk(None);
 }

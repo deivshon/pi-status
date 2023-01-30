@@ -1,22 +1,24 @@
-use std::fs;
-use std::error::Error;
+use super::StatusFields;
 
-use crate::status::StatusFields;
+use std::fs;
+
+use anyhow::Result;
 
 const TEMP_PATH: &str = "/sys/class/thermal/thermal_zone0/temp";
 
-fn get_temp() -> Result<StatusFields, Box<dyn Error>> {
+fn get_temp() -> Result<f32> {
     let temp_str = fs::read_to_string(TEMP_PATH)?;
     let temp = temp_str.replace("\n", "").parse::<f32>()?;
 
-    return Ok(StatusFields::Temp(Some(temp / 1e3)));
+    return Ok(temp / 1e3);
 }
 
 pub fn get() -> StatusFields {
-    let temp = get_temp();
-
-    match temp {
-        Ok(t) => t,
-        Err(_) => StatusFields::Temp(None)
+    match get_temp() {
+        Ok(t) => StatusFields::Temp(Some(t)),
+        Err(e) => {
+            eprintln!("Error in Temp component: {}", e);
+            StatusFields::Temp(None)
+        }
     }
 }

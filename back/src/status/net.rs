@@ -1,10 +1,11 @@
+use super::StatusFields;
+
 use std::time::UNIX_EPOCH;
 use std::fs;
 
 use serde::Serialize;
-use std::error::Error;
 
-use super::StatusFields;
+use anyhow::Result;
 
 const NET_DIR: &str = "/sys/class/net/";
 const RX_DIR: &str = "statistics/tx_bytes";
@@ -22,14 +23,14 @@ pub struct NetStats {
     ts: f64
 }
 
-fn u64_from_file(path: String) -> Result<u64, Box<dyn Error>> {
+fn u64_from_file(path: String) -> Result<u64> {
     let file_content = fs::read_to_string(path)?;
     let num = file_content.replace("\n", "").parse::<u64>()?;
 
     return Ok(num);
 }
 
-fn add_interface_dir(dst: &mut Vec<fs::DirEntry>, dir: Result<fs::DirEntry, std::io::Error>) -> Result<(), Box<dyn Error>>  {
+fn add_interface_dir(dst: &mut Vec<fs::DirEntry>, dir: Result<fs::DirEntry, std::io::Error>) -> Result<()>  {
     let dir_entry = dir?;
 
     if !dir_entry.metadata()?.is_file() {
@@ -39,7 +40,7 @@ fn add_interface_dir(dst: &mut Vec<fs::DirEntry>, dir: Result<fs::DirEntry, std:
     return Ok(())
 }
 
-fn get_max_interface() -> Result<String, Box<dyn Error>> {
+fn get_max_interface() -> Result<String> {
     let mut ifas: Vec<fs::DirEntry>  = vec![];
     let files = fs::read_dir(NET_DIR)?;
 
@@ -73,7 +74,7 @@ fn get_max_interface() -> Result<String, Box<dyn Error>> {
     }
 }
 
-fn get_net_stats(interface: &String) -> Result<NetStats, Box<dyn Error>> {
+fn get_net_stats(interface: &String) -> Result<NetStats> {
     return Ok(NetStats {
         upload_total: u64_from_file(format!("{}/{}", interface, RX_DIR))?,
         download_total: u64_from_file(format!("{}/{}", interface, TX_DIR))?,
@@ -86,7 +87,7 @@ fn get_net_stats(interface: &String) -> Result<NetStats, Box<dyn Error>> {
     })
 }
 
-fn get_first_result() -> Result<StatusFields, Box<dyn Error>> {
+fn get_first_result() -> Result<StatusFields> {
     let max_ifa = get_max_interface()?;
     let max_ifa_stats = get_net_stats(&max_ifa)?;
 
@@ -119,7 +120,10 @@ pub fn get(current_stats: &Option<NetStats>) -> StatusFields {
     }
     
     match get_first_result() {
-        Err(_) => return StatusFields::NetStats(None),
-        Ok(res) => return res
+        Ok(res) => res,
+        Err(e) => {
+            eprintln!("Error in Net component: {}", e);
+            StatusFields::NetStats(None)
+        }
     }
 }
