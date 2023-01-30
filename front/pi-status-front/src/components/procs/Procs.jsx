@@ -57,36 +57,39 @@ export default function Procs({procs, mainCpuUsage}) {
         <div class="proc-container d-flex flex-row">
             <div class="pid-col proc-col d-flex flex-column">
                 <div
-                className={`col-content${ordering.ord == PID ? " text-decoration-underline" : ""}`}
+                className="text-nowrap"
                 onClick={() => sortBy(PID)}>
-                    {ordering.ord === PID ? (ordering.rev ? "↑" : "↓") : ""}PID
+                    {ordering.ord === PID ? (ordering.rev ? "↑" : "↓") : ""}
+                    <span className={`col-content${ordering.ord == PID ? " text-decoration-underline" : ""}`}>PID</span>
                 </div>
                 <div></div>
                 {procs.map(p => <div className="col-content">{p.pid}</div>)}
             </div>
             <div class="name-col proc-col d-flex flex-column">
                 <div
-                className={`col-content${ordering.ord == NAME ? " text-decoration-underline" : ""}`}
+                className="text-nowrap"
                 onClick={() => sortBy(NAME)}>
-                    Name{ordering.ord === NAME ? (ordering.rev ? "↑" : "↓") : ""}
+                    <span className={`col-content${ordering.ord == NAME ? " text-decoration-underline" : ""}`}>Name</span>{ordering.ord === NAME ? (ordering.rev ? "↑" : "↓") : ""}
                 </div>
                 <div></div>
                 {procs.map(p => <div className="col-content">{p.name}</div>)}
             </div>
             <div class="threads-col proc-col d-flex flex-column">
                 <div
-                className={`col-content${ordering.ord == THREADS ? " text-decoration-underline" : ""}`}
+                className="text-nowrap threads-label"
                 onClick={() => sortBy(THREADS)}>
-                    {ordering.ord === THREADS ? (ordering.rev ? "↑" : "↓") : ""}Thds
+                    <span className={`col-content${ordering.ord == THREADS ? " text-decoration-underline" : ""}`}>Thds</span>
+                    {ordering.ord === THREADS ? (ordering.rev ? "↑" : "↓") : ""}
                 </div>
                 <div></div>
                 {procs.map(p => <div className="col-content">{p.threads}</div>)}
             </div>
             <div class="memory-col proc-col d-flex flex-column">
                 <div
-                className={`col-content${ordering.ord == MEM ? " text-decoration-underline" : ""}`}
+                className="text-nowrap mem-label"
                 onClick={() => sortBy(MEM)}>
-                    {ordering.ord === MEM ? (ordering.rev ? "↑" : "↓") : ""}Mem
+                    <span className={`col-content${ordering.ord == MEM ? " text-decoration-underline" : ""}`}>Mem</span>
+                    {ordering.ord === MEM ? (ordering.rev ? "↑" : "↓") : ""}
                 </div>
                 <div></div>
                 {procs.map(p =>
@@ -97,9 +100,10 @@ export default function Procs({procs, mainCpuUsage}) {
             </div>
             <div class="cpu-col proc-col d-flex flex-column">
                 <div
-                className={`col-content${ordering.ord == CPU ? " text-decoration-underline" : ""}`}
+                className="text-nowrap cpu-label"
                 onClick={() => sortBy(CPU)}>
-                    {ordering.ord === CPU ? (ordering.rev ? "↑" : "↓") : ""}CPU
+                    <span className={`col-content${ordering.ord == CPU ? " text-decoration-underline" : ""}`}>CPU</span>
+                    {ordering.ord === CPU ? (ordering.rev ? "↑" : "↓") : ""}
                 </div>
                 <div></div>
                 {procs.map(p => <div className="col-content cpu-percs">{((p.cpu_usage / currentTotal) * 100).toFixed(1).padStart(5, " ")}%</div>)}

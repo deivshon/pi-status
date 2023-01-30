@@ -45,6 +45,10 @@
     text-align: right;
 }
 
+.threads-label, .mem-label, .cpu-label {
+    direction: rtl !important;
+}
+
 .cpu-percs {
     white-space: pre;
 }
