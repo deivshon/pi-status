@@ -67,8 +67,7 @@ export default function App() {
 
         setRamData(newData.ram)
 
-        newData.proc.sort((p1, p2) => p1.mem - p2.mem)
-        setProcesses(newData.proc.reverse())
+        setProcesses(newData.proc)
     }
 
     useEffect(changeData, [])
