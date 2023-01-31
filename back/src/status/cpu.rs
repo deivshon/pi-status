@@ -41,13 +41,17 @@ pub struct CpuUsage {
 }
 
 #[derive(Debug)]
-struct CoresChanged;
+enum CpuErr {
+    CoresChanged
+}
 
-impl std::error::Error for CoresChanged {}
+impl std::error::Error for CpuErr {}
 
-impl fmt::Display for CoresChanged {
+impl fmt::Display for CpuErr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "The number of cores changed")
+        match self {
+            CpuErr::CoresChanged => write!(f, "The number of cores changed")
+        }
     }
 }
 
@@ -82,7 +86,7 @@ fn get_cpu_data() -> Result<Vec<CpuUsage>> {
             let i = cpu_usage.len() - 1;
 
             if last_usage.len() <= i {
-                return Err(Error::new(CoresChanged));
+                return Err(Error::new(CpuErr::CoresChanged));
             }
 
             let cur_cpu_usage = cpu_usage[i].clone();
@@ -103,7 +107,7 @@ fn get_cpu_data() -> Result<Vec<CpuUsage>> {
     }
 
     if last_usage.len() != cpu_usage.len() {
-        return Err(Error::new(CoresChanged));
+        return Err(Error::new(CpuErr::CoresChanged));
     }
 
     return Ok(cpu_usage)

@@ -9,13 +9,17 @@ const HOST_PATH: &str = "/etc/hostname";
 const UPTIME_PATH: &str = "/proc/uptime";
 
 #[derive(Debug)]
-struct MalformedUptimeFile;
+enum HostErr {
+    MalformedUptimeFile
+}
 
-impl std::error::Error for MalformedUptimeFile {}
+impl std::error::Error for HostErr {}
 
-impl fmt::Display for MalformedUptimeFile {
+impl fmt::Display for HostErr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Uptime file is malformed and could not be parsed")
+        match self {
+            HostErr::MalformedUptimeFile => write!(f, "Uptime file is malformed and could not be parsed")
+        }
     }
 }
 
@@ -37,7 +41,7 @@ fn get_uptime() -> Result<u64> {
 
     match uptime {
         Some(u) => Ok(u.parse::<u64>()?),
-        None => Err(Error::new(MalformedUptimeFile))
+        None => Err(Error::new(HostErr::MalformedUptimeFile))
     }
     
 }

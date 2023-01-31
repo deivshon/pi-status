@@ -13,13 +13,17 @@ use lazy_static::lazy_static;
 use anyhow::{Result, Error};
 
 #[derive(Debug)]
-struct NotPidDir;
+enum ProcErr {
+    NotPidDir
+}
 
-impl std::error::Error for NotPidDir {}
+impl std::error::Error for ProcErr {}
 
-impl fmt::Display for NotPidDir {
+impl fmt::Display for ProcErr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "The passed directory is not a PID directory")
+        match self {
+            ProcErr::NotPidDir => write!(f, "The passed directory is not a PID directory")
+        }
     }
 }
 
@@ -33,7 +37,7 @@ lazy_static! {
     static ref CPU_PROC_NEW: Mutex<HashMap<u64, u64>> = Mutex::new(HashMap::new());
 }
 
-// https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+// The Cantor pairing function is a function used to gain a unique number starting from 2 others in input
 macro_rules! cantor {
     ($a:expr, $b:expr) => {
         (($a + $b) * ($a + $b + 1) / 2) + $b
@@ -72,11 +76,11 @@ fn validate_pid_dir(dir: io::Result<fs::DirEntry>) -> Result<fs::DirEntry> {
     let dir_name: String;
     match valid_dir.path().into_os_string().into_string() {
         Ok(d) => dir_name = d,
-        Err(_) => return Err(Error::new(NotPidDir))
+        Err(_) => return Err(Error::new(ProcErr::NotPidDir))
     }
 
     if !PROC_PID_RE.is_match(&dir_name) {
-        return Err(Error::new(NotPidDir));
+        return Err(Error::new(ProcErr::NotPidDir));
     }
 
     return Ok(valid_dir)
@@ -129,9 +133,8 @@ fn get_proc_data(
     res.name.pop();
     
     // Parse threads
-    if let Ok(threads) = split_stat[THREADS + state_index].parse::<u16>() {
-        res.threads = threads;
-    } else {return None}
+    let Ok(threads) = split_stat[THREADS + state_index].parse::<u16>() else {return None};
+    res.threads = threads;
 
     // Parse memory usage
     let Ok(mem) = split_stat[RSS + state_index].parse::<u64>() else {return None};
