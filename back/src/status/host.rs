@@ -23,7 +23,7 @@ impl fmt::Display for MalformedUptimeFile {
 
 #[derive(Serialize)]
 pub struct Host {
-    name: String,
+    hostname: String,
     uptime: u64
 }
 
@@ -36,11 +36,11 @@ fn get_hostname() -> Result<String, std::io::Error> {
 fn get_uptime() -> Result<u64> {
     let uptime_unparsed = fs::read_to_string(UPTIME_PATH)?;
     let uptime = uptime_unparsed.split(".").nth(0);
-    
+
     match uptime {
         Some(u) => Ok(u.parse::<u64>()?),
         None => Err(Error::new(MalformedUptimeFile))
-    } 
+    }
     
 }
 
@@ -64,10 +64,8 @@ pub fn get() -> StatusFields {
         }
     }
 
-    let res = Host {
-        name: hostname,
-        uptime: uptime
-    };
-
-    return StatusFields::Host(Some(res));
+    return StatusFields::Host(Some(Host {
+        hostname,
+        uptime
+    }));
 }
