@@ -9,7 +9,7 @@ export default function Net({netSpeeds, netMax, netTotals}) {
             {netSpeeds.length != 0
             ?
             <div class="net-stats-container">
-                <div>↓ {formatBytes(netSpeeds[netSpeeds.length - 1].download, {speed: true})}</div>
+                <div>↓ {formatBytes(netSpeeds[netSpeeds.length - 1].download, {speed: true, space: true})}</div>
                 <div>{formatBytes(netTotals.download, {})}</div>    
             </div>
             :
@@ -26,7 +26,7 @@ export default function Net({netSpeeds, netMax, netTotals}) {
             {netSpeeds.length != 0
             ?
             <div class="net-stats-container">
-                <div>↑ {formatBytes(netSpeeds[netSpeeds.length - 1].upload, {speed: true})}</div>
+                <div>↑ {formatBytes(netSpeeds[netSpeeds.length - 1].upload, {speed: true, space: true})}</div>
                 <div>{formatBytes(netTotals.upload, {})}</div>    
             </div>
             :

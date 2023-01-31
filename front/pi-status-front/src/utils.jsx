@@ -18,11 +18,11 @@ const bytePrefixes = [
 
 export const formatBytes = (bytes, {
     speed = false,
-    short = false,
+    short = true,
     roundTreshold = 1025,
     absoluteRoundTreshold = 0,
     roundingDigits = 2,
-    space = true
+    space = false
 }) => {
     let roundAbsolute = bytes > absoluteRoundTreshold
 

@@ -5,7 +5,7 @@ import CpuBar from './CpuBar'
 export default function Cpu({temp, cpuUsage}) {
     return <div class="stats-container cpu-stats-container">
         <div className="temp">
-            {temp} °C
+            {temp}°C
         </div>
         <div className="bars-container w-100 align-items-center">
             {
