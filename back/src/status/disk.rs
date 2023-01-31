@@ -6,6 +6,17 @@ use crate::status::StatusFields;
 
 const PROC_MOUNTS: &str = "/proc/mounts";
 
+const FILESYSTEM: usize = 0;
+const MOUNTPOINT: usize = 1;
+
+const EXCLUDED_MOUNTS: &[&str; 5] = &[
+    "/proc",
+    "/sys",
+    "/run",
+    "/dev",
+    "/tmp"
+];
+
 #[derive(Serialize)]
 pub struct Disk {
     filesystem: String,
@@ -21,12 +32,8 @@ fn get_disks() -> Result<Vec<Disk>, std::io::Error> {
     for l in proc_mounts.lines() {
         let split_mount = l.split_whitespace().collect::<Vec<&str>>();
         if split_mount.len() < 2 {continue}
-        
-        if split_mount[1].starts_with("/proc") ||
-           split_mount[1].starts_with("/sys")  ||
-           split_mount[1].starts_with("/run")  ||
-           split_mount[1].starts_with("/dev")  ||
-           split_mount[1].starts_with("/tmp")
+
+        if EXCLUDED_MOUNTS.iter().any(|path| split_mount[MOUNTPOINT].starts_with(path))
         {
             continue
         }
@@ -34,8 +41,8 @@ fn get_disks() -> Result<Vec<Disk>, std::io::Error> {
         let Ok(disk_stats) = statvfs(split_mount[1]) else {continue};
 
         disks.push(Disk {
-            filesystem: String::from(split_mount[0]),
-            mountpoint: String::from(split_mount[1]),
+            filesystem: String::from(split_mount[FILESYSTEM]),
+            mountpoint: String::from(split_mount[MOUNTPOINT]),
             total: disk_stats.block_size() * disk_stats.blocks(),
             available: disk_stats.block_size() * disk_stats.blocks_available()
         })
