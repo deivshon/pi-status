@@ -16,10 +16,8 @@ pub struct NetStats {
     interface: String,
     upload_total: u64,
     download_total: u64,
-
     upload_speed: f64,
     download_speed: f64,
-
     ts: f64
 }
 
@@ -40,37 +38,37 @@ fn add_interface_dir(dst: &mut Vec<fs::DirEntry>, dir: Result<fs::DirEntry, std:
     return Ok(())
 }
 
-fn get_max_interface() -> Result<String> {
-    let mut ifas: Vec<fs::DirEntry>  = vec![];
-    let files = fs::read_dir(NET_DIR)?;
+fn get_max_interface() -> Option<String> {
+    let mut interfaces: Vec<fs::DirEntry>  = vec![];
+    let Ok(files) = fs::read_dir(NET_DIR) else {return None};
 
     for file in files {
-        add_interface_dir(&mut ifas, file).unwrap_or(());
+        add_interface_dir(&mut interfaces, file).unwrap_or(());
     }
 
     let mut max_ifa: Option<NetStats> = None;
-    for interface in ifas {
-        if let Some(ifa) = interface.path().to_str() {
-            match get_net_stats(&String::from(ifa)) {
-                Ok(ns) => {
-                    if let Some(m) = &max_ifa {
-                        if ns.upload_total + ns.download_total > m.upload_total + m.download_total {
-                            max_ifa = Some(ns);
-                        }
-                    }
-                    else {
-                        max_ifa = Some(ns);
-                        continue;
-                    }
-                },
-                Err(_) => continue
+    for ifa in interfaces {
+        let ifa_path = ifa.path();
+
+        let Some(ifa_name) = ifa_path.to_str() else {continue};
+        let Ok(ifa_stats) = get_net_stats(&String::from(ifa_name)) else {continue};
+
+        if let Some(m) = &max_ifa {
+            if ifa_stats.upload_total + ifa_stats.download_total > 
+               m.upload_total + m.download_total
+            {
+                max_ifa = Some(ifa_stats);
             }
+        }
+        else {
+            max_ifa = Some(ifa_stats);
+            continue;
         }
     }
 
     match max_ifa {
-        Some(ifa) => return Ok(ifa.interface),
-        None => return Ok(String::from("/\\/\\"))
+        Some(ifa) => return Some(ifa.interface),
+        None => return None
     }
 }
 
@@ -87,11 +85,16 @@ fn get_net_stats(interface: &String) -> Result<NetStats> {
     })
 }
 
-fn get_first_result() -> Result<StatusFields> {
-    let max_ifa = get_max_interface()?;
-    let max_ifa_stats = get_net_stats(&max_ifa)?;
+fn get_first_result() -> Option<Result<StatusFields>> {
+    let Some(max_ifa) = get_max_interface() else {return None};
+    let max_ifa_stats;
 
-    return Ok(StatusFields::NetStats(Some(max_ifa_stats)));
+    match get_net_stats(&max_ifa) {
+        Ok(stats) => max_ifa_stats = stats,
+        Err(e) => return Some(Err(e))
+    }
+
+    return Some(Ok(StatusFields::NetStats(Some(max_ifa_stats))));
 }
 
 fn get_diff(current: &NetStats, old: &NetStats) -> NetStats {
@@ -118,8 +121,10 @@ pub fn get(current_stats: &Option<NetStats>) -> StatusFields {
             Err(_) => ()
         }
     }
-    
-    match get_first_result() {
+
+    let Some(first_result) = get_first_result() else {return StatusFields::NetStats(None)};
+
+    match first_result {
         Ok(res) => res,
         Err(e) => {
             eprintln!("Error in Net component: {}", e);
