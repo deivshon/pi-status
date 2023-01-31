@@ -7,15 +7,12 @@ pub mod host;
 pub mod disk;
 
 use std::thread;
-use std::sync::{RwLock, Barrier};
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::RwLock;
 use std::time;
 
 use serde::Serialize;
 
 use lazy_static::lazy_static;
-
-pub static PROC_AND_CPU: AtomicBool = AtomicBool::new(false);
 
 // Since the status data is going to live for the whole execution anyways,
 // use static instead of Arcs
@@ -29,71 +26,35 @@ lazy_static! {
         ram: None,
         proc: None,
     });
+
     pub static ref STATUS_STR: RwLock<String> = RwLock::new(String::new());
-    pub static ref PROC_CPU_SYNC: Barrier = Barrier::new(2);
 }
 
 #[derive(Serialize)]
 pub struct Status {
-    pub host: Option<host::Host>,
-    pub temp: Option<f32>,
-    pub net_stats: Option<net::NetStats>,
-    pub cpu_usage: Option<Vec<cpu::CpuUsage>>,
-    pub ram: Option<ram::Ram>,
-    pub disk: Option<Vec<disk::Disk>>,
-    pub proc: Option<Vec<proc::Process>>
+    host: Option<host::Host>,
+    temp: Option<f32>,
+    net_stats: Option<net::NetStats>,
+    cpu_usage: Option<Vec<cpu::CpuUsage>>,
+    ram: Option<ram::Ram>,
+    disk: Option<Vec<disk::Disk>>,
+    proc: Option<Vec<proc::Process>>
 }
 
-pub enum StatusFields {
-    Host(Option<host::Host>),
-    Temp(Option<f32>),
-    NetStats(Option<net::NetStats>),
-    CpuUsage(Option<Vec<cpu::CpuUsage>>),
-    Ram(Option<ram::Ram>),
-    Disk(Option<Vec<disk::Disk>>),
-    Proc(Option<Vec<proc::Process>>)
-}
-
-pub fn continous_update(field: StatusFields, ms: u64) {
+pub fn continous_update(ms: u64) {
     loop {
-        let data: StatusFields;
-        match &field {
-            StatusFields::Host(_) => data = host::get(),
-            StatusFields::Temp(_) => data = temp::get(),
-            StatusFields::NetStats(_) => {
-                let status_ref = STATUS.read().unwrap();
-                data = net::get(&status_ref.net_stats);
-            },
-            StatusFields::CpuUsage(_) => data = cpu::get(),
-            StatusFields::Ram(_) => data = ram::get(),
-            StatusFields::Disk(_) => data = disk::get(),
-            StatusFields::Proc(_) => data = proc::get()
-        }
-
         {
             let mut status_ref = STATUS.write().unwrap();
-            match data {
-                StatusFields::Host(h) => status_ref.host = h,
-                StatusFields::Temp(t) => status_ref.temp = t,
-                StatusFields::NetStats(n) => status_ref.net_stats = n,
-                StatusFields::CpuUsage(u) => status_ref.cpu_usage = u,
-                StatusFields::Ram(r) => status_ref.ram = r,
-                StatusFields::Disk(d) => status_ref.disk = d,
-                StatusFields::Proc(p) => status_ref.proc = p
-            };
+
+            status_ref.host = host::get();
+            status_ref.temp = temp::get();
+            status_ref.net_stats = net::get(&status_ref.net_stats);
+            status_ref.ram = ram::get();
+            status_ref.disk = disk::get();
+
+            status_ref.proc = proc::get();
+            status_ref.cpu_usage = cpu::get();
         }
-
-
-        // Make sure CPU and processes data does not go out of sync
-        match &field {
-            StatusFields::CpuUsage(_) | StatusFields::Proc(_) => {
-                if PROC_AND_CPU.load(Ordering::Relaxed) {
-                    PROC_CPU_SYNC.wait();
-                }
-            },
-            _ => ()
-        }
-
 
         {
             let status_ref = STATUS.read().unwrap();

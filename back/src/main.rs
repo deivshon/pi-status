@@ -1,6 +1,6 @@
 pub mod status;
 
-use status::{STATUS_STR, PROC_AND_CPU, StatusFields, continous_update};
+use status::{STATUS_STR, continous_update};
 use status::proc::PAGE_SIZE;
 
 use std::path::PathBuf;
@@ -35,6 +35,7 @@ async fn serve_data() -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Get page size to compute processes' memory usage in bytes
+    // only using /proc/pid/stat
     store_page_size();
     if PAGE_SIZE.load(Ordering::Relaxed) == 0 {
         eprintln!("Could not get page size, processes' memory usage will not be fetched")
@@ -44,16 +45,8 @@ async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
 
-    PROC_AND_CPU.store(true, Ordering::Relaxed);
-
-    // Spawn status updating threads
-    thread::spawn(move || continous_update(StatusFields::Host(None), 5000));
-    thread::spawn(move || continous_update(StatusFields::Temp(None), 1000));
-    thread::spawn(move || continous_update(StatusFields::NetStats(None), 1000));
-    thread::spawn(move || continous_update(StatusFields::CpuUsage(None), 1000));
-    thread::spawn(move || continous_update(StatusFields::Ram(None), 1000));
-    thread::spawn(move || continous_update(StatusFields::Disk(None), 1000));
-    thread::spawn(move || continous_update(StatusFields::Proc(None), 1000));
+    // Spawn status updating thread
+    thread::spawn(move || continous_update(1000));
 
     // Start the server
     HttpServer::new(move || {

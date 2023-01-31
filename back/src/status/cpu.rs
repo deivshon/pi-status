@@ -1,5 +1,3 @@
-use crate::status::StatusFields;
-
 use std::fs;
 use std::sync::Mutex;
 
@@ -111,12 +109,12 @@ fn get_cpu_data() -> Result<Vec<CpuUsage>> {
     return Ok(cpu_usage)
 }
 
-pub fn get() -> StatusFields {
+pub fn get() -> Option<Vec<CpuUsage>> {
     match get_cpu_data() {
-        Ok(usage) => StatusFields::CpuUsage(Some(usage)),
+        Ok(usage) => Some(usage),
         Err(e) => {
             eprintln!("Error in CPU component: {}", e);
-            StatusFields::CpuUsage(None)
+            None
         }
     }
 }

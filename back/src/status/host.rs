@@ -5,8 +5,6 @@ use anyhow::{Result, Error};
 
 use serde::Serialize;
 
-use crate::status::StatusFields;
-
 const HOST_PATH: &str = "/etc/hostname";
 const UPTIME_PATH: &str = "/proc/uptime";
 
@@ -44,7 +42,7 @@ fn get_uptime() -> Result<u64> {
     
 }
 
-pub fn get() -> StatusFields {
+pub fn get() -> Option<Host> {
     let hostname;
     let uptime;
     
@@ -52,7 +50,7 @@ pub fn get() -> StatusFields {
         Ok(h) => hostname = h,
         Err(e) => {
             eprintln!("Error in Host component: Error retrieving hostname: {}", e);
-            return StatusFields::Host(None)
+            return None
         }
     }
 
@@ -60,12 +58,12 @@ pub fn get() -> StatusFields {
         Ok(u) => uptime = u,
         Err(e) => {
             eprintln!("Error in Host component: Error retrieving uptime: {}", e);
-            return StatusFields::Host(None)
+            return None
         }
     }
 
-    return StatusFields::Host(Some(Host {
+    return Some(Host {
         hostname,
         uptime
-    }));
+    });
 }

@@ -1,5 +1,3 @@
-use super::StatusFields;
-
 use std::fs;
 use std::io;
 use std::fmt;
@@ -200,15 +198,15 @@ fn replace_old_map() {
     *proc_old = proc_new.clone();
 }
 
-pub fn get() -> StatusFields {
+pub fn get() -> Option<Vec<Process>> {
     match get_procs() {
         Ok(proc_data) => {
             replace_old_map();
-            return StatusFields::Proc(Some(proc_data));
+            return Some(proc_data);
         }
         Err(e) => {
             eprintln!("Error in Proc component: {}", e);
-            return StatusFields::Proc(None)
+            return None
         }
     };
 }

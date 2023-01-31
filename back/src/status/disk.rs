@@ -2,8 +2,6 @@ use std::fs;
 use serde::Serialize;
 use nix::sys::statvfs::statvfs;
 
-use crate::status::StatusFields;
-
 const PROC_MOUNTS: &str = "/proc/mounts";
 
 const FILESYSTEM: usize = 0;
@@ -51,12 +49,12 @@ fn get_disks() -> Result<Vec<Disk>, std::io::Error> {
     return Ok(disks)
 }
 
-pub fn get() -> StatusFields {
+pub fn get() -> Option<Vec<Disk>> {
     match get_disks() {
-        Ok(disks) => StatusFields::Disk(Some(disks)),
+        Ok(disks) => Some(disks),
         Err(e) => {
             eprintln!("Error in disks component: {}", e);
-            StatusFields::Disk(None)
+            None
         }
     }
 }

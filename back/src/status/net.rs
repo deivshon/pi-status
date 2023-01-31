@@ -1,5 +1,3 @@
-use super::StatusFields;
-
 use std::time::UNIX_EPOCH;
 use std::fs;
 
@@ -85,7 +83,7 @@ fn get_net_stats(interface: &String) -> Result<NetStats> {
     })
 }
 
-fn get_first_result() -> Option<Result<StatusFields>> {
+fn get_first_result() -> Option<Result<NetStats>> {
     let Some(max_ifa) = get_max_interface() else {return None};
     let max_ifa_stats;
 
@@ -94,7 +92,7 @@ fn get_first_result() -> Option<Result<StatusFields>> {
         Err(e) => return Some(Err(e))
     }
 
-    return Some(Ok(StatusFields::NetStats(Some(max_ifa_stats))));
+    return Some(Ok(max_ifa_stats));
 }
 
 fn get_diff(current: &NetStats, old: &NetStats) -> NetStats {
@@ -112,23 +110,23 @@ fn get_diff(current: &NetStats, old: &NetStats) -> NetStats {
     }
 }
 
-pub fn get(current_stats: &Option<NetStats>) -> StatusFields {
+pub fn get(current_stats: &Option<NetStats>) -> Option<NetStats> {
     if let Some(ns) = current_stats {
         match get_net_stats(&ns.interface) {
             Ok(current_stats) => {
-                return StatusFields::NetStats(Some(get_diff(&current_stats, ns)))
+                return Some(get_diff(&current_stats, ns))
             },
             Err(_) => ()
         }
     }
 
-    let Some(first_result) = get_first_result() else {return StatusFields::NetStats(None)};
+    let Some(first_result) = get_first_result() else {return None};
 
     match first_result {
-        Ok(res) => res,
+        Ok(res) => Some(res),
         Err(e) => {
             eprintln!("Error in Net component: {}", e);
-            StatusFields::NetStats(None)
+            None
         }
     }
 }

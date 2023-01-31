@@ -1,5 +1,3 @@
-use super::StatusFields;
-
 use std::fs;
 
 use serde::Serialize;
@@ -54,12 +52,12 @@ fn get_ram() -> Result<Ram> {
     })
 }
 
-pub fn get() -> StatusFields {
+pub fn get() -> Option<Ram> {
     match get_ram() {
-        Ok(ram_data) => StatusFields::Ram(Some(ram_data)),
+        Ok(ram_data) => Some(ram_data),
         Err(e) => {
             eprintln!("Error in RAM component: {}", e);
-            StatusFields::Ram(None)
+            None
         }
     }
 }
