@@ -1,12 +1,13 @@
 pub mod status;
 
-use status::{STATUS_STR, continous_update};
+use status::{STATUS_STR, STATUS_LAST, continous_update};
 use status::proc::PAGE_SIZE;
 
 use std::path::PathBuf;
 use std::thread;
 use std::sync::atomic::Ordering;
 use std::error::Error;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use actix_web::{web, App, HttpServer, Responder, HttpResponse};
 use actix_web::http::header::ContentType;
@@ -21,12 +22,20 @@ fn store_page_size() {
 }
 
 async fn index() -> Result<NamedFile, Box<dyn Error>> {
+    STATUS_LAST.store(
+        SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+        Ordering::Relaxed
+    );
     let path: PathBuf = std::fs::canonicalize("./front/pi-status-front/dist/index.html")?;
     
     return Ok(NamedFile::open(path)?)
 }
 
 async fn serve_data() -> impl Responder {
+    STATUS_LAST.store(
+        SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+        Ordering::Relaxed
+    );
     let data_ref = STATUS_STR.read().unwrap();
 
     return HttpResponse::Ok().insert_header(ContentType::json()).body((&*data_ref).to_owned());
@@ -46,7 +55,7 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     // Spawn status updating thread
-    thread::spawn(move || continous_update(1000));
+    thread::spawn(move || continous_update());
 
     // Start the server
     HttpServer::new(move || {

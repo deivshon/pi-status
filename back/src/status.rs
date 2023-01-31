@@ -6,13 +6,16 @@ pub mod proc;
 pub mod host;
 pub mod disk;
 
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::thread;
 use std::sync::RwLock;
-use std::time;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use serde::Serialize;
 
 use lazy_static::lazy_static;
+
+pub static STATUS_LAST: AtomicU64 = AtomicU64::new(0);
 
 // Since the status data is going to live for the whole execution anyways,
 // use static instead of Arcs
@@ -41,7 +44,8 @@ pub struct Status {
     proc: Option<Vec<proc::Process>>
 }
 
-pub fn continous_update(ms: u64) {
+pub fn continous_update() {
+    let mut just_run;
     loop {
         {
             let mut status_ref = STATUS.write().unwrap();
@@ -55,14 +59,20 @@ pub fn continous_update(ms: u64) {
             status_ref.proc = proc::get();
             status_ref.cpu_usage = cpu::get();
         }
-
+        
         {
             let status_ref = STATUS.read().unwrap();
             let mut status_str_ref = STATUS_STR.write().unwrap();
-
+            
             *status_str_ref = serde_json::to_string(&*status_ref).unwrap();
-        }
+        }        
 
-        thread::sleep(time::Duration::from_millis(ms));
+        just_run = true;
+        while SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - STATUS_LAST.load(Ordering::Relaxed) > 10 ||
+              just_run
+        {
+            thread::sleep(Duration::from_millis(1000));
+            just_run = false;
+        }
     }
 }
