@@ -33,7 +33,7 @@ export default function App() {
         if (netSpeeds.length > 30) netSpeeds.shift()
         
         if(newData.host) {
-            setHostname(newData.host.name)
+            setHostname(newData.host.hostname)
 
             let uptime = newData.host.uptime
             if(uptime) {
