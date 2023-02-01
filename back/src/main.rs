@@ -78,7 +78,7 @@ async fn main() -> std::io::Result<()> {
     // Get page size to compute processes' memory usage in bytes
     // only using /proc/pid/stat
     store_page_size();
-    if PAGE_SIZE.load(Ordering::Relaxed) == 4096 {
+    if PAGE_SIZE.load(Ordering::Relaxed) == 0 {
         eprintln!(" \x1B[1;37mWARNING: could not get page size, processes memory usage will not be fetched\x1B[0m")
     }
 
