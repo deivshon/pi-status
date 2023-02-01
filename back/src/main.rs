@@ -48,6 +48,7 @@ async fn serve_data() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let mut separate_output = false;
     let mut allowed_subnets = vec![
         "127.0.0.1",
         "10.*.*.*",
@@ -72,14 +73,16 @@ async fn main() -> std::io::Result<()> {
 
     if force_public {
         allowed_subnets.push("*.*.*.*");
-        println!(" \x1B[1;31mWARNING: the monitored resources data is now accessible to anyone, including processes names\x1B[0m")
+        println!(" \x1B[1;31mWARNING: the monitored resources data is now accessible to anyone, including processes names\x1B[0m");
+        separate_output = true;
     }
 
     // Get page size to compute processes' memory usage in bytes
     // only using /proc/pid/stat
     store_page_size();
     if PAGE_SIZE.load(Ordering::Relaxed) == 0 {
-        eprintln!(" \x1B[1;37mWARNING: could not get page size, processes memory usage will not be fetched\x1B[0m")
+        eprintln!(" \x1B[1;37mWARNING: could not get page size, processes memory usage will not be fetched\x1B[0m");
+        separate_output = true;
     }
 
     std::env::set_var("RUST_LOG", "debug");
@@ -88,7 +91,8 @@ async fn main() -> std::io::Result<()> {
     // Spawn status updating thread
     thread::spawn(move || continous_update());
 
-    println!();
+    if separate_output {println!()}
+
     // Start the server
     HttpServer::new(move || {
         App::new()
