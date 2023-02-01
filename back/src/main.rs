@@ -48,7 +48,6 @@ async fn serve_data() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let mut separate_output = false;
     let mut allowed_subnets = vec![
         "127.0.0.1",
         "10.*.*.*",
@@ -70,6 +69,8 @@ async fn main() -> std::io::Result<()> {
 
         ap.parse_args_or_exit();
     }
+
+    let mut separate_output = false;
 
     if force_public {
         allowed_subnets.push("*.*.*.*");
