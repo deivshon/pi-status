@@ -1,10 +1,14 @@
 .proc-container {
-    font-family: monospace;
     border: 2px solid #eeba45;
     height: 60vh;
     padding: .25rem .5rem;
     overflow: scroll;
     overflow-wrap: anywhere;
+}
+
+
+.proc-container::-webkit-scrollbar {
+    display: none !important;
 }
 
 .proc-col {
