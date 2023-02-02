@@ -4,8 +4,6 @@ services:
   pi-status:
     container_name: pi-status
     image: "pi-status"
-    # security_opt:
-    #   - seccomp:unconfined
     ports:
       - "8080:8080/tcp"
     environment:
@@ -24,3 +22,5 @@ services:
       - /sys/class/thermal:${PST_DOCKER_THERMAL_DIR}
       - /proc/1/mounts:${PST_DOCKER_MOUNTS_FILE}
 
+      # Mount the volumes you want to monitor, host and container mount points must be the same. e.g. 
+      # - /mnt/my_volume:/mnt/my_volume
