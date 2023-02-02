@@ -6,17 +6,26 @@ use serde::Serialize;
 use anyhow::Result;
 use lazy_static::lazy_static;
 
-const NET_DIR: &str = "/sys/class/net/";
+const NET_DIR_DEFAULT: &str = "/sys/class/net/";
+const NET_DIR_DOCKER_VAR: &str = "PST_NET_DIR";
+
 const RX_DIR: &str = "statistics/tx_bytes";
 const TX_DIR: &str = "statistics/rx_bytes";
 
 lazy_static! {
-    pub static ref LAST_TIMESTAMP: Mutex<NetTimestamp> = Mutex::new(
+    static ref LAST_TIMESTAMP: Mutex<NetTimestamp> = Mutex::new(
         NetTimestamp {
             old: UNIX_EPOCH.elapsed().unwrap().as_millis(),
             new: 0
         }
     );
+
+    static ref NET_DIR: String =
+        if let Ok(net_dir) = std::env::var(NET_DIR_DOCKER_VAR) {
+            net_dir
+        } else {
+            String::from(NET_DIR_DEFAULT)
+        };
 }
 
 pub struct NetTimestamp {
@@ -52,7 +61,7 @@ fn add_interface_dir(dst: &mut Vec<fs::DirEntry>, dir: Result<fs::DirEntry, std:
 
 fn get_max_interface() -> Option<String> {
     let mut interfaces: Vec<fs::DirEntry>  = vec![];
-    let Ok(files) = fs::read_dir(NET_DIR) else {return None};
+    let Ok(files) = fs::read_dir((*NET_DIR).as_str()) else {return None};
 
     for file in files {
         add_interface_dir(&mut interfaces, file).unwrap_or(());

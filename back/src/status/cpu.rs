@@ -9,11 +9,19 @@ use anyhow::{Result, Error};
 
 use lazy_static::lazy_static;
 
+const PROC_STAT_DEFAULT: &str = "/proc/stat";
+
 lazy_static! {
     static ref LAST: Mutex<Vec<CpuUsage>> = Mutex::new(vec![]);
+
+    static ref PROC_STAT: String =
+        if let Ok(proc) = std::env::var("PST_PROC_DIR") {
+            format!("{}/stat", proc)
+        } else {
+            String::from(PROC_STAT_DEFAULT)
+        };
 }
 
-const PROC_STAT: &str = "/proc/stat";
 
 const USER: usize = 1;
 const NICE: usize = 2;
@@ -60,7 +68,7 @@ fn get_cpu_data() -> Result<Vec<CpuUsage>> {
     let first = last_usage.is_empty();
 
     let mut cpu_usage: Vec<CpuUsage> = vec![];
-    let proc_stat = fs::read_to_string(PROC_STAT)?;
+    let proc_stat = fs::read_to_string((*PROC_STAT).as_str())?;
     for line in proc_stat.lines() {
         let split_line = line.split(" ").filter(|x| *x != "").collect::<Vec<&str>>();
 

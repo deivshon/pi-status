@@ -1,8 +1,19 @@
 use std::fs;
 use serde::Serialize;
 use nix::sys::statvfs::statvfs;
+use lazy_static::lazy_static;
 
-const PROC_MOUNTS: &str = "/proc/mounts";
+const PROC_MOUNTS_DEFAULT: &str = "/proc/mounts";
+
+lazy_static! {
+    static ref PROC_MOUNTS: String =
+        if let Ok(mounts) = std::env::var("PST_MOUNTS_FILE") {
+            mounts
+        } else {
+            String::from(PROC_MOUNTS_DEFAULT)
+        };
+}
+
 
 const FILESYSTEM: usize = 0;
 const MOUNTPOINT: usize = 1;
@@ -25,7 +36,7 @@ pub struct Disk {
 
 fn get_disks() -> Result<Vec<Disk>, std::io::Error> {
     let mut disks = vec![];
-    let proc_mounts = fs::read_to_string(PROC_MOUNTS)?;
+    let proc_mounts = fs::read_to_string((*PROC_MOUNTS).as_str())?;
 
     for l in proc_mounts.lines() {
         let split_mount = l.split_whitespace().collect::<Vec<&str>>();

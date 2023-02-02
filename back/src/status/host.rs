@@ -1,12 +1,29 @@
 use std::fs;
 use std::fmt;
+use lazy_static::lazy_static;
 
 use anyhow::{Result, Error};
 
 use serde::Serialize;
 
-const HOST_PATH: &str = "/etc/hostname";
-const UPTIME_PATH: &str = "/proc/uptime";
+const HOST_PATH_DEFAULT: &str = "/etc/hostname";
+const UPTIME_PATH_DEFAULT: &str = "/proc/uptime";
+
+lazy_static! {
+    static ref HOST_PATH: String =
+        if let Ok(etc_hostname) = std::env::var("PST_HOST_FILE") {
+            etc_hostname
+        } else {
+            String::from(HOST_PATH_DEFAULT)
+        };
+    
+    static ref UPTIME_PATH: String =
+        if let Ok(proc) = std::env::var("PST_PROC_DIR") {
+            format!("{}/uptime", proc)
+        } else {
+            String::from(UPTIME_PATH_DEFAULT)
+        };
+}
 
 #[derive(Debug)]
 enum HostErr {
@@ -30,13 +47,13 @@ pub struct Host {
 }
 
 fn get_hostname() -> Result<String, std::io::Error> {
-    let hostname = fs::read_to_string(HOST_PATH)?.trim_end().to_string();
+    let hostname = fs::read_to_string((*HOST_PATH).as_str())?.trim_end().to_string();
 
     return Ok(hostname)
 }
 
 fn get_uptime() -> Result<u64> {
-    let uptime_unparsed = fs::read_to_string(UPTIME_PATH)?;
+    let uptime_unparsed = fs::read_to_string((*UPTIME_PATH).as_str())?;
     let uptime = uptime_unparsed.split(".").nth(0);
 
     match uptime {

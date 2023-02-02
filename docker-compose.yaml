@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  pi-status:
+    container_name: pi-status
+    image: "pi-status"
+    # security_opt:
+    #   - seccomp:unconfined
+    ports:
+      - "8080:8080/tcp"
+    environment:
+      - PST_PROC_DIR=${PST_DOCKER_PROC_DIR}
+      - PST_HOST_FILE=${PST_DOCKER_HOST_FILE}
+      - PST_NET_DIR=${PST_DOCKER_NET_DIR}
+      - PST_NET_DEVS=${PST_DOCKER_NET_DEVS}
+      - PST_THERMAL_DIR=${PST_DOCKER_THERMAL_DIR}
+      - PST_MOUNTS_FILE=${PST_DOCKER_MOUNTS_FILE}
+      - ARGS=-f
+    volumes:
+      - /proc:${PST_DOCKER_PROC_DIR}
+      - /etc/hostname:${PST_DOCKER_HOST_FILE}
+      - /sys/class/net:${PST_DOCKER_NET_DIR}
+      - /sys/devices:${PST_DOCKER_NET_DEVS}
+      - /sys/class/thermal:${PST_DOCKER_THERMAL_DIR}
+      - /proc/1/mounts:${PST_DOCKER_MOUNTS_FILE}
+

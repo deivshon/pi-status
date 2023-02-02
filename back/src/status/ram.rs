@@ -2,8 +2,18 @@ use std::fs;
 
 use serde::Serialize;
 use anyhow::Result;
+use lazy_static::lazy_static;
 
-const PROC_MEMINFO: &str = "/proc/meminfo";
+const PROC_MEMINFO_DEFAULT: &str = "/proc/meminfo";
+
+lazy_static! {
+    static ref PROC_MEMINFO: String =
+        if let Ok(proc) = std::env::var("PST_PROC_DIR") {
+            format!("{}/meminfo", proc)
+        } else {
+            String::from(PROC_MEMINFO_DEFAULT)
+        };
+}
 
 const TOTAL_LABEL: &str = "MemTotal:";
 const FREE_LABEL: &str = "MemFree:";
@@ -32,7 +42,7 @@ pub struct Ram {
 }
 
 fn get_ram() -> Result<Ram> {
-    let meminfo = fs::read_to_string(PROC_MEMINFO)?;
+    let meminfo = fs::read_to_string((*PROC_MEMINFO).as_str())?;
 
     let mut mem_values: Vec<u64> = vec![];
     for line in meminfo.lines() {

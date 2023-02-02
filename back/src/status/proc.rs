@@ -44,7 +44,16 @@ macro_rules! cantor {
     };
 }
 
-const PROC_DIR: &str = "/proc/";
+const PROC_DIR_DEFAULT: &str = "/proc";
+
+lazy_static! {
+    static ref PROC_DIR: String =
+        if let Ok(proc) = std::env::var("PST_PROC_DIR") {
+            proc
+        } else {
+            String::from(PROC_DIR_DEFAULT)
+        };
+}
 
 const STATE_OFFSET: usize = 2;
 
@@ -171,7 +180,7 @@ fn get_procs() -> Result<Vec<Process>> {
     new_procs.clear();
 
     let mut procs: Vec<Process> = vec![];
-    let files = fs::read_dir(PROC_DIR)?;
+    let files = fs::read_dir((*PROC_DIR).as_str())?;
 
     for pid in files {
         let pid_dir: String;

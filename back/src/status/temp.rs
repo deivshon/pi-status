@@ -1,11 +1,22 @@
 use std::fs;
 
 use anyhow::Result;
+use lazy_static::lazy_static;
 
-const TEMP_PATH: &str = "/sys/class/thermal/thermal_zone0/temp";
+const TEMP_PATH_DEFAULT: &str = "/sys/class/thermal/thermal_zone0/temp";
+
+lazy_static! {
+    static ref TEMP_PATH: String =
+        if let Ok(thermal) = std::env::var("PST_THERMAL_DIR") {
+            format!("{}/thermal_zone0/temp", thermal)
+        } else {
+            String::from(TEMP_PATH_DEFAULT)
+        };
+}
+
 
 fn get_temp() -> Result<f32> {
-    let temp_str = fs::read_to_string(TEMP_PATH)?;
+    let temp_str = fs::read_to_string((*TEMP_PATH).as_str())?;
     let temp = temp_str.replace("\n", "").parse::<f32>()?;
 
     return Ok(temp / 1e3);
