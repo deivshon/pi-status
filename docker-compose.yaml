@@ -13,7 +13,13 @@ services:
       - PST_NET_DEVS=${PST_DOCKER_NET_DEVS}
       - PST_THERMAL_DIR=${PST_DOCKER_THERMAL_DIR}
       - PST_MOUNTS_FILE=${PST_DOCKER_MOUNTS_FILE}
-      - ARGS=-f
+      
+      # Uncomment to make containerized pi-status accept connections,
+      # but be aware that ALL connections will be accepted, so firewall
+      # as needed if you don't want to make your monitored resources data
+      # available to anyone
+
+      # - ARGS=-f
     volumes:
       - /proc:${PST_DOCKER_PROC_DIR}
       - /etc/hostname:${PST_DOCKER_HOST_FILE}
