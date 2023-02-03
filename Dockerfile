@@ -13,6 +13,7 @@ FROM node:latest AS FRONT_BUILDER
 WORKDIR /pi-status
 
 COPY ./front ./front
+RUN rm -rf ./front/pi-status-front/node_modules ./front/pi-status-front/dist
 
 WORKDIR /pi-status/front/pi-status-front
 
