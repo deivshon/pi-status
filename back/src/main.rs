@@ -86,7 +86,7 @@ async fn main() -> std::io::Result<()> {
         separate_output = true;
     }
 
-    std::env::set_var("RUST_LOG", "debug");
+    std::env::set_var("RUST_LOG", "info");
     env_logger::init();
 
     // Spawn status updating thread
