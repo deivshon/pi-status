@@ -24,13 +24,14 @@ services:
       # - ARGS=-f
     volumes:
       # These are NOT to be changed
-      - /proc:${PST_DOCKER_PROC_DIR}
-      - /etc/hostname:${PST_DOCKER_HOST_FILE}
-      - /sys/class/net:${PST_DOCKER_NET_DIR}
-      - /sys/devices:${PST_DOCKER_NET_DEVS}
-      - /sys/class/thermal:${PST_DOCKER_THERMAL_DIR}
-      - /proc/1/mounts:${PST_DOCKER_MOUNTS_FILE}
+      - /proc:${PST_DOCKER_PROC_DIR}:ro
+      - /etc/hostname:${PST_DOCKER_HOST_FILE}:ro
+      - /sys/class/net:${PST_DOCKER_NET_DIR}:ro
+      - /sys/devices:${PST_DOCKER_NET_DEVS}:ro
+      - /sys/class/thermal:${PST_DOCKER_THERMAL_DIR}:ro
+      - /proc/1/mounts:${PST_DOCKER_MOUNTS_FILE}:ro
 
-      # Mount the volumes you want to monitor, host and container mount points must be the same.
+      # Mount the volumes you want to monitor, host and container mount points must be the same
+      # The `:ro` at the end ensures they are mounted as read only
       # e.g. 
-      # - /mnt/my_volume:/mnt/my_volume
+      # - /mnt/my_volume:/mnt/my_volume:ro
