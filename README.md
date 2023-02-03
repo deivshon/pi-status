@@ -31,5 +31,5 @@ It's recommended to not run pi-status in a container if possible, but a Docker i
 - Run with `docker compose up`
 
 ## Endpoints
-- `/`
-- `/data`
+- `/` -> the web page to view the monitored resources data
+- `/data` -> the monitored resources data in JSON format
