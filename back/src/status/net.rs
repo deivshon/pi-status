@@ -1,3 +1,5 @@
+use super::DOCKER_NET_DIR_ENV;
+
 use std::sync::{Mutex, MutexGuard};
 use std::time::UNIX_EPOCH;
 use std::fs;
@@ -7,7 +9,6 @@ use anyhow::Result;
 use lazy_static::lazy_static;
 
 const NET_DIR_DEFAULT: &str = "/sys/class/net/";
-const NET_DIR_DOCKER_VAR: &str = "PST_NET_DIR";
 
 const RX_DIR: &str = "statistics/tx_bytes";
 const TX_DIR: &str = "statistics/rx_bytes";
@@ -21,7 +22,7 @@ lazy_static! {
     );
 
     static ref NET_DIR: String =
-        if let Ok(net_dir) = std::env::var(NET_DIR_DOCKER_VAR) {
+        if let Ok(net_dir) = std::env::var(DOCKER_NET_DIR_ENV) {
             net_dir
         } else {
             String::from(NET_DIR_DEFAULT)

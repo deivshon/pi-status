@@ -17,6 +17,12 @@ use lazy_static::lazy_static;
 
 pub static STATUS_LAST: AtomicU64 = AtomicU64::new(0);
 
+pub const DOCKER_PROC_DIR_ENV: &str = "PST_PROC_DIR";
+pub const DOCKER_MOUNTS_FILE_ENV: &str = "PST_MOUNTS_FILE";
+pub const DOCKER_HOST_FILE_ENV: &str = "PST_HOST_FILE";
+pub const DOCKER_NET_DIR_ENV: &str = "PST_NET_DIR";
+pub const DOCKER_THERMAL_DIR_ENV: &str = "PST_THERMAL_DIR";
+
 // Since the status data is going to live for the whole execution anyways,
 // use static instead of Arcs
 lazy_static! {

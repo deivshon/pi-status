@@ -1,4 +1,7 @@
+use super::DOCKER_MOUNTS_FILE_ENV;
+
 use std::fs;
+
 use serde::Serialize;
 use nix::sys::statvfs::statvfs;
 use lazy_static::lazy_static;
@@ -7,7 +10,7 @@ const PROC_MOUNTS_DEFAULT: &str = "/proc/mounts";
 
 lazy_static! {
     static ref PROC_MOUNTS: String =
-        if let Ok(mounts) = std::env::var("PST_MOUNTS_FILE") {
+        if let Ok(mounts) = std::env::var(DOCKER_MOUNTS_FILE_ENV) {
             mounts
         } else {
             String::from(PROC_MOUNTS_DEFAULT)

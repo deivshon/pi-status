@@ -1,3 +1,5 @@
+use super::DOCKER_PROC_DIR_ENV;
+
 use std::fs;
 use std::sync::Mutex;
 
@@ -15,7 +17,7 @@ lazy_static! {
     static ref LAST: Mutex<Vec<CpuUsage>> = Mutex::new(vec![]);
 
     static ref PROC_STAT: String =
-        if let Ok(proc) = std::env::var("PST_PROC_DIR") {
+        if let Ok(proc) = std::env::var(DOCKER_PROC_DIR_ENV) {
             format!("{}/stat", proc)
         } else {
             String::from(PROC_STAT_DEFAULT)

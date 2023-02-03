@@ -1,3 +1,5 @@
+use super::DOCKER_PROC_DIR_ENV;
+
 use std::fs;
 
 use serde::Serialize;
@@ -8,7 +10,7 @@ const PROC_MEMINFO_DEFAULT: &str = "/proc/meminfo";
 
 lazy_static! {
     static ref PROC_MEMINFO: String =
-        if let Ok(proc) = std::env::var("PST_PROC_DIR") {
+        if let Ok(proc) = std::env::var(DOCKER_PROC_DIR_ENV) {
             format!("{}/meminfo", proc)
         } else {
             String::from(PROC_MEMINFO_DEFAULT)

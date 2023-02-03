@@ -1,3 +1,5 @@
+use super::DOCKER_PROC_DIR_ENV;
+
 use std::fs;
 use std::io;
 use std::fmt;
@@ -35,6 +37,13 @@ lazy_static! {
 
     static ref CPU_PROC_OLD: Mutex<HashMap<u64, u64>> = Mutex::new(HashMap::new());
     static ref CPU_PROC_NEW: Mutex<HashMap<u64, u64>> = Mutex::new(HashMap::new());
+
+    static ref PROC_DIR: String =
+        if let Ok(proc) = std::env::var(DOCKER_PROC_DIR_ENV) {
+            proc
+        } else {
+            String::from(PROC_DIR_DEFAULT)
+        };
 }
 
 // The Cantor pairing function is a function used to gain a unique number starting from 2 others in input
@@ -45,15 +54,6 @@ macro_rules! cantor {
 }
 
 const PROC_DIR_DEFAULT: &str = "/proc";
-
-lazy_static! {
-    static ref PROC_DIR: String =
-        if let Ok(proc) = std::env::var("PST_PROC_DIR") {
-            proc
-        } else {
-            String::from(PROC_DIR_DEFAULT)
-        };
-}
 
 const STATE_OFFSET: usize = 2;
 
