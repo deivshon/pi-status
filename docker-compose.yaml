@@ -3,7 +3,7 @@ version: "3.9"
 services:
   pi-status:
     container_name: pi-status
-    image: "pi-status"
+    image: deivshon/pi-status
     ports:
       # 
       - "8080:8080/tcp"
