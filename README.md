@@ -1,5 +1,5 @@
 # pi-status
-Pi-status is a resource monitoring web application. It provides real-time information about the device's RAM, storage, CPU temperature and usage, processes' data, and network usage. It comes with a user friendly, mobile first front-end
+pi-status is a resource monitoring web application. It provides real-time information about the device's RAM, storage, CPU temperature and usage, processes' data, and network usage. It comes with a user friendly, mobile first front-end
 
 The releases and relative Docker containers are all for AArch64 devices, which makes it compatible with Raspberry Pi Models 2/3/4
 
@@ -23,6 +23,23 @@ It's recommended to not run pi-status in a container if possible, but a Docker i
 ### Native
 - Download and extract the release of choice
 - Run `./pi-status`, from the project's root folder
+
+You probably don't want to leave a shell with pi-status constantly running, an alternative is running it as a systemd service, an example configuration file for that is shown below
+```
+[Unit]
+Description=pi-status resource monitor
+After=network.target
+
+[Service]
+Type=simple
+User=<user>
+WorkingDirectory=<your-pi-status-directory>
+ExecStart=<your-pi-status-directory>/pi-status -f
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
 ### Docker
 - Pull the image with `docker pull deivshon/pi-status`
 - Create a directory for pi-status and `cd` into it
