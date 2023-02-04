@@ -20,8 +20,4 @@ table, th, td {
     table, th, td {
         padding: 0 0.15rem;
     }
-
-    th {
-        text-decoration: underline;
-    }
 }
