@@ -1,0 +1,23 @@
+.cpu-stats-container {
+    flex-direction: column;
+}
+
+.core-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    white-space: pre;
+    width: 95vw;
+    max-width: 1000px;
+}
+
+.bars-container {
+    display: flex;
+    flex-direction: column;
+
+    gap: 1vh;
+}
+
+.progress-bar.cpu-bar {
+    background-color: #dfbfff;
+}

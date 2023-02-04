@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  pi-status:
+    container_name: pi-status
+    image: deivshon/pi-status
+    ports:
+      # 
+      - "8080:8080/tcp"
+    environment:
+      # These are NOT to be changed
+      - PST_PROC_DIR=${PST_DOCKER_PROC_DIR}
+      - PST_HOST_FILE=${PST_DOCKER_HOST_FILE}
+      - PST_NET_DIR=${PST_DOCKER_NET_DIR}
+      - PST_NET_DEVS=${PST_DOCKER_NET_DEVS}
+      - PST_THERMAL_DIR=${PST_DOCKER_THERMAL_DIR}
+      - PST_MOUNTS_FILE=${PST_DOCKER_MOUNTS_FILE}
+      
+      # Uncomment to make containerized pi-status accept connections,
+      # but be aware that ALL connections will be accepted, so firewall
+      # as needed if you don't want to make your monitored resources data
+      # available to anyone
+
+      # - ARGS=-f
+    volumes:
+      # These are NOT to be changed
+      - /proc:${PST_DOCKER_PROC_DIR}:ro
+      - /etc/hostname:${PST_DOCKER_HOST_FILE}:ro
+      - /sys/class/net:${PST_DOCKER_NET_DIR}:ro
+      - /sys/devices:${PST_DOCKER_NET_DEVS}:ro
+      - /sys/class/thermal:${PST_DOCKER_THERMAL_DIR}:ro
+      - /proc/1/mounts:${PST_DOCKER_MOUNTS_FILE}:ro
+
+      # Mount the volumes you want to monitor, host and container mount points must be the same
+      # The `:ro` at the end ensures they are mounted as read only
+      # e.g. 
+      # - /mnt/my_volume:/mnt/my_volume:ro

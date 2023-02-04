@@ -1,0 +1,22 @@
+[package]
+name = "pi-status"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "4"
+actix-files = "0.6.2"
+env_logger = "0.9.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.91"
+lazy_static = "1.4.0"
+nix = "0.26.2"
+regex = "1.7.1"
+anyhow = "1.0.68"
+actix-ip-filter = "0.3.1"
+argparse = "0.2.2"
+
+[profile.release]
+opt-level = 3

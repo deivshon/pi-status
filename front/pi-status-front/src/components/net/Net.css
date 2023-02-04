@@ -1,0 +1,25 @@
+.net-chart {
+    width: 50vw;
+    height: 70vh;
+    margin-bottom: 1.5rem;
+}
+
+.net-stats-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.down-chart-container {
+    border: 2px solid #f28779;
+}
+
+.up-chart-container {
+    border: 2px solid #6ccdff;
+}
+
+@media screen and (max-aspect-ratio: 4/5) {
+    .net-chart {
+        width: 96vw;
+        height: 30vh;
+    }
+}

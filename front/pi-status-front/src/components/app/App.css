@@ -1,0 +1,88 @@
+body {
+    color: lightgray;
+    background-color: #0b0e14;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  margin: 0 auto;
+  text-align: center;
+
+}
+
+.host-bar {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.nav-pills {
+    padding: 0 0.5rem;
+    justify-content: space-between !important;
+}
+
+.nav-pills .net-pill .nav-link:not(.active) {
+    background-color: #0b0e14;
+    color: #f28779;
+}
+
+.nav-pills .net-pill .nav-link {
+    background-color: #f28779;
+    color: #0b0e14;
+}
+
+.nav-pills .cpu-pill .nav-link:not(.active) {
+    background-color: #0b0e14;
+    color: #dfbfff;
+}
+
+.nav-pills .cpu-pill .nav-link {
+    background-color: #dfbfff;
+    color: #0b0e14;
+}
+
+.nav-pills .mem-pill .nav-link:not(.active) {
+    background-color: #0b0e14;
+    color: #95e6cb;
+}
+
+.nav-pills .mem-pill .nav-link {
+    background-color: #95e6cb;
+    color: #0b0e14;
+}
+
+.nav-pills .proc-pill .nav-link:not(.active) {
+    background-color: #0b0e14;
+    color: #eeba45;
+}
+
+.nav-pills .proc-pill .nav-link {
+    background-color: #eeba45;
+    color: #0b0e14;
+}
+
+.tab-pane {
+    margin: 0;
+    padding: 0 2vw;
+}
+
+@media screen and (min-aspect-ratio: 4/5) {
+    .nav-pills {
+        justify-content: center !important;
+    }
+}
+
+@media screen and (max-width: 376px) {
+    .nav-pills {
+        font-size: 0.8rem !important;
+    }
+}
+
+@media screen and (max-width: 356px) {
+    .nav-pills {
+        font-size: 0.6rem !important;
+    }
+}
+

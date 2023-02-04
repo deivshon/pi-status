@@ -1,0 +1,39 @@
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 1.5rem;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+body {
+    font-family: monospace !important;
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+}
+
+.recharts-yAxis {
+    display: none !important;
+}
+
+.stats-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 2vw;
+}
+
+.progress {
+    background-color: #565b66 !important;
+}
+
+@media screen and (max-aspect-ratio: 4/5) {
+    body {
+        overflow: hidden;
+    }
+
+    .stats-container {
+        flex-direction: column;
+    }
+}
+
