@@ -21,12 +21,13 @@ lazy_static! {
 const FILESYSTEM: usize = 0;
 const MOUNTPOINT: usize = 1;
 
-const EXCLUDED_MOUNTS: &[&str; 5] = &[
+const EXCLUDED_MOUNTS: &[&str; 6] = &[
     "/proc",
     "/sys",
     "/run",
     "/dev",
-    "/tmp"
+    "/tmp",
+	"/var"
 ];
 
 #[derive(Serialize)]
