@@ -35,8 +35,8 @@ lazy_static! {
     // Matches /proc/pid directories
     static ref PROC_PID_RE: Regex = Regex::new(r"/proc/[0-9]+$").unwrap();
 
-    static ref CPU_PROC_OLD: Mutex<HashMap<u64, u64>> = Mutex::new(HashMap::new());
-    static ref CPU_PROC_NEW: Mutex<HashMap<u64, u64>> = Mutex::new(HashMap::new());
+    static ref CPU_PROC_OLD: Mutex<HashMap<(u64, u64), u64>> = Mutex::new(HashMap::new());
+    static ref CPU_PROC_NEW: Mutex<HashMap<(u64, u64), u64>> = Mutex::new(HashMap::new());
 
     static ref PROC_DIR: String =
         if let Ok(proc) = std::env::var(DOCKER_PROC_DIR_ENV) {
@@ -44,13 +44,6 @@ lazy_static! {
         } else {
             String::from(PROC_DIR_DEFAULT)
         };
-}
-
-// The Cantor pairing function is a function used to gain a unique number starting from 2 others in input
-macro_rules! cantor {
-    ($a:expr, $b:expr) => {
-        (($a + $b) * ($a + $b + 1) / 2) + $b
-    };
 }
 
 const PROC_DIR_DEFAULT: &str = "/proc";
@@ -70,7 +63,6 @@ const POSSIBLE_STATES: [&str; 13] = ["R", "S", "D", "Z", "T", "t", "W", "X", "x"
 
 #[derive(Serialize, Clone)]
 pub struct Process {
-    uid: u64,
     pid: u64,
     name: String,
     mem: u64,
@@ -97,12 +89,11 @@ fn validate_pid_dir(dir: io::Result<fs::DirEntry>) -> Result<fs::DirEntry> {
 
 fn get_proc_data(
     stat: &String,
-    old_procs: &MutexGuard<HashMap<u64, u64>>,
-    new_procs: &mut MutexGuard<HashMap<u64, u64>>
+    old_procs: &MutexGuard<HashMap<(u64, u64), u64>>,
+    new_procs: &mut MutexGuard<HashMap<(u64, u64), u64>>
 ) -> Option<Process> 
 {
     let mut res: Process = Process {
-        uid: 0,
         pid: 0,
         name: String::new(),
         mem: 0,
@@ -113,7 +104,6 @@ fn get_proc_data(
 
     let split_stat = stat.split_whitespace().collect::<Vec<&str>>();
 
-    // Parse pid
     if let Ok(pid) = split_stat[PID].parse::<u64>() {
         res.pid = pid;
     } else {return None}
@@ -141,19 +131,14 @@ fn get_proc_data(
     res.name.remove(0);
     res.name.pop();
     
-    // Parse threads
     let Ok(threads) = split_stat[THREADS + state_index].parse::<u16>() else {return None};
     res.threads = threads;
 
-    // Parse memory usage
     let Ok(mem) = split_stat[RSS + state_index].parse::<u64>() else {return None};
     res.mem = mem * PAGE_SIZE.load(Ordering::Relaxed);
-    
+
     let Ok(start_time) = split_stat[START_TIME + state_index].parse::<u64>() else {return None};
     res.start_time = start_time;
-    
-    // Gain robust unique id by combining PID and start time
-    res.uid = cantor!(res.pid, res.start_time);
     
     // Parse CPU usage
     if let (Ok(user), Ok(sys)) =
@@ -161,12 +146,12 @@ fn get_proc_data(
             split_stat[SYSTEM_TIME + state_index].parse::<u64>(),
            )
     {
-        if let Some(old) = old_procs.get(&res.uid) {
+        if let Some(old) = old_procs.get(&(res.pid, res.start_time)) {
             res.cpu_usage = (user + sys) - old;
-            new_procs.insert(res.uid, user + sys);
+            new_procs.insert((res.pid, res.start_time), user + sys);
         } else {
             res.cpu_usage = user + sys;
-            new_procs.insert(res.uid, res.cpu_usage);
+            new_procs.insert((res.pid, res.start_time), res.cpu_usage);
         }
     }
     else {return None}
