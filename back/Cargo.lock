@@ -837,7 +837,7 @@ checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
 
 [[package]]
 name = "pi-status"
-version = "1.0.0"
+version = "1.0.2"
 dependencies = [
  "actix-files",
  "actix-ip-filter",
