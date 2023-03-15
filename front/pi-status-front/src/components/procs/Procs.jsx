@@ -27,11 +27,15 @@ export default function Procs({procs, mainCpuUsage}) {
     useEffect(() => {
         setTotal(
             mainCpuUsage.user +
+            mainCpuUsage.nice +
             mainCpuUsage.system +
+            mainCpuUsage.idle +
+            mainCpuUsage.iowait +
             mainCpuUsage.irq +
             mainCpuUsage.softirq +
-            mainCpuUsage.idle +
-            mainCpuUsage.iowait
+            mainCpuUsage.steal +
+            mainCpuUsage.guest +
+            mainCpuUsage.guest_nice
         )
 
     }, [mainCpuUsage])
