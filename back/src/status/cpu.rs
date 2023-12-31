@@ -1,37 +1,21 @@
-use super::DOCKER_PROC_DIR_ENV;
+mod consts;
+pub mod err;
 
 use std::fs;
 use std::sync::Mutex;
 
-use std::fmt;
-
+use anyhow::{Error, Result};
+use lazy_static::lazy_static;
 use serde::Serialize;
 
-use anyhow::{Error, Result};
-
-use lazy_static::lazy_static;
-
-const PROC_STAT_DEFAULT: &str = "/proc/stat";
+use self::consts::{
+    GUEST, GUEST_NICE, IDLE, IOWAIT, IRQ, NICE, PROC_STAT, SOFTIRQ, STEAL, SYSTEM, USER,
+};
+use self::err::CpuErr;
 
 lazy_static! {
     static ref LAST: Mutex<Vec<CpuUsage>> = Mutex::new(vec![]);
-    static ref PROC_STAT: String = if let Ok(proc) = std::env::var(DOCKER_PROC_DIR_ENV) {
-        format!("{}/stat", proc)
-    } else {
-        String::from(PROC_STAT_DEFAULT)
-    };
 }
-
-const USER: usize = 1;
-const NICE: usize = 2;
-const SYSTEM: usize = 3;
-const IDLE: usize = 4;
-const IOWAIT: usize = 5;
-const IRQ: usize = 6;
-const SOFTIRQ: usize = 7;
-const STEAL: usize = 8;
-const GUEST: usize = 9;
-const GUEST_NICE: usize = 10;
 
 #[derive(Clone, Serialize)]
 pub struct CpuUsage {
@@ -45,21 +29,6 @@ pub struct CpuUsage {
     steal: u64,
     guest: u64,
     guest_nice: u64,
-}
-
-#[derive(Debug)]
-enum CpuErr {
-    CoresChanged,
-}
-
-impl std::error::Error for CpuErr {}
-
-impl fmt::Display for CpuErr {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            CpuErr::CoresChanged => write!(f, "The number of cores changed"),
-        }
-    }
 }
 
 fn get_cpu_data() -> Result<Vec<CpuUsage>> {

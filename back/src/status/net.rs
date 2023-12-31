@@ -1,4 +1,4 @@
-use super::DOCKER_NET_DIR_ENV;
+mod consts;
 
 use std::fs;
 use std::sync::{Mutex, MutexGuard};
@@ -8,21 +8,13 @@ use anyhow::Result;
 use lazy_static::lazy_static;
 use serde::Serialize;
 
-const NET_DIR_DEFAULT: &str = "/sys/class/net/";
-
-const RX_DIR: &str = "statistics/tx_bytes";
-const TX_DIR: &str = "statistics/rx_bytes";
+use self::consts::{NET_DIR, RX_DIR, TX_DIR};
 
 lazy_static! {
     static ref LAST_TIMESTAMP: Mutex<NetTimestamp> = Mutex::new(NetTimestamp {
         old: UNIX_EPOCH.elapsed().unwrap().as_millis(),
         new: 0
     });
-    static ref NET_DIR: String = if let Ok(net_dir) = std::env::var(DOCKER_NET_DIR_ENV) {
-        net_dir
-    } else {
-        String::from(NET_DIR_DEFAULT)
-    };
 }
 
 pub struct NetTimestamp {

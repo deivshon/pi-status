@@ -1,25 +1,11 @@
-use super::DOCKER_MOUNTS_FILE_ENV;
+mod consts;
 
 use std::fs;
 
-use lazy_static::lazy_static;
 use nix::sys::statvfs::statvfs;
 use serde::Serialize;
 
-const PROC_MOUNTS_DEFAULT: &str = "/proc/mounts";
-
-lazy_static! {
-    static ref PROC_MOUNTS: String = if let Ok(mounts) = std::env::var(DOCKER_MOUNTS_FILE_ENV) {
-        mounts
-    } else {
-        String::from(PROC_MOUNTS_DEFAULT)
-    };
-}
-
-const FILESYSTEM: usize = 0;
-const MOUNTPOINT: usize = 1;
-
-const EXCLUDED_MOUNTS: &[&str; 6] = &["/proc", "/sys", "/run", "/dev", "/tmp", "/var"];
+use self::consts::{EXCLUDED_MOUNTS, FILESYSTEM, MOUNTPOINT, PROC_MOUNTS};
 
 #[derive(Serialize)]
 pub struct Disk {

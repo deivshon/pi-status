@@ -1,68 +1,40 @@
-use super::DOCKER_PROC_DIR_ENV;
+mod consts;
+pub mod err;
+
+use self::consts::NAME;
+use self::consts::PID;
+use self::consts::POSSIBLE_STATES;
+use self::consts::PROC_DIR;
+use self::consts::PROC_PID_RE;
+use self::consts::RSS;
+use self::consts::START_TIME;
+use self::consts::SYSTEM_TIME;
+use self::consts::THREADS;
+use self::consts::USER_TIME;
+use self::err::ProcErr;
 
 use std::collections::HashMap;
-use std::fmt;
 use std::fs;
 use std::io;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::AtomicU64;
+use std::sync::atomic::Ordering;
 use std::sync::Mutex;
 use std::sync::MutexGuard;
 
 use lazy_static::lazy_static;
-use regex::Regex;
+use nix::unistd;
 use serde::Serialize;
 
 use anyhow::{Error, Result};
 
-#[derive(Debug)]
-enum ProcErr {
-    NotPidDir,
-}
-
-impl std::error::Error for ProcErr {}
-
-impl fmt::Display for ProcErr {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            ProcErr::NotPidDir => write!(f, "The passed directory is not a PID directory"),
-        }
-    }
-}
-
 pub static PAGE_SIZE: AtomicU64 = AtomicU64::new(0);
+pub static PAGE_SIZE_STORED: AtomicBool = AtomicBool::new(false);
 
 lazy_static! {
-    // Matches /proc/pid directories
-    static ref PROC_PID_RE: Regex = Regex::new(r"/proc/[0-9]+$").unwrap();
-
     static ref CPU_PROC_OLD: Mutex<HashMap<(u64, u64), u64>> = Mutex::new(HashMap::new());
     static ref CPU_PROC_NEW: Mutex<HashMap<(u64, u64), u64>> = Mutex::new(HashMap::new());
-
-    static ref PROC_DIR: String =
-        if let Ok(proc) = std::env::var(DOCKER_PROC_DIR_ENV) {
-            proc
-        } else {
-            String::from(PROC_DIR_DEFAULT)
-        };
 }
-
-const PROC_DIR_DEFAULT: &str = "/proc";
-
-const STATE_OFFSET: usize = 2;
-
-const PID: usize = 0;
-const NAME: usize = 1;
-
-const THREADS: usize = 19 - STATE_OFFSET;
-const USER_TIME: usize = 13 - STATE_OFFSET;
-const SYSTEM_TIME: usize = 14 - STATE_OFFSET;
-const START_TIME: usize = 21 - STATE_OFFSET;
-const RSS: usize = 23 - STATE_OFFSET;
-
-const POSSIBLE_STATES: [&str; 13] = [
-    "R", "S", "D", "Z", "T", "t", "W", "X", "x", "K", "W", "P", "I",
-];
-
 #[derive(Serialize, Clone)]
 pub struct Process {
     pid: u64,
@@ -212,6 +184,22 @@ fn replace_old_map() {
 }
 
 pub fn get() -> Option<Vec<Process>> {
+    let page_size_stored = PAGE_SIZE_STORED.load(Ordering::Relaxed);
+    if !page_size_stored {
+        match unistd::sysconf(unistd::SysconfVar::PAGE_SIZE) {
+            Ok(o) => {
+                if let Some(page_size) = o {
+                    PAGE_SIZE.store(page_size as u64, Ordering::Relaxed);
+                } else {
+                    eprintln!("Page size result ok but nothing inside. Processes memory usage will not be fetched")
+                }
+            }
+            Err(e) => eprintln!("Page size could not not be fetched: {}. Processes memory usage will not be fetched", e),
+        }
+
+        PAGE_SIZE_STORED.store(true, Ordering::Relaxed);
+    }
+
     match get_procs() {
         Ok(proc_data) => {
             replace_old_map();

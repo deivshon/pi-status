@@ -11,9 +11,8 @@ use std::sync::RwLock;
 use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use serde::Serialize;
-
 use lazy_static::lazy_static;
+use serde::Serialize;
 
 pub static STATUS_LAST: AtomicU64 = AtomicU64::new(0);
 
@@ -23,8 +22,6 @@ pub const DOCKER_HOST_FILE_ENV: &str = "PST_HOST_FILE";
 pub const DOCKER_NET_DIR_ENV: &str = "PST_NET_DIR";
 pub const DOCKER_THERMAL_DIR_ENV: &str = "PST_THERMAL_DIR";
 
-// Since the status data is going to live for the whole execution anyways,
-// use static instead of Arcs
 lazy_static! {
     pub static ref STATUS: RwLock<Status> = RwLock::new(Status {
         host: None,
@@ -60,7 +57,6 @@ pub fn continous_update() {
             status_ref.net_stats = net::get(&status_ref.net_stats);
             status_ref.ram = ram::get();
             status_ref.disk = disk::get();
-
             status_ref.proc = proc::get();
             status_ref.cpu_usage = cpu::get();
         }

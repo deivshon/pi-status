@@ -1,7 +1,6 @@
 pub mod status;
 
-use status::proc::PAGE_SIZE;
-use status::{continous_update, STATUS_LAST, STATUS_STR};
+use crate::status::{continous_update, STATUS_LAST, STATUS_STR};
 
 use std::error::Error;
 use std::path::PathBuf;
@@ -13,17 +12,9 @@ use actix_files::NamedFile;
 use actix_ip_filter::IPFilter;
 use actix_web::http::header::ContentType;
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
-
 use argparse::{ArgumentParser, Store, StoreTrue};
-use nix::unistd;
 
 const FRONT_PATH: &str = "./front/pi-status-front/dist/index.html";
-
-fn store_page_size() {
-    if let Ok(Some(page_size)) = unistd::sysconf(unistd::SysconfVar::PAGE_SIZE) {
-        PAGE_SIZE.store(page_size as u64, Ordering::Relaxed);
-    };
-}
 
 fn update_status_last() {
     STATUS_LAST.store(
@@ -86,14 +77,6 @@ async fn main() -> std::io::Result<()> {
     if force_public {
         allowed_subnets.push("*.*.*.*");
         println!(" \x1B[1;31mWARNING: the monitored resources data is now accessible to anyone, including processes names\x1B[0m");
-        separate_output = true;
-    }
-
-    // Get page size to compute processes' memory usage in bytes
-    // only using /proc/pid/stat
-    store_page_size();
-    if PAGE_SIZE.load(Ordering::Relaxed) == 0 {
-        eprintln!(" \x1B[1;37mWARNING: could not get page size, processes memory usage will not be fetched\x1B[0m");
         separate_output = true;
     }
 
