@@ -2,19 +2,18 @@ use super::DOCKER_PROC_DIR_ENV;
 
 use std::fs;
 
-use serde::Serialize;
 use anyhow::Result;
 use lazy_static::lazy_static;
+use serde::Serialize;
 
 const PROC_MEMINFO_DEFAULT: &str = "/proc/meminfo";
 
 lazy_static! {
-    static ref PROC_MEMINFO: String =
-        if let Ok(proc) = std::env::var(DOCKER_PROC_DIR_ENV) {
-            format!("{}/meminfo", proc)
-        } else {
-            String::from(PROC_MEMINFO_DEFAULT)
-        };
+    static ref PROC_MEMINFO: String = if let Ok(proc) = std::env::var(DOCKER_PROC_DIR_ENV) {
+        format!("{}/meminfo", proc)
+    } else {
+        String::from(PROC_MEMINFO_DEFAULT)
+    };
 }
 
 const TOTAL_LABEL: &str = "MemTotal:";
@@ -27,12 +26,7 @@ const FREE: usize = 1;
 const AVAILABLE: usize = 2;
 const CACHED: usize = 3;
 
-const LABELS: &'static [&str] = &[
-    TOTAL_LABEL,
-    FREE_LABEL,
-    AVAILABLE_LABEL,
-    CACHED_LABEL
-];
+const LABELS: &'static [&str] = &[TOTAL_LABEL, FREE_LABEL, AVAILABLE_LABEL, CACHED_LABEL];
 
 #[derive(Serialize)]
 pub struct Ram {
@@ -40,7 +34,7 @@ pub struct Ram {
     used: u64,
     available: u64,
     free: u64,
-    cached: u64
+    cached: u64,
 }
 
 fn get_ram() -> Result<Ram> {
@@ -50,7 +44,9 @@ fn get_ram() -> Result<Ram> {
     for line in meminfo.lines() {
         let split_line = line.split_whitespace().collect::<Vec<&str>>();
 
-        if split_line.len() < 2 || !LABELS.contains(&split_line[0]) {continue}
+        if split_line.len() < 2 || !LABELS.contains(&split_line[0]) {
+            continue;
+        }
 
         mem_values.push(split_line[1].parse::<u64>()? * 1024);
     }
@@ -60,8 +56,8 @@ fn get_ram() -> Result<Ram> {
         used: mem_values[TOTAL] - mem_values[AVAILABLE],
         available: mem_values[AVAILABLE],
         free: mem_values[FREE],
-        cached: mem_values[CACHED]
-    })
+        cached: mem_values[CACHED],
+    });
 }
 
 pub fn get() -> Option<Ram> {

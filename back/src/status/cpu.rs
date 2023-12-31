@@ -7,7 +7,7 @@ use std::fmt;
 
 use serde::Serialize;
 
-use anyhow::{Result, Error};
+use anyhow::{Error, Result};
 
 use lazy_static::lazy_static;
 
@@ -15,15 +15,12 @@ const PROC_STAT_DEFAULT: &str = "/proc/stat";
 
 lazy_static! {
     static ref LAST: Mutex<Vec<CpuUsage>> = Mutex::new(vec![]);
-
-    static ref PROC_STAT: String =
-        if let Ok(proc) = std::env::var(DOCKER_PROC_DIR_ENV) {
-            format!("{}/stat", proc)
-        } else {
-            String::from(PROC_STAT_DEFAULT)
-        };
+    static ref PROC_STAT: String = if let Ok(proc) = std::env::var(DOCKER_PROC_DIR_ENV) {
+        format!("{}/stat", proc)
+    } else {
+        String::from(PROC_STAT_DEFAULT)
+    };
 }
-
 
 const USER: usize = 1;
 const NICE: usize = 2;
@@ -47,12 +44,12 @@ pub struct CpuUsage {
     softirq: u64,
     steal: u64,
     guest: u64,
-    guest_nice: u64
+    guest_nice: u64,
 }
 
 #[derive(Debug)]
 enum CpuErr {
-    CoresChanged
+    CoresChanged,
 }
 
 impl std::error::Error for CpuErr {}
@@ -60,7 +57,7 @@ impl std::error::Error for CpuErr {}
 impl fmt::Display for CpuErr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            CpuErr::CoresChanged => write!(f, "The number of cores changed")
+            CpuErr::CoresChanged => write!(f, "The number of cores changed"),
         }
     }
 }
@@ -74,7 +71,9 @@ fn get_cpu_data() -> Result<Vec<CpuUsage>> {
     for line in proc_stat.lines() {
         let split_line = line.split(" ").filter(|x| *x != "").collect::<Vec<&str>>();
 
-        if split_line.len() != 11 || split_line[0] == "intr" {break}
+        if split_line.len() != 11 || split_line[0] == "intr" {
+            break;
+        }
 
         cpu_usage.push(CpuUsage {
             user: split_line[USER].parse::<u64>()?,
@@ -86,13 +85,12 @@ fn get_cpu_data() -> Result<Vec<CpuUsage>> {
             softirq: split_line[SOFTIRQ].parse::<u64>()?,
             steal: split_line[STEAL].parse::<u64>()?,
             guest: split_line[GUEST].parse::<u64>()?,
-            guest_nice: split_line[GUEST_NICE].parse::<u64>()?
+            guest_nice: split_line[GUEST_NICE].parse::<u64>()?,
         });
-        
+
         if first {
             last_usage.push(cpu_usage[cpu_usage.len() - 1].clone());
-        }
-        else {
+        } else {
             let i = cpu_usage.len() - 1;
 
             if last_usage.len() <= i {
@@ -120,7 +118,7 @@ fn get_cpu_data() -> Result<Vec<CpuUsage>> {
         return Err(Error::new(CpuErr::CoresChanged));
     }
 
-    return Ok(cpu_usage)
+    return Ok(cpu_usage);
 }
 
 pub fn get() -> Option<Vec<CpuUsage>> {

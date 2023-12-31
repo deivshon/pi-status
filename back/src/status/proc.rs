@@ -1,22 +1,22 @@
 use super::DOCKER_PROC_DIR_ENV;
 
+use std::collections::HashMap;
+use std::fmt;
 use std::fs;
 use std::io;
-use std::fmt;
-use std::sync::MutexGuard;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::collections::HashMap;
 use std::sync::Mutex;
+use std::sync::MutexGuard;
 
-use serde::Serialize;
-use regex::Regex;
 use lazy_static::lazy_static;
+use regex::Regex;
+use serde::Serialize;
 
-use anyhow::{Result, Error};
+use anyhow::{Error, Result};
 
 #[derive(Debug)]
 enum ProcErr {
-    NotPidDir
+    NotPidDir,
 }
 
 impl std::error::Error for ProcErr {}
@@ -24,7 +24,7 @@ impl std::error::Error for ProcErr {}
 impl fmt::Display for ProcErr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ProcErr::NotPidDir => write!(f, "The passed directory is not a PID directory")
+            ProcErr::NotPidDir => write!(f, "The passed directory is not a PID directory"),
         }
     }
 }
@@ -59,7 +59,9 @@ const SYSTEM_TIME: usize = 14 - STATE_OFFSET;
 const START_TIME: usize = 21 - STATE_OFFSET;
 const RSS: usize = 23 - STATE_OFFSET;
 
-const POSSIBLE_STATES: [&str; 13] = ["R", "S", "D", "Z", "T", "t", "W", "X", "x", "K", "W", "P", "I"];
+const POSSIBLE_STATES: [&str; 13] = [
+    "R", "S", "D", "Z", "T", "t", "W", "X", "x", "K", "W", "P", "I",
+];
 
 #[derive(Serialize, Clone)]
 pub struct Process {
@@ -68,7 +70,7 @@ pub struct Process {
     mem: u64,
     threads: u16,
     cpu_usage: u64,
-    start_time: u64
+    start_time: u64,
 }
 
 fn validate_pid_dir(dir: io::Result<fs::DirEntry>) -> Result<fs::DirEntry> {
@@ -77,40 +79,43 @@ fn validate_pid_dir(dir: io::Result<fs::DirEntry>) -> Result<fs::DirEntry> {
     let dir_name: String;
     match valid_dir.path().into_os_string().into_string() {
         Ok(d) => dir_name = d,
-        Err(_) => return Err(Error::new(ProcErr::NotPidDir))
+        Err(_) => return Err(Error::new(ProcErr::NotPidDir)),
     }
 
     if !PROC_PID_RE.is_match(&dir_name) {
         return Err(Error::new(ProcErr::NotPidDir));
     }
 
-    return Ok(valid_dir)
+    return Ok(valid_dir);
 }
 
 fn get_proc_data(
     stat: &String,
     old_procs: &MutexGuard<HashMap<(u64, u64), u64>>,
-    new_procs: &mut MutexGuard<HashMap<(u64, u64), u64>>
-) -> Option<Process> 
-{
+    new_procs: &mut MutexGuard<HashMap<(u64, u64), u64>>,
+) -> Option<Process> {
     let mut res: Process = Process {
         pid: 0,
         name: String::new(),
         mem: 0,
         threads: 0,
         cpu_usage: 0,
-        start_time: 0
+        start_time: 0,
     };
 
     let split_stat = stat.split_whitespace().collect::<Vec<&str>>();
 
     if let Ok(pid) = split_stat[PID].parse::<u64>() {
         res.pid = pid;
-    } else {return None}
-    
+    } else {
+        return None;
+    }
+
     // Second field is not the name, can't go on with parsing
-    if !split_stat[NAME].starts_with("(") {return None}
-    
+    if !split_stat[NAME].starts_with("(") {
+        return None;
+    }
+
     // Push into process name first (and possibly only) part of name
     res.name.push_str(split_stat[NAME]);
 
@@ -119,8 +124,8 @@ fn get_proc_data(
     let mut state_index: usize = 2;
     if !split_stat[NAME].ends_with(")") {
         // Name has spaces, find end and set state index and name accordingly
-        while split_stat[state_index].len() != 1 &&
-              !POSSIBLE_STATES.contains(&split_stat[state_index])
+        while split_stat[state_index].len() != 1
+            && !POSSIBLE_STATES.contains(&split_stat[state_index])
         {
             res.name.push_str(" ");
             res.name.push_str(split_stat[state_index]);
@@ -130,22 +135,27 @@ fn get_proc_data(
     }
     res.name.remove(0);
     res.name.pop();
-    
-    let Ok(threads) = split_stat[THREADS + state_index].parse::<u16>() else {return None};
+
+    let Ok(threads) = split_stat[THREADS + state_index].parse::<u16>() else {
+        return None;
+    };
     res.threads = threads;
 
-    let Ok(mem) = split_stat[RSS + state_index].parse::<u64>() else {return None};
+    let Ok(mem) = split_stat[RSS + state_index].parse::<u64>() else {
+        return None;
+    };
     res.mem = mem * PAGE_SIZE.load(Ordering::Relaxed);
 
-    let Ok(start_time) = split_stat[START_TIME + state_index].parse::<u64>() else {return None};
+    let Ok(start_time) = split_stat[START_TIME + state_index].parse::<u64>() else {
+        return None;
+    };
     res.start_time = start_time;
-    
+
     // Parse CPU usage
-    if let (Ok(user), Ok(sys)) =
-           (split_stat[USER_TIME + state_index].parse::<u64>(),
-            split_stat[SYSTEM_TIME + state_index].parse::<u64>(),
-           )
-    {
+    if let (Ok(user), Ok(sys)) = (
+        split_stat[USER_TIME + state_index].parse::<u64>(),
+        split_stat[SYSTEM_TIME + state_index].parse::<u64>(),
+    ) {
         if let Some(old) = old_procs.get(&(res.pid, res.start_time)) {
             res.cpu_usage = (user + sys) - old;
             new_procs.insert((res.pid, res.start_time), user + sys);
@@ -153,10 +163,11 @@ fn get_proc_data(
             res.cpu_usage = user + sys;
             new_procs.insert((res.pid, res.start_time), res.cpu_usage);
         }
+    } else {
+        return None;
     }
-    else {return None}
 
-    return Some(res)
+    return Some(res);
 }
 
 fn get_procs() -> Result<Vec<Process>> {
@@ -171,21 +182,26 @@ fn get_procs() -> Result<Vec<Process>> {
         let pid_dir: String;
 
         match validate_pid_dir(pid) {
-            Ok(d) =>
-            if let Some(dir_str) = d.path().to_str() {
-                pid_dir = dir_str.to_string();
-            } else {continue},
-            Err(_) => continue
+            Ok(d) => {
+                if let Some(dir_str) = d.path().to_str() {
+                    pid_dir = dir_str.to_string();
+                } else {
+                    continue;
+                }
+            }
+            Err(_) => continue,
         }
 
-        let Ok(proc_stat) = fs::read_to_string(format!("{}/stat", pid_dir)) else {continue};
+        let Ok(proc_stat) = fs::read_to_string(format!("{}/stat", pid_dir)) else {
+            continue;
+        };
 
         if let Some(p) = get_proc_data(&proc_stat, &old_procs, &mut new_procs) {
             procs.push(p);
         }
     }
 
-    return Ok(procs)
+    return Ok(procs);
 }
 
 fn replace_old_map() {
@@ -203,7 +219,7 @@ pub fn get() -> Option<Vec<Process>> {
         }
         Err(e) => {
             eprintln!("Error in Proc component: {}", e);
-            return None
+            return None;
         }
     };
 }

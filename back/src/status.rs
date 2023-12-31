@@ -1,14 +1,14 @@
-pub mod temp;
-pub mod net;
 pub mod cpu;
-pub mod ram;
-pub mod proc;
-pub mod host;
 pub mod disk;
+pub mod host;
+pub mod net;
+pub mod proc;
+pub mod ram;
+pub mod temp;
 
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::thread;
 use std::sync::RwLock;
+use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use serde::Serialize;
@@ -35,7 +35,6 @@ lazy_static! {
         ram: None,
         proc: None,
     });
-
     pub static ref STATUS_STR: RwLock<String> = RwLock::new(String::new());
 }
 
@@ -47,7 +46,7 @@ pub struct Status {
     cpu_usage: Option<Vec<cpu::CpuUsage>>,
     ram: Option<ram::Ram>,
     disk: Option<Vec<disk::Disk>>,
-    proc: Option<Vec<proc::Process>>
+    proc: Option<Vec<proc::Process>>,
 }
 
 pub fn continous_update() {
@@ -65,17 +64,22 @@ pub fn continous_update() {
             status_ref.proc = proc::get();
             status_ref.cpu_usage = cpu::get();
         }
-        
+
         {
             let status_ref = STATUS.read().unwrap();
             let mut status_str_ref = STATUS_STR.write().unwrap();
-            
+
             *status_str_ref = serde_json::to_string(&*status_ref).unwrap();
-        }        
+        }
 
         just_run = true;
-        while SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() - STATUS_LAST.load(Ordering::Relaxed) > 10 ||
-              just_run
+        while SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+            - STATUS_LAST.load(Ordering::Relaxed)
+            > 10
+            || just_run
         {
             thread::sleep(Duration::from_millis(1000));
             just_run = false;
