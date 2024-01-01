@@ -17,8 +17,8 @@ use serde::Serialize;
 use self::cpu::{CoreUsage, CpuUsage};
 use self::disk::{DiskData, FsData};
 use self::host::HostData;
-use self::net::NetData;
-use self::proc::ProcessData;
+use self::net::{IfaStats, NetData};
+use self::proc::{Process, ProcessData};
 use self::ram::RamData;
 use self::temp::TempData;
 
@@ -47,11 +47,11 @@ lazy_static! {
 pub struct Status {
     host: Option<HostData>,
     temp: Option<f32>,
-    net_stats: Option<net::IfaStats>,
+    net_stats: Option<IfaStats>,
     cpu_usage: Option<Vec<CoreUsage>>,
     ram: Option<RamData>,
     disk: Option<Vec<FsData>>,
-    proc: Option<Vec<proc::Process>>,
+    proc: Option<Vec<Process>>,
 }
 
 pub fn continous_update() {
