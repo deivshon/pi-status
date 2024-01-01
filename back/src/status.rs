@@ -17,6 +17,7 @@ use serde::Serialize;
 use self::cpu::{CoreUsage, CpuUsage};
 use self::disk::{DiskData, FsData};
 use self::host::HostData;
+use self::net::NetData;
 use self::proc::ProcessData;
 use self::ram::RamData;
 use self::temp::TempData;
@@ -46,7 +47,7 @@ lazy_static! {
 pub struct Status {
     host: Option<HostData>,
     temp: Option<f32>,
-    net_stats: Option<net::NetStats>,
+    net_stats: Option<net::IfaStats>,
     cpu_usage: Option<Vec<CoreUsage>>,
     ram: Option<RamData>,
     disk: Option<Vec<FsData>>,
@@ -59,7 +60,14 @@ pub fn continous_update() {
     let mut procs: Option<ProcessData> = match ProcessData::new() {
         Ok(p) => Some(p),
         Err(e) => {
-            eprintln!("Process data can't be retrieved: {}", e);
+            eprintln!("Could not start getting process data: {}. For this run process data will not be retrieved", e);
+            None
+        }
+    };
+    let mut net_data: Option<NetData> = match NetData::new() {
+        Ok(n) => Some(n),
+        Err(e) => {
+            eprintln!("Could not start getting network data: {}. For this run network data will not be retrieved", e);
             None
         }
     };
@@ -82,7 +90,18 @@ pub fn continous_update() {
                     None
                 }
             };
-            status_ref.net_stats = net::get(&status_ref.net_stats);
+
+            status_ref.net_stats = match net_data {
+                Some(ref mut n) => match n.update() {
+                    Ok(()) => Some(n.stats.clone()),
+                    Err(e) => {
+                        eprintln!("Could not get network data: {}", e);
+                        None
+                    }
+                },
+                None => None,
+            };
+
             status_ref.ram = match RamData::get() {
                 Ok(r) => Some(r),
                 Err(e) => {
