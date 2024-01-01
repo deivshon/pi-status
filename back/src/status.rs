@@ -17,6 +17,7 @@ use serde::Serialize;
 use self::cpu::{CoreUsage, CpuUsage};
 use self::disk::{DiskData, FsData};
 use self::host::HostData;
+use self::proc::ProcessData;
 use self::ram::RamData;
 use self::temp::TempData;
 
@@ -55,6 +56,14 @@ pub struct Status {
 pub fn continous_update() {
     let mut just_run;
     let mut cpu_usage: CpuUsage = CpuUsage::new();
+    let mut procs: Option<ProcessData> = match ProcessData::new() {
+        Ok(p) => Some(p),
+        Err(e) => {
+            eprintln!("Process data can't be retrieved: {}", e);
+            None
+        }
+    };
+
     loop {
         {
             let mut status_ref = STATUS.write().unwrap();
@@ -88,13 +97,25 @@ pub fn continous_update() {
                     None
                 }
             };
-            status_ref.proc = proc::get();
 
-            match cpu_usage.update() {
-                Ok(()) => status_ref.cpu_usage = Some(cpu_usage.usage.clone()),
+            match procs {
+                Some(ref mut p) => {
+                    status_ref.proc = match p.update() {
+                        Ok(()) => Some(p.processes.clone()),
+                        Err(e) => {
+                            eprintln!("Could not get processes data: {}", e);
+                            None
+                        }
+                    };
+                }
+                None => (),
+            }
+
+            status_ref.cpu_usage = match cpu_usage.update() {
+                Ok(()) => Some(cpu_usage.usage.clone()),
                 Err(e) => {
                     eprintln!("Could not get CPU usage: {}", e);
-                    status_ref.cpu_usage = None
+                    None
                 }
             }
         }

@@ -1,16 +1,36 @@
 use std::fmt;
 
+use nix::errno::Errno;
+
 #[derive(Debug)]
-pub enum ProcErr {
+pub enum ProcDataRetrievalErr {
     NotPidDir,
 }
 
-impl std::error::Error for ProcErr {}
+#[derive(Debug)]
+pub enum ProcDataCreationErr {
+    PageSizeEmpty,
+    PageSizeErr(Errno),
+}
 
-impl fmt::Display for ProcErr {
+impl std::error::Error for ProcDataRetrievalErr {}
+impl std::error::Error for ProcDataCreationErr {}
+
+impl fmt::Display for ProcDataRetrievalErr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ProcErr::NotPidDir => write!(f, "The passed directory is not a PID directory"),
+            ProcDataRetrievalErr::NotPidDir => {
+                write!(f, "The passed directory is not a PID directory")
+            }
+        }
+    }
+}
+
+impl fmt::Display for ProcDataCreationErr {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::PageSizeEmpty => write!(f, "Page size does not seem to exist"),
+            Self::PageSizeErr(e) => write!(f, "Could not retrieve page size: {}", e),
         }
     }
 }
