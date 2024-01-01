@@ -14,6 +14,12 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use lazy_static::lazy_static;
 use serde::Serialize;
 
+use self::cpu::{CoreUsage, CpuUsage};
+use self::disk::{DiskData, FsData};
+use self::host::HostData;
+use self::ram::RamData;
+use self::temp::TempData;
+
 pub static STATUS_LAST: AtomicU64 = AtomicU64::new(0);
 
 pub const DOCKER_PROC_DIR_ENV: &str = "PST_PROC_DIR";
@@ -37,28 +43,60 @@ lazy_static! {
 
 #[derive(Serialize)]
 pub struct Status {
-    host: Option<host::Host>,
+    host: Option<HostData>,
     temp: Option<f32>,
     net_stats: Option<net::NetStats>,
-    cpu_usage: Option<Vec<cpu::CpuUsage>>,
-    ram: Option<ram::Ram>,
-    disk: Option<Vec<disk::Disk>>,
+    cpu_usage: Option<Vec<CoreUsage>>,
+    ram: Option<RamData>,
+    disk: Option<Vec<FsData>>,
     proc: Option<Vec<proc::Process>>,
 }
 
 pub fn continous_update() {
     let mut just_run;
+    let mut cpu_usage: CpuUsage = CpuUsage::new();
     loop {
         {
             let mut status_ref = STATUS.write().unwrap();
 
-            status_ref.host = host::get();
-            status_ref.temp = temp::get();
+            status_ref.host = match HostData::get() {
+                Ok(h) => Some(h),
+                Err(e) => {
+                    eprintln!("Could not get host data: {}", e);
+                    None
+                }
+            };
+            status_ref.temp = match TempData::get() {
+                Ok(t) => Some(t.degrees),
+                Err(e) => {
+                    eprintln!("Could not get temperature data: {}", e);
+                    None
+                }
+            };
             status_ref.net_stats = net::get(&status_ref.net_stats);
-            status_ref.ram = ram::get();
-            status_ref.disk = disk::get();
+            status_ref.ram = match RamData::get() {
+                Ok(r) => Some(r),
+                Err(e) => {
+                    eprintln!("Could not get RAM data: {}", e);
+                    None
+                }
+            };
+            status_ref.disk = match DiskData::get() {
+                Ok(d) => Some(d.filesystems),
+                Err(e) => {
+                    eprintln!("Could not get disk data: {}", e);
+                    None
+                }
+            };
             status_ref.proc = proc::get();
-            status_ref.cpu_usage = cpu::get();
+
+            match cpu_usage.update() {
+                Ok(()) => status_ref.cpu_usage = Some(cpu_usage.usage.clone()),
+                Err(e) => {
+                    eprintln!("Could not get CPU usage: {}", e);
+                    status_ref.cpu_usage = None
+                }
+            }
         }
 
         {

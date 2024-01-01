@@ -10,48 +10,44 @@ use self::consts::{HOST_PATH, UPTIME_PATH};
 use self::err::HostErr;
 
 #[derive(Serialize)]
-pub struct Host {
+pub struct HostData {
     hostname: String,
     uptime: u64,
 }
 
-fn get_hostname() -> Result<String, std::io::Error> {
-    let hostname = fs::read_to_string((*HOST_PATH).as_str())?
-        .trim_end()
-        .to_string();
+impl HostData {
+    pub fn get() -> Result<Self> {
+        let hostname;
+        let uptime;
 
-    return Ok(hostname);
-}
+        match HostData::get_hostname() {
+            Ok(h) => hostname = h,
+            Err(e) => return Err(e),
+        }
 
-fn get_uptime() -> Result<u64> {
-    let uptime_unparsed = fs::read_to_string((*UPTIME_PATH).as_str())?;
-    let uptime = uptime_unparsed.split(".").nth(0);
+        match HostData::get_uptime() {
+            Ok(u) => uptime = u,
+            Err(e) => return Err(e),
+        }
 
-    match uptime {
-        Some(u) => Ok(u.parse::<u64>()?),
-        None => Err(Error::new(HostErr::MalformedUptimeFile)),
+        return Ok(HostData { hostname, uptime });
     }
-}
 
-pub fn get() -> Option<Host> {
-    let hostname;
-    let uptime;
+    fn get_hostname() -> Result<String> {
+        let hostname = fs::read_to_string((*HOST_PATH).as_str())?
+            .trim_end()
+            .to_string();
 
-    match get_hostname() {
-        Ok(h) => hostname = h,
-        Err(e) => {
-            eprintln!("Error in Host component: Error retrieving hostname: {}", e);
-            return None;
+        return Ok(hostname);
+    }
+
+    fn get_uptime() -> Result<u64> {
+        let uptime_unparsed = fs::read_to_string((*UPTIME_PATH).as_str())?;
+        let uptime = uptime_unparsed.split(".").nth(0);
+
+        match uptime {
+            Some(u) => Ok(u.parse::<u64>()?),
+            None => Err(Error::new(HostErr::MalformedUptimeFile)),
         }
     }
-
-    match get_uptime() {
-        Ok(u) => uptime = u,
-        Err(e) => {
-            eprintln!("Error in Host component: Error retrieving uptime: {}", e);
-            return None;
-        }
-    }
-
-    return Some(Host { hostname, uptime });
 }
