@@ -8,9 +8,11 @@ use self::consts::{
 use self::err::{ProcDataCreationErr, ProcDataRetrievalErr};
 
 use std::collections::HashMap;
-use std::{fs, io};
+use std::fs;
+use std::sync::{Arc, Mutex};
 
 use nix::unistd;
+use rayon::prelude::*;
 use serde::Serialize;
 
 use anyhow::{Error, Result};
@@ -53,12 +55,15 @@ impl ProcessData {
     }
 
     pub fn update(&mut self) -> Result<()> {
-        let mut new_processes_map = HashMap::new();
+        let new_processes_arc = Arc::new(Mutex::new(HashMap::new()));
 
-        let mut processes: Vec<Process> = Vec::new();
-        let files = fs::read_dir((*PROC_DIR).as_str())?;
+        let processes_arc: Arc<Mutex<Vec<Process>>> = Arc::new(Mutex::new(Vec::new()));
+        let files = fs::read_dir((*PROC_DIR).as_str())?
+            .into_iter()
+            .filter_map(Result::ok)
+            .collect::<Vec<fs::DirEntry>>();
 
-        for pid in files {
+        files.par_iter().for_each(|pid| {
             let pid_dir: String;
 
             match Self::validate_pid_dir(pid) {
@@ -66,30 +71,37 @@ impl ProcessData {
                     if let Some(dir_str) = d.path().to_str() {
                         pid_dir = dir_str.to_string();
                     } else {
-                        continue;
+                        return;
                     }
                 }
-                Err(_) => continue,
+                Err(_) => return,
             }
 
             let Ok(proc_stat) = fs::read_to_string(format!("{}/stat", pid_dir)) else {
-                continue;
+                return;
             };
 
-            if let Some(p) = self.get_proc_data(&proc_stat, &mut new_processes_map) {
-                processes.push(p);
+            if let Some(p) = self.get_proc_data(&proc_stat, new_processes_arc.clone()) {
+                {
+                    let mut processes = processes_arc.lock().unwrap();
+                    processes.push(p);
+                }
             }
-        }
+        });
 
-        self.old_processes_map = new_processes_map;
-        self.processes = processes;
+        {
+            let new_processes_map = new_processes_arc.lock().unwrap();
+            let processes = processes_arc.lock().unwrap();
+            self.old_processes_map = new_processes_map.clone();
+            self.processes = processes.clone();
+        }
         return Ok(());
     }
 
     fn get_proc_data(
-        &mut self,
+        &self,
         stat_data: &String,
-        new_procs: &mut HashMap<(u64, u64), u64>,
+        new_procs_arc: Arc<Mutex<HashMap<(u64, u64), u64>>>,
     ) -> Option<Process> {
         let mut proc_data: Process = Process {
             pid: 0,
@@ -153,6 +165,8 @@ impl ProcessData {
             split_stat[USER_TIME + state_index].parse::<u64>(),
             split_stat[SYSTEM_TIME + state_index].parse::<u64>(),
         ) {
+            let mut new_procs = new_procs_arc.lock().unwrap();
+
             if let Some(old) = self
                 .old_processes_map
                 .get(&(proc_data.pid, proc_data.start_time))
@@ -170,11 +184,9 @@ impl ProcessData {
         return Some(proc_data);
     }
 
-    fn validate_pid_dir(dir: io::Result<fs::DirEntry>) -> Result<fs::DirEntry> {
-        let valid_dir = dir?;
-
+    fn validate_pid_dir(dir: &fs::DirEntry) -> Result<&fs::DirEntry> {
         let dir_name: String;
-        match valid_dir.path().into_os_string().into_string() {
+        match dir.path().into_os_string().into_string() {
             Ok(d) => dir_name = d,
             Err(_) => return Err(Error::new(ProcDataRetrievalErr::NotPidDir)),
         }
@@ -183,6 +195,6 @@ impl ProcessData {
             return Err(Error::new(ProcDataRetrievalErr::NotPidDir));
         }
 
-        return Ok(valid_dir);
+        return Ok(dir);
     }
 }

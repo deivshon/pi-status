@@ -17,6 +17,7 @@ regex = "1.7.1"
 anyhow = "1.0.68"
 actix-ip-filter = "0.3.1"
 argparse = "0.2.2"
+rayon = "1.8.0"
 
 [profile.release]
 opt-level = 3
