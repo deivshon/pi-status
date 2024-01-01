@@ -1,8 +1,8 @@
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-  font-size: 1.5rem;
-  line-height: 24px;
-  font-weight: 400;
+    font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+    font-size: 1.5rem;
+    line-height: 24px;
+    font-weight: 400;
 }
 
 body {
@@ -36,4 +36,3 @@ body {
         flex-direction: column;
     }
 }
-

@@ -1,11 +1,10 @@
 .proc-container {
     border: 2px solid #eeba45;
     height: 60vh;
-    padding: .25rem .5rem;
+    padding: 0.25rem 0.5rem;
     overflow: scroll;
     overflow-wrap: anywhere;
 }
-
 
 .proc-container::-webkit-scrollbar {
     display: none !important;
@@ -49,7 +48,9 @@
     text-align: right;
 }
 
-.threads-label, .mem-label, .cpu-label {
+.threads-label,
+.mem-label,
+.cpu-label {
     direction: rtl !important;
 }
 
@@ -64,7 +65,8 @@
 }
 
 @media screen and (max-width: 356px) {
-    .memory-col, .threads-col {
+    .memory-col,
+    .threads-col {
         margin-right: 0;
     }
 }

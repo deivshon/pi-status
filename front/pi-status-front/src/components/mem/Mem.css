@@ -7,7 +7,9 @@
     width: 100%;
 }
 
-table, th, td {
+table,
+th,
+td {
     border: 1px solid #95e6cb !important;
     padding: 0 0.25rem;
 }
@@ -17,7 +19,9 @@ table, th, td {
         font-size: 0.55rem;
     }
 
-    table, th, td {
+    table,
+    th,
+    td {
         padding: 0 0.15rem;
     }
 }

@@ -4,11 +4,10 @@ body {
 }
 
 #root {
-  width: 100vw;
-  height: 100vh;
-  margin: 0 auto;
-  text-align: center;
-
+    width: 100vw;
+    height: 100vh;
+    margin: 0 auto;
+    text-align: center;
 }
 
 .host-bar {
@@ -85,4 +84,3 @@ body {
         font-size: 0.6rem !important;
     }
 }
-
