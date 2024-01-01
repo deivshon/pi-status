@@ -98,18 +98,16 @@ pub fn continous_update() {
                 }
             };
 
-            match procs {
-                Some(ref mut p) => {
-                    status_ref.proc = match p.update() {
-                        Ok(()) => Some(p.processes.clone()),
-                        Err(e) => {
-                            eprintln!("Could not get processes data: {}", e);
-                            None
-                        }
-                    };
-                }
-                None => (),
-            }
+            status_ref.proc = match procs {
+                Some(ref mut p) => match p.update() {
+                    Ok(()) => Some(p.processes.clone()),
+                    Err(e) => {
+                        eprintln!("Could not get processes data: {}", e);
+                        None
+                    }
+                },
+                None => None,
+            };
 
             status_ref.cpu_usage = match cpu_usage.update() {
                 Ok(()) => Some(cpu_usage.usage.clone()),
