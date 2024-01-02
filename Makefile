@@ -9,7 +9,6 @@ arm:
 	make -C $(BACK_DIR) arm
 	make -C $(FRONT_DIR) arm
 
-
 docker-arm64:
 	docker buildx build --platform linux/arm64 -t pi-status . --build-arg PLATFORM=arm64 --build-arg CARGO_TARGET=aarch64-unknown-linux-gnu
 
