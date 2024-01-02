@@ -45,8 +45,8 @@ impl DiskData {
             filesystems.push(FsData {
                 filesystem: String::from(split_mount[FILESYSTEM]),
                 mountpoint: String::from(split_mount[MOUNTPOINT]),
-                total: disk_stats.block_size() * disk_stats.blocks(),
-                available: disk_stats.block_size() * disk_stats.blocks_available(),
+                total: (disk_stats.block_size() * disk_stats.blocks()) as u64,
+                available: (disk_stats.block_size() * disk_stats.blocks_available()) as u64,
             })
         }
 
