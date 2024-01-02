@@ -1,45 +1,74 @@
 pub mod status;
 
-use crate::status::{continous_update, STATUS_LAST, STATUS_STR};
+use crate::status::{ACTIVE_WS_CONNECTIONS, STATUS_STR};
 
 use std::error::Error;
 use std::path::PathBuf;
 use std::sync::atomic::Ordering;
+use std::sync::{Arc, RwLock};
 use std::thread;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::Duration;
 
+use actix::{Actor, AsyncContext, StreamHandler};
 use actix_files::NamedFile;
 use actix_ip_filter::IPFilter;
-use actix_web::http::header::ContentType;
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, Error as ActixError, HttpRequest, HttpResponse, HttpServer};
+use actix_web_actors::ws::{self, Message, ProtocolError};
 use argparse::{ArgumentParser, Store, StoreTrue};
 
 const FRONT_PATH: &str = "./front/pi-status-front/dist/index.html";
 
-fn update_status_last() {
-    STATUS_LAST.store(
-        SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs(),
-        Ordering::Relaxed,
-    );
-}
-
 async fn index() -> Result<NamedFile, Box<dyn Error>> {
-    update_status_last();
     let path: PathBuf = std::fs::canonicalize(FRONT_PATH)?;
 
-    return Ok(NamedFile::open(path)?);
+    Ok(NamedFile::open(path)?)
 }
 
-async fn serve_data() -> impl Responder {
-    update_status_last();
-    let data_ref = STATUS_STR.read().unwrap();
+async fn serve_data(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, ActixError> {
+    ACTIVE_WS_CONNECTIONS.fetch_add(1, Ordering::Relaxed);
+    ws::start(
+        WsDataSession {
+            data: STATUS_STR.clone(),
+        },
+        &req,
+        stream,
+    )
+}
 
-    return HttpResponse::Ok()
-        .insert_header(ContentType::json())
-        .body((&*data_ref).to_owned());
+struct WsDataSession {
+    data: Arc<RwLock<String>>,
+}
+
+impl StreamHandler<Result<Message, ProtocolError>> for WsDataSession {
+    fn handle(&mut self, msg: Result<Message, ProtocolError>, _: &mut Self::Context) {
+        match msg {
+            Ok(m) => match m {
+                Message::Close(_) => {
+                    ACTIVE_WS_CONNECTIONS.fetch_sub(1, Ordering::Relaxed);
+                }
+                _ => (),
+            },
+            Err(e) => {
+                eprintln!("Error occurred in WS receive operation: {}", e)
+            }
+        }
+    }
+}
+
+impl Actor for WsDataSession {
+    type Context = ws::WebsocketContext<Self>;
+
+    fn started(&mut self, ctx: &mut Self::Context) {
+        ctx.run_later(Duration::ZERO, |act, ctx| {
+            let data = act.data.read().unwrap().clone();
+            ctx.text(data);
+        });
+
+        ctx.run_interval(Duration::from_secs(1), |act, ctx| {
+            let data = act.data.read().unwrap().clone();
+            ctx.text(data);
+        });
+    }
 }
 
 #[actix_web::main]
@@ -83,18 +112,16 @@ async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "info");
     env_logger::init();
 
-    // Spawn status updating thread
-    thread::spawn(move || continous_update());
+    thread::spawn(move || status::continous_update());
 
     if separate_output {
         println!()
     }
 
-    // Start the server
     HttpServer::new(move || {
         App::new()
             .wrap(IPFilter::new().allow(allowed_subnets.iter().map(|x| *x).collect()))
-            .route("/data", web::get().to(serve_data))
+            .service(web::resource("/ws_data").to(serve_data))
             .route("/", web::get().to(index))
             .service(actix_files::Files::new(
                 "/",

@@ -7,9 +7,9 @@ pub mod ram;
 pub mod temp;
 
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::RwLock;
+use std::sync::{Arc, RwLock};
 use std::thread;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::Duration;
 
 use lazy_static::lazy_static;
 use serde::Serialize;
@@ -22,7 +22,7 @@ use self::proc::{Process, ProcessData};
 use self::ram::RamData;
 use self::temp::TempData;
 
-pub static STATUS_LAST: AtomicU64 = AtomicU64::new(0);
+pub static ACTIVE_WS_CONNECTIONS: AtomicU64 = AtomicU64::new(0);
 
 pub const DOCKER_PROC_DIR_ENV: &str = "PST_PROC_DIR";
 pub const DOCKER_MOUNTS_FILE_ENV: &str = "PST_MOUNTS_FILE";
@@ -40,7 +40,7 @@ lazy_static! {
         ram: None,
         proc: None,
     });
-    pub static ref STATUS_STR: RwLock<String> = RwLock::new(String::new());
+    pub static ref STATUS_STR: Arc<RwLock<String>> = Arc::new(RwLock::new(String::new()));
 }
 
 #[derive(Serialize)]
@@ -145,14 +145,7 @@ pub fn continous_update() {
         }
 
         just_run = true;
-        while SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs()
-            - STATUS_LAST.load(Ordering::Relaxed)
-            > 10
-            || just_run
-        {
+        while ACTIVE_WS_CONNECTIONS.load(Ordering::Relaxed) <= 0 || just_run {
             thread::sleep(Duration::from_millis(1000));
             just_run = false;
         }

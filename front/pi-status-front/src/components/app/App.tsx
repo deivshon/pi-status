@@ -40,8 +40,9 @@ export default function App() {
 
     const [processes, setProcesses] = useState([]);
 
-    const changeData = async () => {
-        let newData = await (await fetch("/data")).json();
+    const handleNewData = async (event: MessageEvent) => {
+        const newData = JSON.parse(event.data);
+
         if (netSpeeds.length > 30) netSpeeds.shift();
 
         if (newData.host) {
@@ -90,13 +91,14 @@ export default function App() {
 
     useEffect(() => {
         if (!runOnce) {
-            changeData();
+            const socket = new WebSocket(
+                `ws://${window.location.host}/ws_data`
+            );
+
+            socket.addEventListener("message", handleNewData);
             setRunOnce(true);
         }
-
-        const interval = setInterval(changeData, 1000);
-        return () => clearInterval(interval);
-    });
+    }, [runOnce]);
 
     return (
         <div>
