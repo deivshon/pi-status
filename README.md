@@ -50,6 +50,10 @@ Restart=on-failure
 WantedBy=multi-user.target
 ```
 
+### Cross compilation
+
+If you want to cross compile for your RPi 3/4 that is also possible with `make arm64`. This requires to have the related Rust and GNU toolchains installed
+
 ## Building the Docker image
 
 ### Requirements
