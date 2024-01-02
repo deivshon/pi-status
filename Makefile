@@ -3,11 +3,11 @@ FRONT_DIR="./front/pi-status-front/"
 
 default:
 	make -C $(BACK_DIR) default
-	make -C $(FRONT_DIR) default
+	make -C $(FRONT_DIR)
 
-arm:
-	make -C $(BACK_DIR) arm
-	make -C $(FRONT_DIR) arm
+arm64:
+	make -C $(BACK_DIR) arm64
+	make -C $(FRONT_DIR)
 
 docker-arm64:
 	docker buildx build --platform linux/arm64 -t pi-status . --build-arg PLATFORM=arm64 --build-arg CARGO_TARGET=aarch64-unknown-linux-gnu
