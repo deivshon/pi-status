@@ -2,8 +2,6 @@
 
 pi-status is a resource monitoring web application. It provides real-time information about the device's RAM, storage, CPU temperature and usage, processes' data, and network usage. It comes with a user friendly, mobile first front-end
 
-The Dockerfile is set build an image for AArch64 architecture, which makes it compatible with Raspberry Pi Model 2/3/4
-
 It can be compiled for other architectures and will run on any Linux device with a modern kernel, but the temperature readings for the CPU are going to be wrong if they're not found in `/sys/class/thermal/thermal_zone0/temp`, independently of CPU architecture
 
 ## Usage
@@ -52,7 +50,7 @@ WantedBy=multi-user.target
 
 ### Cross compilation
 
-If you want to cross compile for your RPi 3/4 that is also possible with `make arm64`. This requires to have the related Rust and GNU toolchains installed
+If you want to cross compile for your RPi 3/4 that is also possible with `make arm64`. This requires to have the aarch64 Rust and GNU toolchains installed
 
 ## Building the Docker image
 
@@ -73,7 +71,7 @@ The second step depends on your Raspberry Pi target
 
     RPi 2: `make docker-armv7`
 
-If for some reason you want to try pi-status on a amd64 machine, `make docker-amd64` is also available
+If for some reason you want to try containerized pi-status on a amd64 machine, `make docker-amd64` is also available
 
 After building the image and having it transferred to the target machine
 
@@ -84,4 +82,4 @@ After building the image and having it transferred to the target machine
 ## Endpoints
 
 -   `/` -> the web page to view the monitored resources data
--   `/data` -> the monitored resources data in JSON format
+-   `/ws_data` -> WebSocket endpoint for monitored resources data in JSON format messages
