@@ -4,6 +4,7 @@ import "./Mem.css";
 import { formatBytes } from "../../utils";
 
 import Ram from "./Ram";
+import { DiskData, RamData } from "./models";
 
 type MemProps = {
     ram: RamData;

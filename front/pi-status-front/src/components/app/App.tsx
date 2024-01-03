@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 
+import { StatusData } from "./models";
 import Cpu from "../cpu/Cpu";
 import Net from "../net/Net";
 import Mem from "../mem/Mem";
@@ -11,23 +12,22 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
 
 import { CoreData } from "../cpu/models";
+import { NetValues } from "../net/models";
+import { DiskData, RamData } from "../mem/models";
 
 export default function App() {
     const [runOnce, setRunOnce] = useState(false);
+
     const [hostname, setHostname] = useState("");
     const [uptime, setUptime] = useState("");
-
     const [temp, setTemp] = useState(0);
-
     const [netSpeeds, setNetSpeeds] = useState<NetValues[]>([]);
     const [netTotals, setNetTotals] = useState<NetValues>({
         download: 0,
         upload: 0,
     });
     const [netMax, setNetMax] = useState(0);
-
     const [cpuUsage, setCpuUsage] = useState<CoreData[]>([]);
-
     const [ramData, setRamData] = useState<RamData>({
         available: 0,
         cached: 0,
@@ -35,15 +35,11 @@ export default function App() {
         total: 0,
         used: 0,
     });
-
-    const [disks, setDisks] = useState([]);
-
-    const [processes, setProcesses] = useState([]);
+    const [disks, setDisks] = useState<DiskData[]>([]);
+    const [processes, setProcesses] = useState<ProcessData[]>([]);
 
     const handleNewData = async (event: MessageEvent) => {
-        const newData = JSON.parse(event.data);
-
-        if (netSpeeds.length > 30) netSpeeds.shift();
+        const newData = JSON.parse(event.data) as StatusData;
 
         if (newData.host) {
             setHostname(newData.host.hostname);
@@ -58,13 +54,46 @@ export default function App() {
             }
         }
 
-        setNetSpeeds([
-            ...netSpeeds,
-            {
-                download: newData.net_stats.download_speed,
-                upload: newData.net_stats.upload_speed,
-            },
-        ]);
+        if (newData.net_stats) {
+            setNetSpeeds((prev) => [
+                ...prev,
+                {
+                    download: newData.net_stats!.download_speed,
+                    upload: newData.net_stats!.upload_speed,
+                },
+            ]);
+
+            setNetTotals({
+                download: newData.net_stats.download_total,
+                upload: newData.net_stats.upload_total,
+            });
+        }
+
+        if (newData.temp) {
+            setTemp(Math.round(newData.temp));
+        }
+
+        if (newData.cpu_usage) {
+            setCpuUsage(newData.cpu_usage);
+        }
+
+        if (newData.ram) {
+            setRamData(newData.ram);
+        }
+
+        if (newData.disk) {
+            setDisks(newData.disk);
+        }
+
+        if (newData.proc) {
+            setProcesses(newData.proc);
+        }
+    };
+
+    useEffect(() => {
+        if (netSpeeds.length > 30) {
+            setNetSpeeds((previous) => previous.slice(1));
+        }
 
         setNetMax(
             Math.max(
@@ -72,22 +101,7 @@ export default function App() {
                 ...netSpeeds.map((v) => v.upload)
             )
         );
-
-        setNetTotals({
-            download: newData.net_stats.download_total,
-            upload: newData.net_stats.upload_total,
-        });
-
-        setTemp(Math.round(newData.temp));
-
-        setCpuUsage(newData.cpu_usage);
-
-        setRamData(newData.ram);
-
-        setDisks(newData.disk || []);
-
-        setProcesses(newData.proc);
-    };
+    }, [netSpeeds]);
 
     useEffect(() => {
         if (!runOnce) {

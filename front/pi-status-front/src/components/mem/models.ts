@@ -1,4 +1,4 @@
-type RamData = {
+export type RamData = {
     total: number;
     used: number;
     available: number;
@@ -6,7 +6,7 @@ type RamData = {
     cached: number;
 };
 
-type DiskData = {
+export type DiskData = {
     filesystem: string;
     mountpoint: string;
     total: number;

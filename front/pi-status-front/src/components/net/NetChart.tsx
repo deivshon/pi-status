@@ -2,11 +2,12 @@ import React from "react";
 import "./Net.css";
 
 import { AreaChart, Area, YAxis, ResponsiveContainer } from "recharts";
+import { NetTransferType, NetValues } from "./models";
 
 type NetChartProps = {
     netSpeeds: NetValues[];
     netMax: number;
-    dataKey: string;
+    dataKey: NetTransferType;
     color: string;
     chartClass: string;
 };
@@ -26,7 +27,7 @@ export default function NetChart(props: NetChartProps) {
                 />
 
                 <Area
-                    type="monotone"
+                    type="linear"
                     dataKey={props.dataKey}
                     stroke={props.color}
                     fill={props.color}

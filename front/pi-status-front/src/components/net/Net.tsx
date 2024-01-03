@@ -3,6 +3,8 @@ import React from "react";
 import NetChart from "./NetChart";
 import { formatBytes } from "../../utils";
 
+import { NetTransferType, NetValues } from "./models";
+
 import "./Net.css";
 
 type NetProps = {
@@ -33,7 +35,7 @@ export default function Net(props: NetProps) {
                 <NetChart
                     netSpeeds={props.netSpeeds}
                     netMax={props.netMax}
-                    dataKey="download"
+                    dataKey={NetTransferType.DOWNLOAD}
                     color="#f28779"
                     chartClass="down-chart-container"
                 />
@@ -57,7 +59,7 @@ export default function Net(props: NetProps) {
                 <NetChart
                     netSpeeds={props.netSpeeds}
                     netMax={props.netMax}
-                    dataKey="upload"
+                    dataKey={NetTransferType.UPLOAD}
                     color="#6ccdff"
                     chartClass="up-chart-container"
                 />
