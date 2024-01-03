@@ -1,5 +1,5 @@
 export type NetData = {
-    interface: number;
+    interface: string;
     upload_total: number;
     download_total: number;
     upload_speed: number;

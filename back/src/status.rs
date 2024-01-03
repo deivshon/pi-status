@@ -47,7 +47,7 @@ lazy_static! {
 pub struct Status {
     host: Option<HostData>,
     temp: Option<f32>,
-    net_stats: Option<IfaStats>,
+    net_stats: Option<Vec<IfaStats>>,
     cpu_usage: Option<Vec<CoreUsage>>,
     ram: Option<RamData>,
     disk: Option<Vec<FsData>>,
@@ -64,13 +64,7 @@ pub fn continous_update() {
             None
         }
     };
-    let mut net_data: Option<NetData> = match NetData::new() {
-        Ok(n) => Some(n),
-        Err(e) => {
-            eprintln!("Could not start getting network data: {}. For this run network data will not be retrieved", e);
-            None
-        }
-    };
+    let mut net_data: Option<NetData> = Some(NetData::new());
 
     loop {
         {
@@ -93,7 +87,13 @@ pub fn continous_update() {
 
             status_ref.net_stats = match net_data {
                 Some(ref mut n) => match n.update() {
-                    Ok(()) => Some(n.stats.clone()),
+                    Ok(()) => Some(
+                        n.stats
+                            .values()
+                            .cloned()
+                            .filter(|x| x.has_updated)
+                            .collect(),
+                    ),
                     Err(e) => {
                         eprintln!("Could not get network data: {}", e);
                         None

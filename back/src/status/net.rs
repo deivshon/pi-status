@@ -1,6 +1,7 @@
 mod consts;
 pub mod err;
 
+use std::collections::HashMap;
 use std::fs;
 use std::time::UNIX_EPOCH;
 
@@ -8,22 +9,22 @@ use anyhow::{Error, Result};
 use serde::Serialize;
 
 use self::consts::{NET_DIR, RX_DIR, TX_DIR};
-use self::err::NetDataCreationError;
+use self::err::NetDataUpdateError;
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, Debug)]
 pub struct IfaStats {
-    interface: String,
-    upload_total: u64,
-    download_total: u64,
-    upload_speed: f64,
-    download_speed: f64,
-    timestamp: u128,
+    pub interface: String,
+    pub upload_total: u64,
+    pub download_total: u64,
+    pub upload_speed: f64,
+    pub download_speed: f64,
+    pub timestamp: u128,
+    pub has_updated: bool,
 }
 
 pub struct NetData {
-    pub stats: IfaStats,
-    pub interface: String,
-    old_stats: Option<IfaStats>,
+    pub stats: HashMap<String, IfaStats>,
+    old_stats: HashMap<String, IfaStats>,
 }
 
 fn u64_from_file(path: String) -> Result<u64> {
@@ -34,36 +35,57 @@ fn u64_from_file(path: String) -> Result<u64> {
 }
 
 impl NetData {
-    pub fn new() -> Result<Self> {
-        let ifa = Self::get_max_interface();
-
-        match ifa {
-            Some(i) => Ok(Self {
-                stats: IfaStats {
-                    download_speed: 0.0,
-                    download_total: 0,
-                    interface: i.clone(),
-                    upload_speed: 0.0,
-                    upload_total: 0,
-                    timestamp: 0,
-                },
-                interface: i,
-                old_stats: None,
-            }),
-            None => Err(Error::new(NetDataCreationError::NoInterface)),
+    pub fn new() -> Self {
+        NetData {
+            stats: HashMap::new(),
+            old_stats: HashMap::new(),
         }
     }
 
     pub fn update(&mut self) -> Result<()> {
-        let current_stats = Self::get_ifa_stats(&self.interface)?;
+        let current_interfaces = match Self::get_interfaces() {
+            Ok(i) => i,
+            Err(e) => return Err(Error::new(NetDataUpdateError::NoInterfaces(e))),
+        };
 
-        match &self.old_stats {
-            Some(old) => {
-                self.stats = Self::compute_speed(&current_stats, &old);
-                self.old_stats = Some(self.stats.clone())
+        let mut new_stats: HashMap<String, IfaStats> = HashMap::new();
+        for interface in current_interfaces {
+            match Self::get_ifa_stats(&interface) {
+                Ok(s) => {
+                    new_stats.insert(interface, s);
+                }
+                Err(_) => continue,
             }
-            None => self.old_stats = Some(current_stats),
         }
+
+        for (old_ifa, old_stats) in &self.old_stats {
+            let new_ifa_stats = match new_stats.get(old_ifa) {
+                Some(s) => s,
+                None => {
+                    new_stats.insert(
+                        old_ifa.to_string(),
+                        IfaStats {
+                            download_speed: old_stats.download_speed,
+                            download_total: old_stats.download_total,
+                            has_updated: false,
+                            interface: old_stats.interface.clone(),
+                            timestamp: old_stats.timestamp,
+                            upload_speed: old_stats.upload_speed,
+                            upload_total: old_stats.upload_total,
+                        },
+                    );
+                    continue;
+                }
+            };
+
+            new_stats.insert(
+                old_ifa.to_string(),
+                Self::compute_speed(&new_ifa_stats, &old_stats),
+            );
+        }
+
+        self.old_stats = self.stats.clone();
+        self.stats = new_stats;
 
         Ok(())
     }
@@ -80,6 +102,7 @@ impl NetData {
 
             interface: interface.to_owned(),
             timestamp,
+            has_updated: true,
         });
     }
 
@@ -97,58 +120,42 @@ impl NetData {
                 * 1024.0)
                 .round(),
             timestamp: current.timestamp,
+            has_updated: current.has_updated,
         };
     }
 
-    fn add_interface_dir(
-        dst: &mut Vec<fs::DirEntry>,
-        dir: Result<fs::DirEntry, std::io::Error>,
-    ) -> Result<()> {
-        let dir_entry = dir?;
+    fn get_interfaces() -> Result<Vec<String>> {
+        let mut interfaces_entries: Vec<fs::DirEntry> = Vec::new();
+        let mut interfaces: Vec<String> = Vec::new();
 
-        if !dir_entry.metadata()?.is_file() {
-            dst.push(dir_entry)
+        let files = fs::read_dir((*NET_DIR).as_str())?;
+        for entry_res in files {
+            let dir_entry: fs::DirEntry;
+            match entry_res {
+                Ok(d) => dir_entry = d,
+                Err(_) => continue,
+            };
+
+            if !dir_entry.metadata()?.is_file() {
+                interfaces_entries.push(dir_entry)
+            }
         }
 
-        return Ok(());
-    }
-
-    fn get_max_interface() -> Option<String> {
-        let mut interfaces: Vec<fs::DirEntry> = Vec::new();
-        let Ok(files) = fs::read_dir((*NET_DIR).as_str()) else {
-            return None;
-        };
-
-        for file in files {
-            Self::add_interface_dir(&mut interfaces, file).unwrap_or(());
-        }
-
-        let mut max_ifa: Option<IfaStats> = None;
-        for ifa in interfaces {
+        for ifa in interfaces_entries {
             let ifa_path = ifa.path();
 
             let Some(ifa_name) = ifa_path.to_str() else {
                 continue;
             };
-            let Ok(ifa_stats) = Self::get_ifa_stats(&String::from(ifa_name)) else {
-                continue;
-            };
 
-            if let Some(m) = &max_ifa {
-                if ifa_stats.upload_total + ifa_stats.download_total
-                    > m.upload_total + m.download_total
-                {
-                    max_ifa = Some(ifa_stats);
-                }
-            } else {
-                max_ifa = Some(ifa_stats);
+            let ifa_name = String::from(ifa_name);
+            if interfaces.contains(&ifa_name) {
                 continue;
             }
+
+            interfaces.push(ifa_name.to_string());
         }
 
-        match max_ifa {
-            Some(ifa) => return Some(ifa.interface),
-            None => return None,
-        }
+        return Ok(interfaces);
     }
 }

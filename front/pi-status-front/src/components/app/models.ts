@@ -5,7 +5,7 @@ import { NetData } from "../net/models";
 export type StatusData = {
     host?: HostData;
     temp?: number;
-    net_stats?: NetData;
+    net_stats?: NetData[];
     cpu_usage?: CoreData[];
     ram?: RamData;
     disk?: DiskData[];

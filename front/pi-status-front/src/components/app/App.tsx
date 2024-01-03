@@ -20,12 +20,12 @@ export default function App() {
     const [hostname, setHostname] = useState("");
     const [uptime, setUptime] = useState("");
     const [temp, setTemp] = useState(0);
-    const [netSpeeds, setNetSpeeds] = useState<NetValues[]>([]);
-    const [netTotals, setNetTotals] = useState<NetValues>({
-        download: 0,
-        upload: 0,
-    });
-    const [netMax, setNetMax] = useState(0);
+    const [netSpeeds, setNetSpeeds] = useState<Record<string, NetValues[]>>({});
+    const [netTotals, setNetTotals] = useState<Record<string, NetValues>>({});
+    const [netMaxes, setNetMaxes] = useState<Record<string, number>>({});
+    const [selectedNetInterface, setSelectedNetInterface] = useState<
+        string | null
+    >(null);
     const [cpuUsage, setCpuUsage] = useState<CoreData[]>([]);
     const [ramData, setRamData] = useState<RamData>({
         available: 0,
@@ -54,18 +54,55 @@ export default function App() {
         }
 
         if (newData.net_stats) {
-            setNetSpeeds((prev) => [
-                ...prev,
-                {
-                    download: newData.net_stats!.download_speed,
-                    upload: newData.net_stats!.upload_speed,
-                },
-            ]);
+            setNetSpeeds((prev) => {
+                let newNetSpeeds: Record<string, NetValues[]> = {};
+                for (const interfaceData of newData.net_stats!) {
+                    let interfaceName = interfaceData.interface;
+                    let interfaceSpeeds = {
+                        download: interfaceData.download_speed,
+                        upload: interfaceData.upload_speed,
+                    };
 
-            setNetTotals({
-                download: newData.net_stats.download_total,
-                upload: newData.net_stats.upload_total,
+                    if (!(interfaceName in prev)) {
+                        newNetSpeeds[interfaceName] = [interfaceSpeeds];
+                    } else {
+                        newNetSpeeds[interfaceName] = [
+                            ...prev[interfaceName],
+                            interfaceSpeeds,
+                        ];
+                    }
+
+                    if (newNetSpeeds[interfaceName].length > 30) {
+                        newNetSpeeds[interfaceName] =
+                            newNetSpeeds[interfaceName].slice(1);
+                    }
+                }
+
+                return newNetSpeeds;
             });
+
+            let newNetTotals: Record<string, NetValues> = {};
+
+            let maxTotal: number | null = null;
+            let maxTotalInterfaceName: string | null = null;
+            for (const interfaceData of newData.net_stats!) {
+                newNetTotals[interfaceData.interface] = {
+                    download: interfaceData.download_total,
+                    upload: interfaceData.upload_total,
+                };
+
+                let netTotalSum =
+                    interfaceData.download_total + interfaceData.upload_total;
+                if (maxTotal === null || netTotalSum > maxTotal) {
+                    maxTotal = netTotalSum;
+                    maxTotalInterfaceName = interfaceData.interface;
+                }
+            }
+
+            setNetTotals(newNetTotals);
+            setSelectedNetInterface((prev) =>
+                prev && prev in newNetTotals ? prev : maxTotalInterfaceName
+            );
         }
 
         if (newData.temp) {
@@ -90,16 +127,17 @@ export default function App() {
     };
 
     useEffect(() => {
-        if (netSpeeds.length > 30) {
-            setNetSpeeds((previous) => previous.slice(1));
+        let newNetMaxes: Record<string, number> = {};
+        for (const interfaceName in netSpeeds) {
+            let interfaceSpeeds = netSpeeds[interfaceName];
+
+            newNetMaxes[interfaceName] = Math.max(
+                ...interfaceSpeeds.map((v) => v.download),
+                ...interfaceSpeeds.map((v) => v.upload)
+            );
         }
 
-        setNetMax(
-            Math.max(
-                ...netSpeeds.map((v) => v.download),
-                ...netSpeeds.map((v) => v.upload)
-            )
-        );
+        setNetMaxes(newNetMaxes);
     }, [netSpeeds]);
 
     useEffect(() => {
@@ -195,9 +233,27 @@ export default function App() {
                     aria-labelledby="pills-net-tab"
                 >
                     <Net
-                        netSpeeds={netSpeeds}
-                        netMax={netMax}
-                        netTotals={netTotals}
+                        netSpeeds={
+                            selectedNetInterface &&
+                            netSpeeds[selectedNetInterface]
+                                ? netSpeeds[selectedNetInterface]
+                                : []
+                        }
+                        netMax={
+                            selectedNetInterface &&
+                            netMaxes[selectedNetInterface]
+                                ? netMaxes[selectedNetInterface]
+                                : 0
+                        }
+                        netTotals={
+                            selectedNetInterface &&
+                            netTotals[selectedNetInterface]
+                                ? netTotals[selectedNetInterface]
+                                : {
+                                      download: 0,
+                                      upload: 0,
+                                  }
+                        }
                     />
                 </div>
                 <div
