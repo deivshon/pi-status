@@ -1,5 +1,3 @@
-import React from "react";
-
 import "./Mem.css";
 import { formatBytes } from "../../utils";
 

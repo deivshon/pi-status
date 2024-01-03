@@ -1,4 +1,3 @@
-import React from "react";
 import "./Cpu.css";
 
 import CpuBar from "./CpuBar";

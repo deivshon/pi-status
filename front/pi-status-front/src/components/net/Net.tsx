@@ -1,5 +1,3 @@
-import React from "react";
-
 import NetChart from "./NetChart";
 import { formatBytes } from "../../utils";
 

@@ -1,4 +1,3 @@
-import React from "react";
 import "./Ram.css";
 
 import { formatBytes } from "../../utils";

@@ -1,4 +1,3 @@
-import React from "react";
 import { useState, useEffect, useMemo } from "react";
 
 import { formatBytes } from "../../utils";

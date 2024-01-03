@@ -1,4 +1,3 @@
-import React from "react";
 import "./Net.css";
 
 import { AreaChart, Area, YAxis, ResponsiveContainer } from "recharts";
