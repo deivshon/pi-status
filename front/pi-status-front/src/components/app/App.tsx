@@ -278,14 +278,17 @@ export default function App() {
                     role="tabpanel"
                     aria-labelledby="pills-net-tab"
                 >
-                    <p className="d-flex align-items-center justify-content-center">
+                    <p
+                        id="interface-selector"
+                        className="d-flex align-items-center justify-content-center"
+                    >
                         <button
                             id="net-interface-prev"
                             onClick={() =>
                                 switchInterface(SwitchDirection.BACK, netTotals)
                             }
                         >
-                            🡄
+                            ᐸ
                         </button>
                         <span className="flex-grow-1 text-center">
                             {selectedNetInterface}
@@ -299,7 +302,7 @@ export default function App() {
                                 )
                             }
                         >
-                            🡆
+                            ᐳ
                         </button>
                     </p>
                     <Net

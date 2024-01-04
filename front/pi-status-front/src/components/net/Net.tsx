@@ -18,7 +18,7 @@ export default function Net(props: NetProps) {
                 {props.netSpeeds.length != 0 ? (
                     <div className="net-stats-container">
                         <div>
-                            ↓{" "}
+                            ▼{" "}
                             {formatBytes(
                                 props.netSpeeds[props.netSpeeds.length - 1]
                                     .download,
@@ -42,7 +42,7 @@ export default function Net(props: NetProps) {
                 {props.netSpeeds.length != 0 ? (
                     <div className="net-stats-container">
                         <div>
-                            ↑{" "}
+                            ▲{" "}
                             {formatBytes(
                                 props.netSpeeds[props.netSpeeds.length - 1]
                                     .upload,
