@@ -173,7 +173,6 @@ export default function App() {
         netTotals: Record<string, NetValues>
     ) => {
         let interfaceNames = Object.keys(netTotals).sort();
-        console.log(interfaceNames);
         setSelectedNetInterface((prev) => {
             let prevIndex = interfaceNames.indexOf(prev!);
             let newSelectedInterface: string | null = null;
