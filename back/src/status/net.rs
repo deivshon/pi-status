@@ -13,13 +13,19 @@ use self::err::NetDataUpdateError;
 
 #[derive(Serialize, Clone, Debug)]
 pub struct IfaStats {
-    pub interface: String,
+    pub interface: NetworkInterface,
     pub upload_total: u64,
     pub download_total: u64,
     pub upload_speed: f64,
     pub download_speed: f64,
     pub timestamp: u128,
     pub has_updated: bool,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct NetworkInterface {
+    interface_path: String,
+    interface_name: String,
 }
 
 pub struct NetData {
@@ -52,7 +58,7 @@ impl NetData {
         for interface in current_interfaces {
             match Self::get_ifa_stats(&interface) {
                 Ok(s) => {
-                    new_stats.insert(interface, s);
+                    new_stats.insert(interface.interface_name, s);
                 }
                 Err(_) => continue,
             }
@@ -90,17 +96,17 @@ impl NetData {
         Ok(())
     }
 
-    fn get_ifa_stats(interface: &String) -> Result<IfaStats> {
+    fn get_ifa_stats(interface: &NetworkInterface) -> Result<IfaStats> {
         let timestamp = UNIX_EPOCH.elapsed().unwrap().as_millis();
 
         return Ok(IfaStats {
-            upload_total: u64_from_file(format!("{}/{}", interface, RX_DIR))?,
-            download_total: u64_from_file(format!("{}/{}", interface, TX_DIR))?,
+            upload_total: u64_from_file(format!("{}/{}", interface.interface_path, RX_DIR))?,
+            download_total: u64_from_file(format!("{}/{}", interface.interface_path, TX_DIR))?,
 
             download_speed: 0.0,
             upload_speed: 0.0,
 
-            interface: interface.to_owned(),
+            interface: interface.clone(),
             timestamp,
             has_updated: true,
         });
@@ -124,9 +130,9 @@ impl NetData {
         };
     }
 
-    fn get_interfaces() -> Result<Vec<String>> {
+    fn get_interfaces() -> Result<Vec<NetworkInterface>> {
         let mut interfaces_entries: Vec<fs::DirEntry> = Vec::new();
-        let mut interfaces: Vec<String> = Vec::new();
+        let mut interfaces: Vec<NetworkInterface> = Vec::new();
 
         let files = fs::read_dir((*NET_DIR).as_str())?;
         for entry_res in files {
@@ -141,19 +147,32 @@ impl NetData {
             }
         }
 
-        for ifa in interfaces_entries {
-            let ifa_path = ifa.path();
-
-            let Some(ifa_name) = ifa_path.to_str() else {
+        for interface in interfaces_entries {
+            let interface_path = interface.path();
+            let Some(interface_name) = interface_path.file_name() else {
+                continue;
+            };
+            let Some(interface_name) = interface_name.to_str() else {
+                continue;
+            };
+            let Some(interface_path) = interface_path.to_str() else {
                 continue;
             };
 
-            let ifa_name = String::from(ifa_name);
-            if interfaces.contains(&ifa_name) {
+            let interface_path = String::from(interface_path);
+            if interfaces
+                .iter()
+                .map(|x| x.interface_path.clone())
+                .collect::<Vec<String>>()
+                .contains(&interface_path)
+            {
                 continue;
             }
 
-            interfaces.push(ifa_name.to_string());
+            interfaces.push(NetworkInterface {
+                interface_path: interface_path,
+                interface_name: String::from(interface_name),
+            });
         }
 
         return Ok(interfaces);

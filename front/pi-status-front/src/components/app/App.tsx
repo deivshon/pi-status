@@ -81,7 +81,7 @@ export default function App() {
             setNetSpeeds((prev) => {
                 let newNetSpeeds: Record<string, NetValues[]> = {};
                 for (const interfaceData of newData.net_stats!) {
-                    let interfaceName = interfaceData.interface;
+                    let interfaceName = interfaceData.interface.interface_name;
                     let interfaceSpeeds = {
                         download: interfaceData.download_speed,
                         upload: interfaceData.upload_speed,
@@ -108,7 +108,7 @@ export default function App() {
             let newNetTotals: Record<string, NetValues> = {};
 
             for (const interfaceData of newData.net_stats!) {
-                newNetTotals[interfaceData.interface] = {
+                newNetTotals[interfaceData.interface.interface_name] = {
                     download: interfaceData.download_total,
                     upload: interfaceData.upload_total,
                 };

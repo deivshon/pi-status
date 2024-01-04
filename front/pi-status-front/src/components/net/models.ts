@@ -1,5 +1,5 @@
 export type NetData = {
-    interface: string;
+    interface: NetInterface;
     upload_total: number;
     download_total: number;
     upload_speed: number;
@@ -10,6 +10,11 @@ export type NetData = {
 export type NetValues = {
     download: number;
     upload: number;
+};
+
+export type NetInterface = {
+    interface_path: string;
+    interface_name: string;
 };
 
 export enum NetTransferType {
