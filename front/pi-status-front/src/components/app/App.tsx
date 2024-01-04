@@ -14,6 +14,11 @@ import { CoreData } from "../cpu/models";
 import { NetValues } from "../net/models";
 import { DiskData, RamData } from "../mem/models";
 
+enum SwitchDirection {
+    BACK = 0,
+    FORWARD = 1,
+}
+
 export default function App() {
     const [runOnce, setRunOnce] = useState(false);
 
@@ -36,6 +41,25 @@ export default function App() {
     });
     const [disks, setDisks] = useState<DiskData[]>([]);
     const [processes, setProcesses] = useState<ProcessData[]>([]);
+
+    const getMaxNetTotalsInterface = (
+        totals: Record<string, NetValues>
+    ): string | null => {
+        let maxInterfaceName: string | null = null;
+        let maxInterfaceSum: number | null = null;
+        for (const interfaceName of Object.keys(totals)) {
+            let interfaceTotals = totals[interfaceName];
+            let interfaceSum =
+                interfaceTotals.download + interfaceTotals.upload;
+
+            if (maxInterfaceSum === null || interfaceSum > maxInterfaceSum) {
+                maxInterfaceSum = interfaceSum;
+                maxInterfaceName = interfaceName;
+            }
+        }
+
+        return maxInterfaceName;
+    };
 
     const handleNewData = async (event: MessageEvent) => {
         const newData = JSON.parse(event.data) as StatusData;
@@ -83,21 +107,14 @@ export default function App() {
 
             let newNetTotals: Record<string, NetValues> = {};
 
-            let maxTotal: number | null = null;
-            let maxTotalInterfaceName: string | null = null;
             for (const interfaceData of newData.net_stats!) {
                 newNetTotals[interfaceData.interface] = {
                     download: interfaceData.download_total,
                     upload: interfaceData.upload_total,
                 };
-
-                let netTotalSum =
-                    interfaceData.download_total + interfaceData.upload_total;
-                if (maxTotal === null || netTotalSum > maxTotal) {
-                    maxTotal = netTotalSum;
-                    maxTotalInterfaceName = interfaceData.interface;
-                }
             }
+
+            let maxTotalInterfaceName = getMaxNetTotalsInterface(newNetTotals);
 
             setNetTotals(newNetTotals);
             setSelectedNetInterface((prev) =>
@@ -150,6 +167,36 @@ export default function App() {
             setRunOnce(true);
         }
     }, [runOnce]);
+
+    const switchInterface = (
+        direction: SwitchDirection,
+        netTotals: Record<string, NetValues>
+    ) => {
+        let interfaceNames = Object.keys(netTotals).sort();
+        console.log(interfaceNames);
+        setSelectedNetInterface((prev) => {
+            let prevIndex = interfaceNames.indexOf(prev!);
+            let newSelectedInterface: string | null = null;
+            if (prevIndex == -1) {
+                newSelectedInterface = getMaxNetTotalsInterface(netTotals);
+            } else if (
+                (prevIndex === 0 && direction === SwitchDirection.BACK) ||
+                (prevIndex === interfaceNames.length - 1 &&
+                    direction === SwitchDirection.FORWARD)
+            ) {
+                newSelectedInterface = prev;
+            } else if (direction === SwitchDirection.BACK) {
+                newSelectedInterface = interfaceNames[prevIndex - 1] ?? null;
+            } else if (direction === SwitchDirection.FORWARD) {
+                newSelectedInterface = interfaceNames[prevIndex + 1] ?? null;
+            }
+
+            return newSelectedInterface !== null &&
+                interfaceNames.includes(newSelectedInterface)
+                ? newSelectedInterface
+                : prev;
+        });
+    };
 
     return (
         <div>
@@ -232,6 +279,30 @@ export default function App() {
                     role="tabpanel"
                     aria-labelledby="pills-net-tab"
                 >
+                    <p className="d-flex align-items-center justify-content-center">
+                        <button
+                            id="net-interface-prev"
+                            onClick={() =>
+                                switchInterface(SwitchDirection.BACK, netTotals)
+                            }
+                        >
+                            🡄
+                        </button>
+                        <span className="flex-grow-1 text-center">
+                            {selectedNetInterface}
+                        </span>
+                        <button
+                            id="net-interface-next"
+                            onClick={() =>
+                                switchInterface(
+                                    SwitchDirection.FORWARD,
+                                    netTotals
+                                )
+                            }
+                        >
+                            🡆
+                        </button>
+                    </p>
                     <Net
                         netSpeeds={
                             selectedNetInterface &&

@@ -84,3 +84,30 @@ body {
         font-size: 0.6rem !important;
     }
 }
+
+#net-interface-prev,
+#net-interface-next {
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s ease-in-out;
+    border: none;
+    background: none;
+    color: inherit;
+    padding: 0;
+}
+
+#net-interface-prev:hover,
+#net-interface-next:hover {
+    transform: scale(1.1);
+}
+
+#net-interface-prev:active,
+#net-interface-next:active {
+    transform: scale(0.9);
+}
+
+#net-interface-prev,
+#net-interface-next {
+    position: relative;
+    top: 50%;
+}
