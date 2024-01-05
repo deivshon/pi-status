@@ -12,6 +12,7 @@ use std::thread;
 use std::time::Duration;
 
 use lazy_static::lazy_static;
+use log::{error, warn};
 use serde::Serialize;
 
 use self::cpu::{CoreUsage, CpuUsage};
@@ -60,7 +61,7 @@ pub fn continous_update() {
     let mut procs: Option<ProcessData> = match ProcessData::new() {
         Ok(p) => Some(p),
         Err(e) => {
-            eprintln!("Could not start getting process data: {}. For this run process data will not be retrieved", e);
+            warn!("Could not start getting process data: {}. For this run process data will not be retrieved", e);
             None
         }
     };
@@ -73,14 +74,14 @@ pub fn continous_update() {
             status_ref.host = match HostData::get() {
                 Ok(h) => Some(h),
                 Err(e) => {
-                    eprintln!("Could not get host data: {}", e);
+                    error!("Could not get host data: {}", e);
                     None
                 }
             };
             status_ref.temp = match TempData::get() {
                 Ok(t) => Some(t.degrees),
                 Err(e) => {
-                    eprintln!("Could not get temperature data: {}", e);
+                    error!("Could not get temperature data: {}", e);
                     None
                 }
             };
@@ -95,7 +96,7 @@ pub fn continous_update() {
                             .collect(),
                     ),
                     Err(e) => {
-                        eprintln!("Could not get network data: {}", e);
+                        error!("Could not get network data: {}", e);
                         None
                     }
                 },
@@ -105,14 +106,14 @@ pub fn continous_update() {
             status_ref.ram = match RamData::get() {
                 Ok(r) => Some(r),
                 Err(e) => {
-                    eprintln!("Could not get RAM data: {}", e);
+                    error!("Could not get RAM data: {}", e);
                     None
                 }
             };
             status_ref.disk = match DiskData::get() {
                 Ok(d) => Some(d.filesystems),
                 Err(e) => {
-                    eprintln!("Could not get disk data: {}", e);
+                    error!("Could not get disk data: {}", e);
                     None
                 }
             };
@@ -121,7 +122,7 @@ pub fn continous_update() {
                 Some(ref mut p) => match p.update() {
                     Ok(()) => Some(p.processes.clone()),
                     Err(e) => {
-                        eprintln!("Could not get processes data: {}", e);
+                        error!("Could not get processes data: {}", e);
                         None
                     }
                 },
@@ -131,7 +132,7 @@ pub fn continous_update() {
             status_ref.cpu_usage = match cpu_usage.update() {
                 Ok(()) => Some(cpu_usage.usage.clone()),
                 Err(e) => {
-                    eprintln!("Could not get CPU usage: {}", e);
+                    error!("Could not get CPU usage: {}", e);
                     None
                 }
             }

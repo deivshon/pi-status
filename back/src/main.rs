@@ -15,6 +15,7 @@ use actix_ip_filter::IPFilter;
 use actix_web::{web, App, Error as ActixError, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws::{self, Message, ProtocolError};
 use argparse::{ArgumentParser, Store, StoreTrue};
+use log::{error, warn};
 
 const FRONT_PATH: &str = "./front/pi-status-front/dist/index.html";
 
@@ -49,7 +50,7 @@ impl StreamHandler<Result<Message, ProtocolError>> for WsDataSession {
                 _ => (),
             },
             Err(e) => {
-                eprintln!("Error occurred in WS receive operation: {}", e)
+                error!("Error occurred in WS receive operation: {}", e)
             }
         }
     }
@@ -73,6 +74,9 @@ impl Actor for WsDataSession {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    std::env::set_var("RUST_LOG", "info");
+    env_logger::init();
+
     let mut allowed_subnets = vec![
         "127.0.0.1",
         "10.*.*.*",
@@ -101,22 +105,12 @@ async fn main() -> std::io::Result<()> {
         ap.parse_args_or_exit();
     }
 
-    let mut separate_output = false;
-
     if force_public {
         allowed_subnets.push("*.*.*.*");
-        println!(" \x1B[1;31mWARNING: the monitored resources data is now accessible to anyone, including processes names\x1B[0m");
-        separate_output = true;
+        warn!("The monitored resources data is now accessible to anyone, including processes data");
     }
-
-    std::env::set_var("RUST_LOG", "info");
-    env_logger::init();
 
     thread::spawn(move || status::continous_update());
-
-    if separate_output {
-        println!()
-    }
 
     HttpServer::new(move || {
         App::new()
