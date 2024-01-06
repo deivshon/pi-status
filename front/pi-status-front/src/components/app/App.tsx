@@ -288,7 +288,12 @@ export default function App() {
                                 switchInterface(SwitchDirection.BACK, netTotals)
                             }
                         >
-                            ᐸ
+                            {selectedNetInterface !== null &&
+                            Object.keys(netTotals)
+                                .sort()
+                                .indexOf(selectedNetInterface) !== 0
+                                ? "ᐸ"
+                                : ""}
                         </button>
                         <span className="flex-grow-1 text-center">
                             {selectedNetInterface}
@@ -302,7 +307,13 @@ export default function App() {
                                 )
                             }
                         >
-                            ᐳ
+                            {selectedNetInterface !== null &&
+                            Object.keys(netTotals)
+                                .sort()
+                                .indexOf(selectedNetInterface) !==
+                                Object.keys(netTotals).length - 1
+                                ? "ᐳ"
+                                : ""}
                         </button>
                     </p>
                     <Net
