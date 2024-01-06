@@ -6,16 +6,9 @@ It can be compiled for other architectures and will run on any Linux device with
 
 ## Usage
 
-```
-$ ./pi-status [-p {PORT}] [-f]
-```
+By default, pi-status will only be available to connections coming from [private networks](https://en.wikipedia.org/wiki/Private_network), hiding it from public ones
 
-By default, pi-status will listen on port 8080 and only be available to connections coming from [private networks](https://en.wikipedia.org/wiki/Private_network), hiding it from public ones
-
-The accepted arguments are:
-
--   `-p` -> Specify the port the service will run on
--   `-f` -> Make the monitored data available to anyone on the internet (this option is necessary when running pi-status in a Docker container)
+Use `-f` to make the monitored data available to anyone on the internet (this option is necessary when running pi-status in a Docker container)
 
 ## Installation and running
 
