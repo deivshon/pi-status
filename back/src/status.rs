@@ -44,6 +44,16 @@ lazy_static! {
     pub static ref STATUS_STR: Arc<RwLock<String>> = Arc::new(RwLock::new(String::new()));
 }
 
+pub struct ErrorSuppressions {
+    pub host: bool,
+    pub temp: bool,
+    pub net: bool,
+    pub cpu: bool,
+    pub ram: bool,
+    pub disk: bool,
+    pub proc: bool,
+}
+
 #[derive(Serialize)]
 pub struct Status {
     host: Option<HostData>,
@@ -55,7 +65,7 @@ pub struct Status {
     proc: Option<Vec<Process>>,
 }
 
-pub fn continous_update() {
+pub fn continous_update(error_suppressions: ErrorSuppressions) {
     let mut just_run;
     let mut cpu_usage: CpuUsage = CpuUsage::new();
     let mut procs: Option<ProcessData> = match ProcessData::new() {
@@ -74,14 +84,18 @@ pub fn continous_update() {
             status_ref.host = match HostData::get() {
                 Ok(h) => Some(h),
                 Err(e) => {
-                    error!("Could not get host data: {}", e);
+                    if !error_suppressions.host {
+                        error!("Could not get host data: {}", e);
+                    }
                     None
                 }
             };
             status_ref.temp = match TempData::get() {
                 Ok(t) => Some(t.degrees),
                 Err(e) => {
-                    error!("Could not get temperature data: {}", e);
+                    if !error_suppressions.temp {
+                        error!("Could not get temperature data: {}", e);
+                    }
                     None
                 }
             };
@@ -96,7 +110,9 @@ pub fn continous_update() {
                             .collect(),
                     ),
                     Err(e) => {
-                        error!("Could not get network data: {}", e);
+                        if !error_suppressions.net {
+                            error!("Could not get network data: {}", e);
+                        }
                         None
                     }
                 },
@@ -106,14 +122,18 @@ pub fn continous_update() {
             status_ref.ram = match RamData::get() {
                 Ok(r) => Some(r),
                 Err(e) => {
-                    error!("Could not get RAM data: {}", e);
+                    if !error_suppressions.ram {
+                        error!("Could not get RAM data: {}", e);
+                    }
                     None
                 }
             };
             status_ref.disk = match DiskData::get() {
                 Ok(d) => Some(d.filesystems),
                 Err(e) => {
-                    error!("Could not get disk data: {}", e);
+                    if !error_suppressions.disk {
+                        error!("Could not get disk data: {}", e);
+                    }
                     None
                 }
             };
@@ -122,7 +142,9 @@ pub fn continous_update() {
                 Some(ref mut p) => match p.update() {
                     Ok(()) => Some(p.processes.clone()),
                     Err(e) => {
-                        error!("Could not get processes data: {}", e);
+                        if !error_suppressions.proc {
+                            error!("Could not get processes data: {}", e);
+                        }
                         None
                     }
                 },
@@ -132,7 +154,9 @@ pub fn continous_update() {
             status_ref.cpu_usage = match cpu_usage.update() {
                 Ok(()) => Some(cpu_usage.usage.clone()),
                 Err(e) => {
-                    error!("Could not get CPU usage: {}", e);
+                    if !error_suppressions.cpu {
+                        error!("Could not get CPU usage: {}", e);
+                    }
                     None
                 }
             }
