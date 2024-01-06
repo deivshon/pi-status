@@ -14,7 +14,7 @@ use actix_files::NamedFile;
 use actix_ip_filter::IPFilter;
 use actix_web::{web, App, Error as ActixError, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws::{self, Message, ProtocolError};
-use argparse::{ArgumentParser, Store, StoreTrue};
+use clap::Parser;
 use log::{error, warn};
 
 const FRONT_PATH: &str = "./front/pi-status-front/dist/index.html";
@@ -72,8 +72,20 @@ impl Actor for WsDataSession {
     }
 }
 
+#[derive(Parser, Debug)]
+#[command(about, long_about = None)]
+struct Args {
+    #[arg(short, long, default_value_t = 8080)]
+    port: u16,
+
+    #[arg(short, long, default_value_t = false)]
+    force_public: bool,
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let args = Args::parse();
+
     std::env::set_var("RUST_LOG", "info");
     env_logger::init();
 
@@ -83,29 +95,8 @@ async fn main() -> std::io::Result<()> {
         "172.{16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31}.*.*",
         "192.168.1.*",
     ];
-    let mut port = 8080;
-    let mut force_public = false;
 
-    {
-        let mut ap = ArgumentParser::new();
-        ap.set_description("Pi-status, a minimal web resource monitor");
-
-        ap.refer(&mut port).add_option(
-            &["-p", "--port"],
-            Store,
-            "The port the pi-status will be run on",
-        );
-
-        ap.refer(&mut force_public).add_option(
-            &["-f", "--force-public"],
-            StoreTrue,
-            "If set, the service will be available to everyone, not only on private subnets",
-        );
-
-        ap.parse_args_or_exit();
-    }
-
-    if force_public {
+    if args.force_public {
         allowed_subnets.push("*.*.*.*");
         warn!("The monitored resources data is now accessible to anyone, including processes data");
     }
@@ -122,7 +113,7 @@ async fn main() -> std::io::Result<()> {
                 "./front/pi-status-front/dist/",
             ))
     })
-    .bind(("0.0.0.0", port))?
+    .bind(("0.0.0.0", args.port))?
     .run()
     .await
 }
