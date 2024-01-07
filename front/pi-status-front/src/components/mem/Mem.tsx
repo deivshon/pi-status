@@ -15,7 +15,6 @@ export default function Mem(props: MemProps) {
             <div>
                 RAM {props.ram.total ? formatBytes(props.ram.total, {}) : 0}
             </div>
-            <div></div>
             <div className="w-100 d-flex flex-column align-items-center">
                 <Ram
                     total={props.ram.total || 0}
