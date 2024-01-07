@@ -81,7 +81,7 @@ body {
 
 @media screen and (max-width: 356px) {
     .nav-pills {
-        font-size: 0.6rem !important;
+        font-size: 0.75rem !important;
     }
 }
 

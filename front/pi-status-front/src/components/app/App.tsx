@@ -204,7 +204,7 @@ export default function App() {
                 <div>Up {uptime}</div>
             </div>
             <ul
-                className="nav nav-pills mb-3 flex flex-wrap justify-content-center"
+                className="nav nav-pills mb-1 flex flex-wrap justify-content-center"
                 id="pills-tab"
                 role="tablist"
             >
