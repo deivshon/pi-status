@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 
 import { formatBytes } from "../../utils";
 import { CoreData } from "../cpu/models";
@@ -73,30 +73,24 @@ export default function Procs(props: ProcProps) {
         );
     }, [props.mainCpuUsage]);
 
-    useMemo(() => {
-        const sortProcs = () => {
-            if (ordering.rev)
-                props.procs = props.procs
-                    .sort(orderingFromProperty(ordering.ord))
-                    .reverse();
-            else
-                props.procs = props.procs.sort(
-                    orderingFromProperty(ordering.ord)
-                );
-        };
-
-        sortProcs();
-    }, [props.procs, ordering]);
-
     useEffect(() => {
-        setVisibleProcs(
-            props.procs.filter(
-                (p) =>
-                    p.name.toLowerCase().includes(search.toLowerCase()) ||
-                    p.pid.toString().startsWith(search)
-            )
+        let visibleProcs = props.procs.filter(
+            (p) =>
+                p.name.toLowerCase().includes(search.toLowerCase()) ||
+                p.pid.toString().startsWith(search)
         );
-    }, [props.procs, search]);
+        if (ordering.rev) {
+            visibleProcs = visibleProcs
+                .sort(orderingFromProperty(ordering.ord))
+                .reverse();
+        } else {
+            visibleProcs = visibleProcs.sort(
+                orderingFromProperty(ordering.ord)
+            );
+        }
+
+        setVisibleProcs(visibleProcs);
+    }, [props.procs, search, ordering]);
 
     const sortProcessesBy = (prop: ProcessProperty) => {
         setOrdering({
