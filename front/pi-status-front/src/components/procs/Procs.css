@@ -22,12 +22,13 @@
 }
 
 .pid-col {
+    width: 4rem;
     text-align: right;
     margin-right: 0.5rem;
 }
 
 .name-col {
-    max-width: 35%;
+    width: 35%;
     flex-grow: 1;
 }
 
@@ -72,6 +73,7 @@
 @media screen and (max-aspect-ratio: 4/5) {
     .proc-col {
         font-size: 0.55rem;
+        width: 2rem;
     }
 
     .search-bar-container {

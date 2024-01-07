@@ -102,8 +102,13 @@ export default function Procs(props: ProcProps) {
     const propertyLabel = (
         prop: ProcessProperty,
         currentOrdering: ProcessOrdering,
-        defaultPropertyLabel: string
+        defaultPropertyLabel: string,
+        visibleProcs: ProcessData[]
     ): string => {
+        if (visibleProcs.length === 0) {
+            return "";
+        }
+
         if (ordering.ord !== prop) {
             return defaultPropertyLabel;
         }
@@ -152,7 +157,8 @@ export default function Procs(props: ProcProps) {
                             {propertyLabel(
                                 ProcessProperty.PID,
                                 ordering,
-                                pidLabelDefault
+                                pidLabelDefault,
+                                visibleProcs
                             )}
                         </span>
                     </div>
@@ -176,7 +182,8 @@ export default function Procs(props: ProcProps) {
                             {propertyLabel(
                                 ProcessProperty.NAME,
                                 ordering,
-                                nameLabelDefault
+                                nameLabelDefault,
+                                visibleProcs
                             )}
                         </span>
                     </div>
@@ -200,7 +207,8 @@ export default function Procs(props: ProcProps) {
                             {propertyLabel(
                                 ProcessProperty.THREADS,
                                 ordering,
-                                threadsLabelDefault
+                                threadsLabelDefault,
+                                visibleProcs
                             )}
                         </span>
                     </div>
@@ -224,7 +232,8 @@ export default function Procs(props: ProcProps) {
                             {propertyLabel(
                                 ProcessProperty.MEM,
                                 ordering,
-                                memLabelDefault
+                                memLabelDefault,
+                                visibleProcs
                             )}
                         </span>
                     </div>
@@ -256,7 +265,8 @@ export default function Procs(props: ProcProps) {
                             {propertyLabel(
                                 ProcessProperty.CPU,
                                 ordering,
-                                cpuLabelDefault
+                                cpuLabelDefault,
+                                visibleProcs
                             )}
                         </span>
                     </div>
