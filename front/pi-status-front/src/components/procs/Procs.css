@@ -52,9 +52,30 @@
     white-space: pre;
 }
 
+#proc-header-container {
+    flex-direction: column;
+}
+
+.search-bar-container {
+    margin-top: 2vh;
+}
+
+#search-bar {
+    background-color: #0b0e14;
+    color: lightgray;
+}
+
+#search-bar::placeholder {
+    color: rgba(211, 211, 211, 0.85);
+}
+
 @media screen and (max-aspect-ratio: 4/5) {
     .proc-col {
         font-size: 0.55rem;
+    }
+
+    .search-bar-container {
+        margin: 2vh 0vh;
     }
 }
 

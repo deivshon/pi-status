@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, ChangeEvent } from "react";
 
 import { formatBytes } from "../../utils";
 import { CoreData } from "../cpu/models";
@@ -55,6 +55,8 @@ export default function Procs(props: ProcProps) {
         ord: ProcessProperty.MEM,
         rev: false,
     });
+    const [search, setSearch] = useState("");
+    const [visibleProcs, setVisibleProcs] = useState<ProcessData[]>([]);
 
     useEffect(() => {
         setTotal(
@@ -86,6 +88,16 @@ export default function Procs(props: ProcProps) {
         sortProcs();
     }, [props.procs, ordering]);
 
+    useEffect(() => {
+        setVisibleProcs(
+            props.procs.filter(
+                (p) =>
+                    p.name.toLowerCase().includes(search.toLowerCase()) ||
+                    p.pid.toString().startsWith(search)
+            )
+        );
+    }, [props.procs, search]);
+
     const sortProcessesBy = (prop: ProcessProperty) => {
         setOrdering({
             ord: prop,
@@ -109,9 +121,27 @@ export default function Procs(props: ProcProps) {
         }
     };
 
+    const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setSearch(event.target.value);
+    };
+
     return (
         <div className="stats-container flex-column">
-            <div>{props.procs.length} active processes</div>
+            <div
+                id="proc-header-container"
+                className="d-flex justify-content-between"
+            >
+                <div>{props.procs.length} active processes</div>
+                <div className="search-bar-container">
+                    <input
+                        type="text"
+                        id="search-bar"
+                        placeholder="Search..."
+                        className="form-control form-control-sm"
+                        onChange={handleSearchChange}
+                    />
+                </div>
+            </div>
             <div className="proc-container d-flex flex-row">
                 <div className="pid-col proc-col d-flex flex-column">
                     <div
@@ -133,7 +163,7 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </div>
                     <div></div>
-                    {props.procs.map((p) => (
+                    {visibleProcs.map((p) => (
                         <div className="col-content">{p.pid}</div>
                     ))}
                 </div>
@@ -157,7 +187,7 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </div>
                     <div></div>
-                    {props.procs.map((p) => (
+                    {visibleProcs.map((p) => (
                         <div className="col-content">{p.name}</div>
                     ))}
                 </div>
@@ -181,7 +211,7 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </div>
                     <div></div>
-                    {props.procs.map((p) => (
+                    {visibleProcs.map((p) => (
                         <div className="col-content">{p.threads}</div>
                     ))}
                 </div>
@@ -205,7 +235,7 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </div>
                     <div></div>
-                    {props.procs.map((p) => (
+                    {visibleProcs.map((p) => (
                         <div className="col-content">
                             {formatBytes(p.mem, {
                                 short: true,
@@ -237,7 +267,7 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </div>
                     <div></div>
-                    {props.procs.map((p) => (
+                    {visibleProcs.map((p) => (
                         <div className="col-content cpu-percs">
                             {((p.cpu_usage / currentTotal) * 100)
                                 .toFixed(1)
