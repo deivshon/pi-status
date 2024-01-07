@@ -17,6 +17,10 @@ body {
     justify-content: space-between;
 }
 
+#pills-tab {
+    margin-bottom: 1rem;
+}
+
 .nav-pills {
     padding: 0 0.5rem;
     justify-content: space-between !important;
@@ -70,6 +74,12 @@ body {
 @media screen and (min-aspect-ratio: 4/5) {
     .nav-pills {
         justify-content: center !important;
+    }
+}
+
+@media screen and (max-aspect-ratio: 4/5) {
+    #pills-tab {
+        margin-bottom: 0.5rem;
     }
 }
 
