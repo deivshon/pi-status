@@ -16,7 +16,7 @@ td {
 
 @media screen and (max-aspect-ratio: 4/5) {
     .disks-container {
-        font-size: 0.55rem;
+        font-size: 0.5rem;
     }
 
     table,
