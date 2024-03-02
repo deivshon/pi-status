@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 
-import { StatusData } from "./models";
 import Cpu from "../cpu/Cpu";
 import Net from "../net/Net";
 import Mem from "../mem/Mem";
@@ -10,9 +9,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
 
-import { CoreData } from "../cpu/models";
-import { NetValues } from "../net/models";
-import { DiskData, RamData } from "../mem/models";
+import { ProcessData } from "../../models/proc";
+import { NetValues } from "../../models/net";
+import { CoreData } from "../../models/cpu";
+import { DiskData } from "../../models/disk";
+import { RamData } from "../../models/ram";
+import { StatusDataSchema } from "../../models/ws";
+import { ErrorBox } from "./ErrorBox";
 
 enum SwitchDirection {
     BACK = 0,
@@ -41,6 +44,9 @@ export default function App() {
     });
     const [disks, setDisks] = useState<DiskData[]>([]);
     const [processes, setProcesses] = useState<ProcessData[]>([]);
+    const [dataParsingError, setDataParsingError] = useState<string | null>(
+        null
+    );
 
     const getMaxNetTotalsInterface = (
         totals: Record<string, NetValues>
@@ -62,7 +68,29 @@ export default function App() {
     };
 
     const handleNewData = async (event: MessageEvent) => {
-        const newData = JSON.parse(event.data) as StatusData;
+        if (dataParsingError) {
+            return;
+        }
+
+        let rawData;
+        try {
+            rawData = JSON.parse(event.data);
+        } catch (error) {
+            setDataParsingError(
+                "Fatal error: WebSocket message is not valid JSON"
+            );
+            return;
+        }
+
+        const parseResult = StatusDataSchema.safeParse(rawData);
+        if (!parseResult.success) {
+            setDataParsingError(
+                `Fatal error, malformed message: ${parseResult.error}`
+            );
+            return;
+        }
+
+        const newData = parseResult.data;
 
         if (newData.host) {
             setHostname(newData.host.hostname);
@@ -196,6 +224,10 @@ export default function App() {
                 : prev;
         });
     };
+
+    if (dataParsingError) {
+        return <ErrorBox error={dataParsingError} />;
+    }
 
     return (
         <div>

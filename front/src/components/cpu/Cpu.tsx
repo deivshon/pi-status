@@ -1,7 +1,7 @@
+import { CoreData } from "../../models/cpu";
 import "./Cpu.css";
 
 import CpuBar from "./CpuBar";
-import { CoreData } from "./models";
 
 type CpuProps = {
     temp: number;

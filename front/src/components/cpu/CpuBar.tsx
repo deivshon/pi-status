@@ -2,7 +2,7 @@ import "./Cpu.css";
 
 import { useState } from "react";
 import { useEffect } from "react";
-import { CoreData } from "./models";
+import { CoreData } from "../../models/cpu";
 
 type CoreBarProps = {
     coreData: CoreData;
