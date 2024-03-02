@@ -21,7 +21,7 @@ export default function Net(props: NetProps) {
                             {formatBytes(
                                 props.netSpeeds[props.netSpeeds.length - 1]
                                     .download,
-                                { speed: true, space: true }
+                                { speed: true, space: true },
                             )}
                         </div>
                         <div>{formatBytes(props.netTotals.download, {})}</div>
@@ -45,7 +45,7 @@ export default function Net(props: NetProps) {
                             {formatBytes(
                                 props.netSpeeds[props.netSpeeds.length - 1]
                                     .upload,
-                                { speed: true, space: true }
+                                { speed: true, space: true },
                             )}
                         </div>
                         <div>{formatBytes(props.netTotals.upload, {})}</div>

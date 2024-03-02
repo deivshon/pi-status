@@ -45,11 +45,11 @@ export default function App() {
     const [disks, setDisks] = useState<DiskData[]>([]);
     const [processes, setProcesses] = useState<ProcessData[]>([]);
     const [dataParsingError, setDataParsingError] = useState<string | null>(
-        null
+        null,
     );
 
     const getMaxNetTotalsInterface = (
-        totals: Record<string, NetValues>
+        totals: Record<string, NetValues>,
     ): string | null => {
         let maxInterfaceName: string | null = null;
         let maxInterfaceSum: number | null = null;
@@ -77,7 +77,7 @@ export default function App() {
             rawData = JSON.parse(event.data);
         } catch (error) {
             setDataParsingError(
-                "Fatal error: WebSocket message is not valid JSON"
+                "Fatal error: WebSocket message is not valid JSON",
             );
             return;
         }
@@ -85,7 +85,7 @@ export default function App() {
         const parseResult = StatusDataSchema.safeParse(rawData);
         if (!parseResult.success) {
             setDataParsingError(
-                `Fatal error, malformed message: ${parseResult.error}`
+                `Fatal error, malformed message: ${parseResult.error}`,
             );
             return;
         }
@@ -146,7 +146,7 @@ export default function App() {
 
             setNetTotals(newNetTotals);
             setSelectedNetInterface((prev) =>
-                prev && prev in newNetTotals ? prev : maxTotalInterfaceName
+                prev && prev in newNetTotals ? prev : maxTotalInterfaceName,
             );
         }
 
@@ -178,7 +178,7 @@ export default function App() {
 
             newNetMaxes[interfaceName] = Math.max(
                 ...interfaceSpeeds.map((v) => v.download),
-                ...interfaceSpeeds.map((v) => v.upload)
+                ...interfaceSpeeds.map((v) => v.upload),
             );
         }
 
@@ -188,7 +188,7 @@ export default function App() {
     useEffect(() => {
         if (!runOnce) {
             const socket = new WebSocket(
-                `ws://${window.location.host}/ws_data`
+                `ws://${window.location.host}/ws_data`,
             );
 
             socket.addEventListener("message", handleNewData);
@@ -198,7 +198,7 @@ export default function App() {
 
     const switchInterface = (
         direction: SwitchDirection,
-        netTotals: Record<string, NetValues>
+        netTotals: Record<string, NetValues>,
     ) => {
         let interfaceNames = Object.keys(netTotals).sort();
         setSelectedNetInterface((prev) => {
@@ -335,7 +335,7 @@ export default function App() {
                             onClick={() =>
                                 switchInterface(
                                     SwitchDirection.FORWARD,
-                                    netTotals
+                                    netTotals,
                                 )
                             }
                         >

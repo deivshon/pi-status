@@ -20,7 +20,7 @@ type ProcessOrdering = {
 
 type ProcessOrderingFunction = (p1: ProcessData, p2: ProcessData) => number;
 const orderingFromProperty = (
-    processProperty: ProcessProperty
+    processProperty: ProcessProperty,
 ): ProcessOrderingFunction => {
     switch (processProperty) {
         case ProcessProperty.PID:
@@ -70,7 +70,7 @@ export default function Procs(props: ProcProps) {
                 props.mainCpuUsage.softirq +
                 props.mainCpuUsage.steal +
                 props.mainCpuUsage.guest +
-                props.mainCpuUsage.guest_nice
+                props.mainCpuUsage.guest_nice,
         );
     }, [props.mainCpuUsage]);
 
@@ -78,7 +78,7 @@ export default function Procs(props: ProcProps) {
         let visibleProcs = props.procs.filter(
             (p) =>
                 p.name.toLowerCase().includes(search.toLowerCase()) ||
-                p.pid.toString().startsWith(search)
+                p.pid.toString().startsWith(search),
         );
         if (ordering.rev) {
             visibleProcs = visibleProcs
@@ -86,7 +86,7 @@ export default function Procs(props: ProcProps) {
                 .reverse();
         } else {
             visibleProcs = visibleProcs.sort(
-                orderingFromProperty(ordering.ord)
+                orderingFromProperty(ordering.ord),
             );
         }
 
@@ -104,7 +104,7 @@ export default function Procs(props: ProcProps) {
         prop: ProcessProperty,
         currentOrdering: ProcessOrdering,
         defaultPropertyLabel: string,
-        visibleProcs: ProcessData[]
+        visibleProcs: ProcessData[],
     ): string => {
         if (visibleProcs.length === 0) {
             return "";
@@ -159,7 +159,7 @@ export default function Procs(props: ProcProps) {
                                 ProcessProperty.PID,
                                 ordering,
                                 pidLabelDefault,
-                                visibleProcs
+                                visibleProcs,
                             )}
                         </span>
                     </div>
@@ -184,7 +184,7 @@ export default function Procs(props: ProcProps) {
                                 ProcessProperty.NAME,
                                 ordering,
                                 nameLabelDefault,
-                                visibleProcs
+                                visibleProcs,
                             )}
                         </span>
                     </div>
@@ -209,7 +209,7 @@ export default function Procs(props: ProcProps) {
                                 ProcessProperty.THREADS,
                                 ordering,
                                 threadsLabelDefault,
-                                visibleProcs
+                                visibleProcs,
                             )}
                         </span>
                     </div>
@@ -234,7 +234,7 @@ export default function Procs(props: ProcProps) {
                                 ProcessProperty.MEM,
                                 ordering,
                                 memLabelDefault,
-                                visibleProcs
+                                visibleProcs,
                             )}
                         </span>
                     </div>
@@ -267,7 +267,7 @@ export default function Procs(props: ProcProps) {
                                 ProcessProperty.CPU,
                                 ordering,
                                 cpuLabelDefault,
-                                visibleProcs
+                                visibleProcs,
                             )}
                         </span>
                     </div>

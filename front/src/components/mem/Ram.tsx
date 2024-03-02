@@ -24,7 +24,7 @@ export default function Ram(props: RamProps) {
                 <div>
                     {props.value != 0
                         ? `${formatBytes(props.value, {})} (${statPerc.toFixed(
-                              2
+                              2,
                           )}%)`
                         : "0 (0%)"}
                 </div>
