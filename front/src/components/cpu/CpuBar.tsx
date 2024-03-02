@@ -12,7 +12,7 @@ export default function CoreBar(props: CoreBarProps) {
     const [usage, setUsage] = useState(0);
 
     useEffect(() => {
-        let total =
+        const total =
             props.coreData.user +
             props.coreData.system +
             props.coreData.irq +
@@ -20,7 +20,7 @@ export default function CoreBar(props: CoreBarProps) {
             props.coreData.idle +
             props.coreData.iowait;
 
-        let idle = props.coreData.idle + props.coreData.iowait;
+        const idle = props.coreData.idle + props.coreData.iowait;
 
         setUsage(((total - idle) / total) * 100);
     });

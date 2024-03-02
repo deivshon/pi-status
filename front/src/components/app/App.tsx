@@ -54,8 +54,8 @@ export default function App() {
         let maxInterfaceName: string | null = null;
         let maxInterfaceSum: number | null = null;
         for (const interfaceName of Object.keys(totals)) {
-            let interfaceTotals = totals[interfaceName];
-            let interfaceSum =
+            const interfaceTotals = totals[interfaceName];
+            const interfaceSum =
                 interfaceTotals.download + interfaceTotals.upload;
 
             if (maxInterfaceSum === null || interfaceSum > maxInterfaceSum) {
@@ -95,7 +95,7 @@ export default function App() {
         if (newData.host) {
             setHostname(newData.host.hostname);
 
-            let uptime = newData.host.uptime;
+            const uptime = newData.host.uptime;
             if (uptime) {
                 if (uptime < 3600) {
                     setUptime(`${(uptime / 60).toFixed(0)} min`);
@@ -107,10 +107,11 @@ export default function App() {
 
         if (newData.net_stats) {
             setNetSpeeds((prev) => {
-                let newNetSpeeds: Record<string, NetValues[]> = {};
+                const newNetSpeeds: Record<string, NetValues[]> = {};
                 for (const interfaceData of newData.net_stats!) {
-                    let interfaceName = interfaceData.interface.interface_name;
-                    let interfaceSpeeds = {
+                    const interfaceName =
+                        interfaceData.interface.interface_name;
+                    const interfaceSpeeds = {
                         download: interfaceData.download_speed,
                         upload: interfaceData.upload_speed,
                     };
@@ -133,7 +134,7 @@ export default function App() {
                 return newNetSpeeds;
             });
 
-            let newNetTotals: Record<string, NetValues> = {};
+            const newNetTotals: Record<string, NetValues> = {};
 
             for (const interfaceData of newData.net_stats!) {
                 newNetTotals[interfaceData.interface.interface_name] = {
@@ -142,7 +143,8 @@ export default function App() {
                 };
             }
 
-            let maxTotalInterfaceName = getMaxNetTotalsInterface(newNetTotals);
+            const maxTotalInterfaceName =
+                getMaxNetTotalsInterface(newNetTotals);
 
             setNetTotals(newNetTotals);
             setSelectedNetInterface((prev) =>
@@ -172,9 +174,9 @@ export default function App() {
     };
 
     useEffect(() => {
-        let newNetMaxes: Record<string, number> = {};
+        const newNetMaxes: Record<string, number> = {};
         for (const interfaceName in netSpeeds) {
-            let interfaceSpeeds = netSpeeds[interfaceName];
+            const interfaceSpeeds = netSpeeds[interfaceName];
 
             newNetMaxes[interfaceName] = Math.max(
                 ...interfaceSpeeds.map((v) => v.download),
@@ -200,9 +202,9 @@ export default function App() {
         direction: SwitchDirection,
         netTotals: Record<string, NetValues>,
     ) => {
-        let interfaceNames = Object.keys(netTotals).sort();
+        const interfaceNames = Object.keys(netTotals).sort();
         setSelectedNetInterface((prev) => {
-            let prevIndex = interfaceNames.indexOf(prev!);
+            const prevIndex = interfaceNames.indexOf(prev!);
             let newSelectedInterface: string | null = null;
             if (prevIndex == -1) {
                 newSelectedInterface = getMaxNetTotalsInterface(netTotals);

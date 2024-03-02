@@ -164,8 +164,10 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </div>
                     <div></div>
-                    {visibleProcs.map((p) => (
-                        <div className="col-content">{p.pid}</div>
+                    {visibleProcs.map((p, i) => (
+                        <div className="col-content" key={i}>
+                            {p.pid}
+                        </div>
                     ))}
                 </div>
                 <div className="name-col proc-col d-flex flex-column">
@@ -189,8 +191,10 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </div>
                     <div></div>
-                    {visibleProcs.map((p) => (
-                        <div className="col-content">{p.name}</div>
+                    {visibleProcs.map((p, i) => (
+                        <div className="col-content" key={i}>
+                            {p.name}
+                        </div>
                     ))}
                 </div>
                 <div className="threads-col proc-col d-flex flex-column">
@@ -214,8 +218,10 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </div>
                     <div></div>
-                    {visibleProcs.map((p) => (
-                        <div className="col-content">{p.threads}</div>
+                    {visibleProcs.map((p, i) => (
+                        <div className="col-content" key={i}>
+                            {p.threads}
+                        </div>
                     ))}
                 </div>
                 <div className="memory-col proc-col d-flex flex-column">
@@ -239,8 +245,8 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </div>
                     <div></div>
-                    {visibleProcs.map((p) => (
-                        <div className="col-content">
+                    {visibleProcs.map((p, i) => (
+                        <div className="col-content" key={i}>
                             {formatBytes(p.mem, {
                                 short: true,
                                 space: false,
@@ -272,8 +278,8 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </div>
                     <div></div>
-                    {visibleProcs.map((p) => (
-                        <div className="col-content cpu-percs">
+                    {visibleProcs.map((p, i) => (
+                        <div className="col-content cpu-percs" key={i}>
                             {((p.cpu_usage / currentTotal) * 100)
                                 .toFixed(1)
                                 .padStart(5, " ")}

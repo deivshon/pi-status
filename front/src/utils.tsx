@@ -12,7 +12,7 @@ export const formatBytes = (
         space = false,
     },
 ) => {
-    let roundAbsolute = bytes > absoluteRoundTreshold;
+    const roundAbsolute = bytes > absoluteRoundTreshold;
 
     let i = 0;
 

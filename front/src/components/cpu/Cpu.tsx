@@ -23,7 +23,7 @@ export default function Cpu(props: CpuProps) {
                 )}
                 <div></div>
                 {props.cpuUsage.slice(1).map((coreUsage, index) => (
-                    <div className="core-container">
+                    <div className="core-container" key={index}>
                         <div>Core {index + 1}</div>
                         <CpuBar coreData={coreUsage} />
                     </div>

@@ -53,8 +53,8 @@ export default function Mem(props: MemProps) {
                     <th>Use%</th>
                     <th>Mounted on</th>
                 </tr>
-                {props.disks.map((d) => (
-                    <tr>
+                {props.disks.map((d, i) => (
+                    <tr key={i}>
                         <td>{d.filesystem}</td>
                         <td>
                             {formatBytes(d.total, {
