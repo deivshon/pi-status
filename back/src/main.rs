@@ -22,12 +22,14 @@ struct Args {
     suppress_host_errors: bool,
     #[arg(short = 'n', long, default_value_t = false)]
     suppress_net_errors: bool,
-    #[arg(short = 'p', long, default_value_t = false)]
+    #[arg(short = 'P', long, default_value_t = false)]
     suppress_proc_errors: bool,
-    #[arg(short = 'n', long, default_value_t = false)]
+    #[arg(short = 'r', long, default_value_t = false)]
     suppress_ram_errors: bool,
     #[arg(short = 't', long, default_value_t = false)]
     suppress_temperature_errors: bool,
+    #[arg(short = 's', long, default_value_t = String::from("./front/dist"))]
+    serve_directory: String,
 }
 
 #[actix_web::main]
@@ -65,11 +67,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(IPFilter::new().allow(allowed_subnets.iter().map(|x| *x).collect()))
             .service(ActixWeb::resource("/ws_data").to(web::serve_data))
-            .route("/", ActixWeb::get().to(web::index))
-            .service(actix_files::Files::new(
-                "/",
-                "./front/pi-status-front/dist/",
-            ))
+            .service(actix_files::Files::new("/", &args.serve_directory).index_file("index.html"))
     })
     .bind(("0.0.0.0", args.port))?
     .run()

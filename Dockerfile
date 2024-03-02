@@ -14,9 +14,9 @@ FROM --platform=${PLATFORM} node:latest AS FRONT_BUILDER
 
 WORKDIR /pi-status
 COPY ./front ./front
-WORKDIR /pi-status/front/pi-status-front
+WORKDIR /pi-status/front
 
-RUN npm i
+RUN npm ci
 RUN npm run build
 
 FROM --platform=${PLATFORM} alpine:latest
@@ -25,6 +25,6 @@ ARG CARGO_TARGET
 WORKDIR /pi-status
 
 COPY --from=BACK_BUILDER /pi-status/back/target/${CARGO_TARGET}/release/pi-status .
-COPY --from=FRONT_BUILDER /pi-status/front/pi-status-front/dist ./front/pi-status-front/dist
+COPY --from=FRONT_BUILDER /pi-status/front/dist ./front/dist
 
 CMD /pi-status/pi-status ${ARGS}

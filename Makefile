@@ -1,5 +1,5 @@
 BACK_DIR="./back"
-FRONT_DIR="./front/pi-status-front/"
+FRONT_DIR="./front"
 
 default:
 	make -C $(BACK_DIR) default

@@ -1,24 +1,13 @@
 use crate::status::{ACTIVE_WS_CONNECTIONS, STATUS_STR};
 
-use std::error::Error;
-use std::path::PathBuf;
 use std::sync::atomic::Ordering;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
 use actix::{Actor, AsyncContext, StreamHandler};
-use actix_files::NamedFile;
 use actix_web::{web as ActixWeb, Error as ActixError, HttpRequest, HttpResponse};
 use actix_web_actors::ws::{self, Message, ProtocolError};
 use log::error;
-
-const FRONT_PATH: &str = "./front/pi-status-front/dist/index.html";
-
-pub async fn index() -> Result<NamedFile, Box<dyn Error>> {
-    let path: PathBuf = std::fs::canonicalize(FRONT_PATH)?;
-
-    Ok(NamedFile::open(path)?)
-}
 
 pub async fn serve_data(
     req: HttpRequest,

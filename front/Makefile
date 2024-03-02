@@ -1,5 +1,5 @@
 default:
-	npm i && npm run build
+	npm ci && npm run build
 
 clean:
 	rm -rf ./node_modules ./dist
