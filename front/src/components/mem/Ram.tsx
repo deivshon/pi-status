@@ -1,6 +1,5 @@
+import { formatBytes } from "../../lib/bytes";
 import "./Ram.css";
-
-import { formatBytes } from "../../utils";
 
 import { useState, useEffect } from "react";
 

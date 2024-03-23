@@ -1,9 +1,9 @@
 import { useState, useEffect, ChangeEvent } from "react";
 
-import { formatBytes } from "../../utils";
 import "./Procs.css";
 import { CoreData } from "../../models/cpu";
 import { ProcessData } from "../../models/proc";
+import { formatBytes } from "../../lib/bytes";
 
 enum ProcessProperty {
     PID = 0,

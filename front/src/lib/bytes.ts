@@ -1,5 +1,14 @@
-const shortBytePrefixes = ["B", "K", "M", "G", "T", "P"];
-const bytePrefixes = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"];
+type FormatBytesOpts = {
+    speed: boolean;
+    short: boolean;
+    roundTreshold: number;
+    absoluteRoundTreshold: number;
+    roundingDigits: number;
+    space: boolean;
+};
+
+const shortBytePrefixes: string[] = ["B", "K", "M", "G", "T", "P"];
+const bytePrefixes: string[] = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"];
 
 export const formatBytes = (
     bytes: number,
@@ -10,7 +19,7 @@ export const formatBytes = (
         absoluteRoundTreshold = 0,
         roundingDigits = 2,
         space = false,
-    },
+    }: Partial<FormatBytesOpts> = {},
 ) => {
     const roundAbsolute = bytes > absoluteRoundTreshold;
 

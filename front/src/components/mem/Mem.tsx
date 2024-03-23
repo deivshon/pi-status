@@ -1,9 +1,9 @@
 import "./Mem.css";
-import { formatBytes } from "../../utils";
 
 import Ram from "./Ram";
 import { DiskData } from "../../models/disk";
 import { RamData } from "../../models/ram";
+import { formatBytes } from "../../lib/bytes";
 
 type MemProps = {
     ram: RamData;
