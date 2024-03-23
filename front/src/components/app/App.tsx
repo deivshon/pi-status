@@ -105,10 +105,11 @@ export default function App() {
             }
         }
 
-        if (newData.net_stats) {
+        const newNetStats = newData.net_stats;
+        if (newNetStats) {
             setNetSpeeds((prev) => {
                 const newNetSpeeds: Record<string, NetValues[]> = {};
-                for (const interfaceData of newData.net_stats!) {
+                for (const interfaceData of newNetStats) {
                     const interfaceName =
                         interfaceData.interface.interface_name;
                     const interfaceSpeeds = {
@@ -136,7 +137,7 @@ export default function App() {
 
             const newNetTotals: Record<string, NetValues> = {};
 
-            for (const interfaceData of newData.net_stats!) {
+            for (const interfaceData of newNetStats) {
                 newNetTotals[interfaceData.interface.interface_name] = {
                     download: interfaceData.download_total,
                     upload: interfaceData.upload_total,
@@ -204,7 +205,11 @@ export default function App() {
     ) => {
         const interfaceNames = Object.keys(netTotals).sort();
         setSelectedNetInterface((prev) => {
-            const prevIndex = interfaceNames.indexOf(prev!);
+            if (!prev) {
+                return getMaxNetTotalsInterface(netTotals);
+            }
+
+            const prevIndex = interfaceNames.indexOf(prev);
             let newSelectedInterface: string | null = null;
             if (prevIndex == -1) {
                 newSelectedInterface = getMaxNetTotalsInterface(netTotals);
