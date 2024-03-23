@@ -14,7 +14,7 @@ export default function Net(props: NetProps) {
     return (
         <div className="stats-container">
             <div className="net-chart">
-                {props.netSpeeds.length != 0 ? (
+                {props.netSpeeds.length !== 0 ? (
                     <div className="net-stats-container">
                         <div>
                             ▼{" "}
@@ -38,7 +38,7 @@ export default function Net(props: NetProps) {
                 />
             </div>
             <div className="net-chart">
-                {props.netSpeeds.length != 0 ? (
+                {props.netSpeeds.length !== 0 ? (
                     <div className="net-stats-container">
                         <div>
                             ▲{" "}

@@ -211,7 +211,7 @@ export default function App() {
 
             const prevIndex = interfaceNames.indexOf(prev);
             let newSelectedInterface: string | null = null;
-            if (prevIndex == -1) {
+            if (prevIndex === -1) {
                 newSelectedInterface = getMaxNetTotalsInterface(netTotals);
             } else if (
                 (prevIndex === 0 && direction === SwitchDirection.BACK) ||

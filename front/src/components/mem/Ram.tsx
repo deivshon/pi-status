@@ -13,7 +13,7 @@ export default function Ram(props: RamProps) {
     const [statPerc, setStatPerc] = useState(0);
 
     useEffect(() => {
-        if (props.total != 0) setStatPerc((props.value / props.total) * 100);
+        if (props.total !== 0) setStatPerc((props.value / props.total) * 100);
     }, [props.value, props.total]);
 
     return (
@@ -21,7 +21,7 @@ export default function Ram(props: RamProps) {
             <div className="d-flex justify-content-between ram-text">
                 <div>{props.label}</div>
                 <div>
-                    {props.value != 0
+                    {props.value !== 0
                         ? `${formatBytes(props.value, {})} (${statPerc.toFixed(
                               2,
                           )}%)`

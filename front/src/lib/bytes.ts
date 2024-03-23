@@ -31,7 +31,7 @@ export const formatBytes = (
     }
 
     return `${bytes.toFixed(
-        i != 0 && bytes < roundTreshold && roundAbsolute ? roundingDigits : 0,
+        i !== 0 && bytes < roundTreshold && roundAbsolute ? roundingDigits : 0,
     )}${space ? " " : ""}${short ? shortBytePrefixes[i] : bytePrefixes[i]}${
         speed ? "/s" : ""
     }`;

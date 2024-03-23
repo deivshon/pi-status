@@ -13,7 +13,7 @@ export default function Cpu(props: CpuProps) {
         <div className="stats-container cpu-stats-container">
             <div className="temp">{props.temp}°C</div>
             <div className="bars-container w-100 align-items-center">
-                {props.cpuUsage.length != 0 ? (
+                {props.cpuUsage.length !== 0 ? (
                     <div className="core-container">
                         <div>All</div>
                         <CpuBar coreData={props.cpuUsage[0]} />
