@@ -1,6 +1,5 @@
+import { CoreData } from "@/models/cpu";
 import "./Cpu.css";
-
-import { CoreData } from "../../models/cpu";
 
 type CoreBarProps = {
     coreData: CoreData;

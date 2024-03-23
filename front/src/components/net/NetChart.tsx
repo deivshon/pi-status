@@ -1,7 +1,6 @@
-import { NetValues, NetTransferType } from "../../models/net";
+import { NetTransferType, NetValues } from "@/models/net";
+import { Area, AreaChart, ResponsiveContainer, YAxis } from "recharts";
 import "./Net.css";
-
-import { AreaChart, Area, YAxis, ResponsiveContainer } from "recharts";
 
 type NetChartProps = {
     netSpeeds: NetValues[];

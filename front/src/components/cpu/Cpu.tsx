@@ -1,6 +1,5 @@
-import { CoreData } from "../../models/cpu";
+import { CoreData } from "@/models/cpu";
 import "./Cpu.css";
-
 import CpuBar from "./CpuBar";
 
 type CpuProps = {

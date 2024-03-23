@@ -1,8 +1,7 @@
-import NetChart from "./NetChart";
-
+import { formatBytes } from "@/lib/bytes";
+import { NetTransferType, NetValues } from "@/models/net";
 import "./Net.css";
-import { NetTransferType, NetValues } from "../../models/net";
-import { formatBytes } from "../../lib/bytes";
+import NetChart from "./NetChart";
 
 type NetProps = {
     netSpeeds: NetValues[];

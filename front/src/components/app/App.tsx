@@ -1,20 +1,17 @@
+import { CoreData } from "@/models/cpu";
+import { DiskData } from "@/models/disk";
+import { NetValues } from "@/models/net";
+import { ProcessData } from "@/models/proc";
+import { RamData } from "@/models/ram";
+import { StatusDataSchema } from "@/models/ws";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { useEffect, useState } from "react";
-
 import Cpu from "../cpu/Cpu";
 import Mem from "../mem/Mem";
 import Net from "../net/Net";
 import Proc from "../procs/Procs";
-
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
-
-import { CoreData } from "../../models/cpu";
-import { DiskData } from "../../models/disk";
-import { NetValues } from "../../models/net";
-import { ProcessData } from "../../models/proc";
-import { RamData } from "../../models/ram";
-import { StatusDataSchema } from "../../models/ws";
 import { ErrorBox } from "./ErrorBox";
 
 enum SwitchDirection {

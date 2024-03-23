@@ -1,4 +1,4 @@
-import { formatBytes } from "../../lib/bytes";
+import { formatBytes } from "@/lib/bytes";
 import "./Ram.css";
 
 type RamProps = {

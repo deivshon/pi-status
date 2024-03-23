@@ -1,8 +1,7 @@
+import { formatBytes } from "@/lib/bytes";
+import { CoreData } from "@/models/cpu";
+import { ProcessData } from "@/models/proc";
 import { ChangeEvent, useState } from "react";
-
-import { formatBytes } from "../../lib/bytes";
-import { CoreData } from "../../models/cpu";
-import { ProcessData } from "../../models/proc";
 import "./Procs.css";
 
 enum ProcessProperty {
