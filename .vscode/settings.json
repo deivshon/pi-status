@@ -1,10 +1,10 @@
 {
     "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "always"
+    },
     "[typescript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": "always"
-        }
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[rust]": {
         "editor.defaultFormatter": "rust-lang.rust-analyzer"
