@@ -1,18 +1,18 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import Cpu from "../cpu/Cpu";
-import Net from "../net/Net";
 import Mem from "../mem/Mem";
+import Net from "../net/Net";
 import Proc from "../procs/Procs";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
 
-import { ProcessData } from "../../models/proc";
-import { NetValues } from "../../models/net";
 import { CoreData } from "../../models/cpu";
 import { DiskData } from "../../models/disk";
+import { NetValues } from "../../models/net";
+import { ProcessData } from "../../models/proc";
 import { RamData } from "../../models/ram";
 import { StatusDataSchema } from "../../models/ws";
 import { ErrorBox } from "./ErrorBox";
@@ -23,8 +23,6 @@ enum SwitchDirection {
 }
 
 export default function App() {
-    const [runOnce, setRunOnce] = useState(false);
-
     const [hostname, setHostname] = useState("");
     const [uptime, setUptime] = useState("");
     const [temp, setTemp] = useState(0);
@@ -65,6 +63,20 @@ export default function App() {
         }
 
         return maxInterfaceName;
+    };
+
+    const updateNetMaxes = (newNetSpeeds: Record<string, NetValues[]>) => {
+        const newNetMaxes: Record<string, number> = {};
+        for (const interfaceName in newNetSpeeds) {
+            const interfaceSpeeds = newNetSpeeds[interfaceName];
+
+            newNetMaxes[interfaceName] = Math.max(
+                ...interfaceSpeeds.map((v) => v.download),
+                ...interfaceSpeeds.map((v) => v.upload),
+            );
+        }
+
+        setNetMaxes(newNetMaxes);
     };
 
     const handleNewData = async (event: MessageEvent) => {
@@ -132,6 +144,8 @@ export default function App() {
                     }
                 }
 
+                updateNetMaxes(newNetSpeeds);
+
                 return newNetSpeeds;
             });
 
@@ -144,12 +158,12 @@ export default function App() {
                 };
             }
 
-            const maxTotalInterfaceName =
-                getMaxNetTotalsInterface(newNetTotals);
-
             setNetTotals(newNetTotals);
+
             setSelectedNetInterface((prev) =>
-                prev && prev in newNetTotals ? prev : maxTotalInterfaceName,
+                prev && prev in newNetTotals
+                    ? prev
+                    : getMaxNetTotalsInterface(newNetTotals),
             );
         }
 
@@ -175,29 +189,12 @@ export default function App() {
     };
 
     useEffect(() => {
-        const newNetMaxes: Record<string, number> = {};
-        for (const interfaceName in netSpeeds) {
-            const interfaceSpeeds = netSpeeds[interfaceName];
+        const socket = new WebSocket(`ws://${window.location.host}/ws_data`);
 
-            newNetMaxes[interfaceName] = Math.max(
-                ...interfaceSpeeds.map((v) => v.download),
-                ...interfaceSpeeds.map((v) => v.upload),
-            );
-        }
+        socket.addEventListener("message", handleNewData);
 
-        setNetMaxes(newNetMaxes);
-    }, [netSpeeds]);
-
-    useEffect(() => {
-        if (!runOnce) {
-            const socket = new WebSocket(
-                `ws://${window.location.host}/ws_data`,
-            );
-
-            socket.addEventListener("message", handleNewData);
-            setRunOnce(true);
-        }
-    }, [runOnce]);
+        return () => socket.close();
+    }, []);
 
     const switchInterface = (
         direction: SwitchDirection,

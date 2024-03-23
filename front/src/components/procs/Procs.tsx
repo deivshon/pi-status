@@ -1,9 +1,9 @@
-import { useState, useEffect, ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 
-import "./Procs.css";
+import { formatBytes } from "../../lib/bytes";
 import { CoreData } from "../../models/cpu";
 import { ProcessData } from "../../models/proc";
-import { formatBytes } from "../../lib/bytes";
+import "./Procs.css";
 
 enum ProcessProperty {
     PID = 0,
@@ -51,47 +51,35 @@ const memLabelDefault = "Mem";
 const cpuLabelDefault = "CPU";
 
 export default function Procs(props: ProcProps) {
-    const [currentTotal, setTotal] = useState(1);
     const [ordering, setOrdering] = useState<ProcessOrdering>({
         ord: ProcessProperty.MEM,
         rev: false,
     });
     const [search, setSearch] = useState("");
-    const [visibleProcs, setVisibleProcs] = useState<ProcessData[]>([]);
 
-    useEffect(() => {
-        setTotal(
-            props.mainCpuUsage.user +
-                props.mainCpuUsage.nice +
-                props.mainCpuUsage.system +
-                props.mainCpuUsage.idle +
-                props.mainCpuUsage.iowait +
-                props.mainCpuUsage.irq +
-                props.mainCpuUsage.softirq +
-                props.mainCpuUsage.steal +
-                props.mainCpuUsage.guest +
-                props.mainCpuUsage.guest_nice,
-        );
-    }, [props.mainCpuUsage]);
+    const total =
+        props.mainCpuUsage.user +
+        props.mainCpuUsage.nice +
+        props.mainCpuUsage.system +
+        props.mainCpuUsage.idle +
+        props.mainCpuUsage.iowait +
+        props.mainCpuUsage.irq +
+        props.mainCpuUsage.softirq +
+        props.mainCpuUsage.steal +
+        props.mainCpuUsage.guest +
+        props.mainCpuUsage.guest_nice;
 
-    useEffect(() => {
-        let visibleProcs = props.procs.filter(
+    const visibleProcs = props.procs
+        .filter(
             (p) =>
                 p.name.toLowerCase().includes(search.toLowerCase()) ||
                 p.pid.toString().startsWith(search),
-        );
-        if (ordering.rev) {
-            visibleProcs = visibleProcs
-                .sort(orderingFromProperty(ordering.ord))
-                .reverse();
-        } else {
-            visibleProcs = visibleProcs.sort(
-                orderingFromProperty(ordering.ord),
-            );
-        }
+        )
+        .sort(orderingFromProperty(ordering.ord));
 
-        setVisibleProcs(visibleProcs);
-    }, [props.procs, search, ordering]);
+    if (ordering.rev) {
+        visibleProcs.reverse();
+    }
 
     const sortProcessesBy = (prop: ProcessProperty) => {
         setOrdering({
@@ -280,7 +268,7 @@ export default function Procs(props: ProcProps) {
                     <div></div>
                     {visibleProcs.map((p, i) => (
                         <div className="col-content cpu-percs" key={i}>
-                            {((p.cpu_usage / currentTotal) * 100)
+                            {((p.cpu_usage / total) * 100)
                                 .toFixed(1)
                                 .padStart(5, " ")}
                             %

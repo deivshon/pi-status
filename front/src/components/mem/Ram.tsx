@@ -1,8 +1,6 @@
 import { formatBytes } from "../../lib/bytes";
 import "./Ram.css";
 
-import { useState, useEffect } from "react";
-
 type RamProps = {
     total: number;
     value: number;
@@ -10,11 +8,7 @@ type RamProps = {
 };
 
 export default function Ram(props: RamProps) {
-    const [statPerc, setStatPerc] = useState(0);
-
-    useEffect(() => {
-        if (props.total !== 0) setStatPerc((props.value / props.total) * 100);
-    }, [props.value, props.total]);
+    const statPerc = props.total === 0 ? 0 : (props.value / props.total) * 100;
 
     return (
         <div className="d-flex ram-stats-container flex-column w-100">
