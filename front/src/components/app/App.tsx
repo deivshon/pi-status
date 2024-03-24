@@ -13,8 +13,8 @@ import Net from "../net/Net";
 import Proc from "../procs/Procs";
 import "./App.css";
 import { ErrorBox } from "./ErrorBox";
-import { computeHostData } from "./data/host";
-import { computeUpdatedNetStats } from "./data/net";
+import { computeHostData } from "./updates/host";
+import { computeUpdatedNetStats } from "./updates/net";
 
 enum SwitchDirection {
     Back = 0,
