@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const RamDataSchema = z.object({
+export const ramDataSchema = z.object({
     total: z.number(),
     used: z.number(),
     available: z.number(),
@@ -8,4 +8,4 @@ export const RamDataSchema = z.object({
     cached: z.number(),
 });
 
-export type RamData = z.infer<typeof RamDataSchema>;
+export type RamData = z.infer<typeof ramDataSchema>;

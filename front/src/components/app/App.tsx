@@ -3,7 +3,7 @@ import { DiskData } from "@/models/disk";
 import { NetValues } from "@/models/net";
 import { ProcessData } from "@/models/proc";
 import { RamData } from "@/models/ram";
-import { StatusDataSchema } from "@/models/ws";
+import { statusDataSchema } from "@/models/ws";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { useEffect, useState } from "react";
@@ -59,7 +59,7 @@ export default function App() {
             return;
         }
 
-        const parseResult = StatusDataSchema.safeParse(rawData);
+        const parseResult = statusDataSchema.safeParse(rawData);
         if (!parseResult.success) {
             setDataParsingError(
                 `Fatal error, malformed message: ${parseResult.error}`,

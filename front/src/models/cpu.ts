@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const CoreDataSchema = z.object({
+export const coreDataSchema = z.object({
     user: z.number(),
     nice: z.number(),
     system: z.number(),
@@ -13,4 +13,4 @@ export const CoreDataSchema = z.object({
     guest_nice: z.number(),
 });
 
-export type CoreData = z.infer<typeof CoreDataSchema>;
+export type CoreData = z.infer<typeof coreDataSchema>;

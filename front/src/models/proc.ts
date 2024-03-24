@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const ProcessDataSchema = z.object({
+export const processDataSchema = z.object({
     pid: z.number(),
     name: z.string(),
     mem: z.number(),
@@ -9,4 +9,4 @@ export const ProcessDataSchema = z.object({
     start_time: z.number(),
 });
 
-export type ProcessData = z.infer<typeof ProcessDataSchema>;
+export type ProcessData = z.infer<typeof processDataSchema>;

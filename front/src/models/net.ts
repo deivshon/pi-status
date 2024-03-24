@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-export const NetInterfaceSchema = z.object({
+export const netInterfaceSchema = z.object({
     interface_path: z.string(),
     interface_name: z.string(),
 });
 
-export const NetDataSchema = z.object({
-    interface: NetInterfaceSchema,
+export const netDataSchema = z.object({
+    interface: netInterfaceSchema,
     upload_total: z.number(),
     download_total: z.number(),
     upload_speed: z.number(),
@@ -14,7 +14,7 @@ export const NetDataSchema = z.object({
     timestamp: z.number(),
 });
 
-export const NetValuesSchema = z.object({
+export const netValuesSchema = z.object({
     download: z.number(),
     upload: z.number(),
 });
@@ -24,6 +24,6 @@ export enum NetTransferType {
     Upload = "upload",
 }
 
-export type NetInterface = z.infer<typeof NetInterfaceSchema>;
-export type NetData = z.infer<typeof NetDataSchema>;
-export type NetValues = z.infer<typeof NetValuesSchema>;
+export type NetInterface = z.infer<typeof netInterfaceSchema>;
+export type NetData = z.infer<typeof netDataSchema>;
+export type NetValues = z.infer<typeof netValuesSchema>;

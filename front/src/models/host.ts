@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-export const HostDataSchema = z.object({
+export const hostDataSchema = z.object({
     hostname: z.string(),
     uptime: z.number(),
 });
 
-export type HostData = z.infer<typeof HostDataSchema>;
+export type HostData = z.infer<typeof hostDataSchema>;

@@ -1,17 +1,17 @@
 import { z } from "zod";
-import { CoreDataSchema } from "./cpu";
-import { DiskDataSchema } from "./disk";
-import { HostDataSchema } from "./host";
-import { NetDataSchema } from "./net";
-import { ProcessDataSchema } from "./proc";
-import { RamDataSchema } from "./ram";
+import { coreDataSchema } from "./cpu";
+import { diskDataSchema } from "./disk";
+import { hostDataSchema } from "./host";
+import { netDataSchema } from "./net";
+import { processDataSchema } from "./proc";
+import { ramDataSchema } from "./ram";
 
-export const StatusDataSchema = z.object({
-    host: HostDataSchema.optional(),
+export const statusDataSchema = z.object({
+    host: hostDataSchema.optional(),
     temp: z.number().optional(),
-    net_stats: z.array(NetDataSchema).optional(),
-    cpu_usage: z.array(CoreDataSchema).optional(),
-    ram: RamDataSchema.optional(),
-    disk: z.array(DiskDataSchema).optional(),
-    proc: z.array(ProcessDataSchema).optional(),
+    net_stats: z.array(netDataSchema).optional(),
+    cpu_usage: z.array(coreDataSchema).optional(),
+    ram: ramDataSchema.optional(),
+    disk: z.array(diskDataSchema).optional(),
+    proc: z.array(processDataSchema).optional(),
 });
