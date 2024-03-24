@@ -50,7 +50,7 @@ export const computeUpdatedNetStats = (
     };
 };
 
-export const getNetMaxes = (
+const getNetMaxes = (
     newNetSpeeds: Record<string, NetValues[]>,
 ): Record<string, number> => {
     const newNetMaxes: Record<string, number> = {};
@@ -65,4 +65,22 @@ export const getNetMaxes = (
     }
 
     return newNetMaxes;
+};
+
+export const getMaxNetTotalsInterface = (
+    totals: Record<string, NetValues>,
+): string | null => {
+    let maxInterfaceName: string | null = null;
+    let maxInterfaceSum: number | null = null;
+    for (const interfaceName of Object.keys(totals)) {
+        const interfaceTotals = totals[interfaceName];
+        const interfaceSum = interfaceTotals.download + interfaceTotals.upload;
+
+        if (maxInterfaceSum === null || interfaceSum > maxInterfaceSum) {
+            maxInterfaceSum = interfaceSum;
+            maxInterfaceName = interfaceName;
+        }
+    }
+
+    return maxInterfaceName;
 };

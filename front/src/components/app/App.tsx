@@ -14,12 +14,14 @@ import Proc from "../procs/Procs";
 import "./App.css";
 import { ErrorBox } from "./ErrorBox";
 import { computeHostData } from "./updates/host";
-import { computeUpdatedNetStats } from "./updates/net";
-
-enum SwitchDirection {
-    Back = 0,
-    Forward = 1,
-}
+import {
+    computeUpdatedNetStats,
+    getMaxNetTotalsInterface,
+} from "./updates/net";
+import {
+    SwitchDirection,
+    getNewSelectedInterface,
+} from "./updates/selectedInterface";
 
 const maxNetDataPoints = 30;
 
@@ -46,25 +48,6 @@ export default function App() {
     const [dataParsingError, setDataParsingError] = useState<string | null>(
         null,
     );
-
-    const getMaxNetTotalsInterface = (
-        totals: Record<string, NetValues>,
-    ): string | null => {
-        let maxInterfaceName: string | null = null;
-        let maxInterfaceSum: number | null = null;
-        for (const interfaceName of Object.keys(totals)) {
-            const interfaceTotals = totals[interfaceName];
-            const interfaceSum =
-                interfaceTotals.download + interfaceTotals.upload;
-
-            if (maxInterfaceSum === null || interfaceSum > maxInterfaceSum) {
-                maxInterfaceSum = interfaceSum;
-                maxInterfaceName = interfaceName;
-            }
-        }
-
-        return maxInterfaceName;
-    };
 
     const handleNewData = async (event: MessageEvent) => {
         if (dataParsingError) {
@@ -157,26 +140,12 @@ export default function App() {
                 return getMaxNetTotalsInterface(netTotals);
             }
 
-            const prevIndex = interfaceNames.indexOf(prev);
-            let newSelectedInterface: string | null = null;
-            if (prevIndex === -1) {
-                newSelectedInterface = getMaxNetTotalsInterface(netTotals);
-            } else if (
-                (prevIndex === 0 && direction === SwitchDirection.Back) ||
-                (prevIndex === interfaceNames.length - 1 &&
-                    direction === SwitchDirection.Forward)
-            ) {
-                newSelectedInterface = prev;
-            } else if (direction === SwitchDirection.Back) {
-                newSelectedInterface = interfaceNames[prevIndex - 1] ?? null;
-            } else if (direction === SwitchDirection.Forward) {
-                newSelectedInterface = interfaceNames[prevIndex + 1] ?? null;
-            }
-
-            return newSelectedInterface !== null &&
-                interfaceNames.includes(newSelectedInterface)
-                ? newSelectedInterface
-                : prev;
+            return getNewSelectedInterface(
+                prev,
+                direction,
+                netTotals,
+                interfaceNames,
+            );
         });
     };
 
