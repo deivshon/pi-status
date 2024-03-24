@@ -13,20 +13,18 @@ export default function Net(props: NetProps) {
     return (
         <div className="stats-container">
             <div className="net-chart">
-                {props.netSpeeds.length !== 0 ? (
+                {props.netSpeeds.length !== 0 && (
                     <div className="net-stats-container">
-                        <div>
+                        <p>
                             ▼{" "}
                             {formatBytes(
                                 props.netSpeeds[props.netSpeeds.length - 1]
                                     .download,
                                 { speed: true, space: true },
                             )}
-                        </div>
-                        <div>{formatBytes(props.netTotals.download, {})}</div>
+                        </p>
+                        <p>{formatBytes(props.netTotals.download, {})}</p>
                     </div>
-                ) : (
-                    ""
                 )}
                 <NetChart
                     netSpeeds={props.netSpeeds}
@@ -37,20 +35,18 @@ export default function Net(props: NetProps) {
                 />
             </div>
             <div className="net-chart">
-                {props.netSpeeds.length !== 0 ? (
+                {props.netSpeeds.length !== 0 && (
                     <div className="net-stats-container">
-                        <div>
+                        <p>
                             ▲{" "}
                             {formatBytes(
                                 props.netSpeeds[props.netSpeeds.length - 1]
                                     .upload,
                                 { speed: true, space: true },
                             )}
-                        </div>
-                        <div>{formatBytes(props.netTotals.upload, {})}</div>
+                        </p>
+                        <p>{formatBytes(props.netTotals.upload, {})}</p>
                     </div>
-                ) : (
-                    ""
                 )}
                 <NetChart
                     netSpeeds={props.netSpeeds}

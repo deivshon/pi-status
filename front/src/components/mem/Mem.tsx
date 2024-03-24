@@ -13,9 +13,7 @@ type MemProps = {
 export default function Mem(props: MemProps) {
     return (
         <div className="stats-container flex-column align-items-center w-100">
-            <div>
-                RAM {props.ram.total ? formatBytes(props.ram.total, {}) : 0}
-            </div>
+            <p>RAM {formatBytes(props.ram.total)}</p>
             <div className="w-100 d-flex flex-column align-items-center">
                 <Ram
                     total={props.ram.total || 0}
@@ -44,7 +42,7 @@ export default function Mem(props: MemProps) {
                     label="Cached"
                 />
             </div>
-            Disks
+            <span>Disks</span>
             <table className="disks-container">
                 <tr>
                     <th>Filesystem</th>

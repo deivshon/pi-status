@@ -9,9 +9,9 @@ export const ErrorBox = (props: ErrorBoxProps) => {
             id="error-box"
         >
             <div className="col-md-6">
-                <div className="alert alert-danger text-center" role="alert">
+                <p className="alert alert-danger text-center" role="alert">
                     {props.error}
-                </div>
+                </p>
             </div>
         </div>
     );

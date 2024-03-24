@@ -151,8 +151,8 @@ export default function App() {
     return (
         <div>
             <div className="host-bar">
-                <div>{hostname}</div>
-                <div>Up {uptime}</div>
+                <p>{hostname}</p>
+                <p>Up {uptime}</p>
             </div>
             <ul
                 className="nav nav-pills flex flex-wrap justify-content-center"
@@ -229,7 +229,7 @@ export default function App() {
                     role="tabpanel"
                     aria-labelledby="pills-net-tab"
                 >
-                    <p
+                    <div
                         id="interface-selector"
                         className="d-flex align-items-center justify-content-center"
                     >
@@ -266,7 +266,7 @@ export default function App() {
                                 ? "ᐳ"
                                 : ""}
                         </button>
-                    </p>
+                    </div>
                     <Net
                         netSpeeds={
                             selectedNetInterface &&

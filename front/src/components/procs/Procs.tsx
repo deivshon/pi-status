@@ -118,7 +118,7 @@ export default function Procs(props: ProcProps) {
                 id="proc-header-container"
                 className="d-flex justify-content-between"
             >
-                <div>{props.procs.length} active processes</div>
+                <p>{props.procs.length} active processes</p>
                 <div className="search-bar-container">
                     <input
                         type="text"
@@ -179,9 +179,9 @@ export default function Procs(props: ProcProps) {
                     </div>
                     <div></div>
                     {visibleProcs.map((p, i) => (
-                        <div className="col-content" key={i}>
+                        <p className="col-content" key={i}>
                             {p.name}
-                        </div>
+                        </p>
                     ))}
                 </div>
                 <div className="threads-col proc-col d-flex flex-column">
@@ -206,9 +206,9 @@ export default function Procs(props: ProcProps) {
                     </div>
                     <div></div>
                     {visibleProcs.map((p, i) => (
-                        <div className="col-content" key={i}>
+                        <p className="col-content" key={i}>
                             {p.threads}
-                        </div>
+                        </p>
                     ))}
                 </div>
                 <div className="memory-col proc-col d-flex flex-column">
@@ -233,7 +233,7 @@ export default function Procs(props: ProcProps) {
                     </div>
                     <div></div>
                     {visibleProcs.map((p, i) => (
-                        <div className="col-content" key={i}>
+                        <p className="col-content" key={i}>
                             {formatBytes(p.mem, {
                                 short: true,
                                 space: false,
@@ -241,7 +241,7 @@ export default function Procs(props: ProcProps) {
                                 absoluteRoundTreshold: 1024 ** 3,
                                 roundingDigits: 1,
                             })}
-                        </div>
+                        </p>
                     ))}
                 </div>
                 <div className="cpu-col proc-col d-flex flex-column">
@@ -266,12 +266,12 @@ export default function Procs(props: ProcProps) {
                     </div>
                     <div></div>
                     {visibleProcs.map((p, i) => (
-                        <div className="col-content cpu-percs" key={i}>
+                        <p className="col-content cpu-percs" key={i}>
                             {((p.cpu_usage / total) * 100)
                                 .toFixed(1)
                                 .padStart(5, " ")}
                             %
-                        </div>
+                        </p>
                     ))}
                 </div>
             </div>

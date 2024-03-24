@@ -12,6 +12,11 @@ body {
     min-height: 100vh;
 }
 
+p {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
 .recharts-yAxis {
     display: none !important;
 }

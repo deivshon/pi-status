@@ -13,14 +13,14 @@ export default function Ram(props: RamProps) {
     return (
         <div className="d-flex ram-stats-container flex-column w-100">
             <div className="d-flex justify-content-between ram-text">
-                <div>{props.label}</div>
-                <div>
+                <p className="ram-bar-label">{props.label}</p>
+                <p className="ram-bar-label">
                     {props.value !== 0
-                        ? `${formatBytes(props.value, {})} (${statPerc.toFixed(
+                        ? `${formatBytes(props.value)} (${statPerc.toFixed(
                               2,
                           )}%)`
                         : "0 (0%)"}
-                </div>
+                </p>
             </div>
             <div className="progress w-100">
                 <div
