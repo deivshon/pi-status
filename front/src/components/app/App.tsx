@@ -13,11 +13,15 @@ import Net from "../net/Net";
 import Proc from "../procs/Procs";
 import "./App.css";
 import { ErrorBox } from "./ErrorBox";
+import { computeHostData } from "./data/host";
+import { computeUpdatedNetStats } from "./data/net";
 
 enum SwitchDirection {
     Back = 0,
     Forward = 1,
 }
+
+const maxNetDataPoints = 30;
 
 export default function App() {
     const [hostname, setHostname] = useState("");
@@ -62,21 +66,6 @@ export default function App() {
         return maxInterfaceName;
     };
 
-    const updateNetMaxes = (newNetSpeeds: Record<string, NetValues[]>) => {
-        const newNetMaxes: Record<string, number> = {};
-        for (const interfaceName in newNetSpeeds) {
-            const interfaceSpeeds = newNetSpeeds[interfaceName];
-
-            const interfaceMax = Math.max(
-                ...interfaceSpeeds.map((v) => v.download),
-                ...interfaceSpeeds.map((v) => v.upload),
-            );
-            newNetMaxes[interfaceName] = interfaceMax + interfaceMax * (1 / 20);
-        }
-
-        setNetMaxes(newNetMaxes);
-    };
-
     const handleNewData = async (event: MessageEvent) => {
         if (dataParsingError) {
             return;
@@ -103,66 +92,30 @@ export default function App() {
         const newData = parseResult.data;
 
         if (newData.host) {
-            setHostname(newData.host.hostname);
-
-            const uptime = newData.host.uptime;
-            if (uptime) {
-                if (uptime < 3600) {
-                    setUptime(`${(uptime / 60).toFixed(0)} min`);
-                } else {
-                    setUptime(`${(uptime / 3600).toFixed(0)} hours`);
-                }
-            }
+            const computedHostData = computeHostData(newData.host);
+            setHostname(computedHostData.hostname);
+            setUptime(computedHostData.uptime);
         }
 
-        const newNetStats = newData.net_stats;
-        if (newNetStats) {
-            setNetSpeeds((prev) => {
-                const newNetSpeeds: Record<string, NetValues[]> = {};
-                for (const interfaceData of newNetStats) {
-                    const interfaceName =
-                        interfaceData.interface.interface_name;
-                    const interfaceSpeeds = {
-                        download: interfaceData.download_speed,
-                        upload: interfaceData.upload_speed,
-                    };
+        const rawNetData = newData.net_stats;
+        if (rawNetData) {
+            setNetSpeeds((prevSpeeds) => {
+                const newNetStats = computeUpdatedNetStats(
+                    rawNetData,
+                    prevSpeeds,
+                    maxNetDataPoints,
+                );
 
-                    if (!(interfaceName in prev)) {
-                        newNetSpeeds[interfaceName] = [interfaceSpeeds];
-                    } else {
-                        newNetSpeeds[interfaceName] = [
-                            ...prev[interfaceName],
-                            interfaceSpeeds,
-                        ];
-                    }
+                setNetTotals(newNetStats.netTotals);
+                setNetMaxes(newNetStats.netMaxes);
+                setSelectedNetInterface((prevSelected) =>
+                    prevSelected && prevSelected in newNetStats.netTotals
+                        ? prevSelected
+                        : getMaxNetTotalsInterface(newNetStats.netTotals),
+                );
 
-                    if (newNetSpeeds[interfaceName].length > 30) {
-                        newNetSpeeds[interfaceName] =
-                            newNetSpeeds[interfaceName].slice(1);
-                    }
-                }
-
-                updateNetMaxes(newNetSpeeds);
-
-                return newNetSpeeds;
+                return newNetStats.netSpeeds;
             });
-
-            const newNetTotals: Record<string, NetValues> = {};
-
-            for (const interfaceData of newNetStats) {
-                newNetTotals[interfaceData.interface.interface_name] = {
-                    download: interfaceData.download_total,
-                    upload: interfaceData.upload_total,
-                };
-            }
-
-            setNetTotals(newNetTotals);
-
-            setSelectedNetInterface((prev) =>
-                prev && prev in newNetTotals
-                    ? prev
-                    : getMaxNetTotalsInterface(newNetTotals),
-            );
         }
 
         if (newData.temp) {
