@@ -31,7 +31,7 @@ export default function Net(props: NetProps) {
                 <NetChart
                     netSpeeds={props.netSpeeds}
                     netMax={props.netMax}
-                    dataKey={NetTransferType.DOWNLOAD}
+                    dataKey={NetTransferType.Download}
                     color="#f28779"
                     chartClass="down-chart-container"
                 />
@@ -55,7 +55,7 @@ export default function Net(props: NetProps) {
                 <NetChart
                     netSpeeds={props.netSpeeds}
                     netMax={props.netMax}
-                    dataKey={NetTransferType.UPLOAD}
+                    dataKey={NetTransferType.Upload}
                     color="#6ccdff"
                     chartClass="up-chart-container"
                 />

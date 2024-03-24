@@ -15,8 +15,8 @@ import "./App.css";
 import { ErrorBox } from "./ErrorBox";
 
 enum SwitchDirection {
-    BACK = 0,
-    FORWARD = 1,
+    Back = 0,
+    Forward = 1,
 }
 
 export default function App() {
@@ -208,14 +208,14 @@ export default function App() {
             if (prevIndex === -1) {
                 newSelectedInterface = getMaxNetTotalsInterface(netTotals);
             } else if (
-                (prevIndex === 0 && direction === SwitchDirection.BACK) ||
+                (prevIndex === 0 && direction === SwitchDirection.Back) ||
                 (prevIndex === interfaceNames.length - 1 &&
-                    direction === SwitchDirection.FORWARD)
+                    direction === SwitchDirection.Forward)
             ) {
                 newSelectedInterface = prev;
-            } else if (direction === SwitchDirection.BACK) {
+            } else if (direction === SwitchDirection.Back) {
                 newSelectedInterface = interfaceNames[prevIndex - 1] ?? null;
-            } else if (direction === SwitchDirection.FORWARD) {
+            } else if (direction === SwitchDirection.Forward) {
                 newSelectedInterface = interfaceNames[prevIndex + 1] ?? null;
             }
 
@@ -318,7 +318,7 @@ export default function App() {
                         <button
                             id="net-interface-prev"
                             onClick={() =>
-                                switchInterface(SwitchDirection.BACK, netTotals)
+                                switchInterface(SwitchDirection.Back, netTotals)
                             }
                         >
                             {selectedNetInterface !== null &&
@@ -335,7 +335,7 @@ export default function App() {
                             id="net-interface-next"
                             onClick={() =>
                                 switchInterface(
-                                    SwitchDirection.FORWARD,
+                                    SwitchDirection.Forward,
                                     netTotals,
                                 )
                             }

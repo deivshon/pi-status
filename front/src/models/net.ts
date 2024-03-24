@@ -20,8 +20,8 @@ export const NetValuesSchema = z.object({
 });
 
 export enum NetTransferType {
-    DOWNLOAD = "download",
-    UPLOAD = "upload",
+    Download = "download",
+    Upload = "upload",
 }
 
 export type NetInterface = z.infer<typeof NetInterfaceSchema>;

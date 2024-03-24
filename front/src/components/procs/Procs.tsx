@@ -6,9 +6,9 @@ import "./Procs.css";
 
 enum ProcessProperty {
     PID = 0,
-    NAME = 1,
-    THREADS = 2,
-    MEM = 3,
+    Name = 1,
+    Threads = 2,
+    Memory = 3,
     CPU = 4,
 }
 
@@ -24,11 +24,11 @@ const orderingFromProperty = (
     switch (processProperty) {
         case ProcessProperty.PID:
             return (p1, p2) => p2.pid - p1.pid;
-        case ProcessProperty.NAME:
+        case ProcessProperty.Name:
             return (p1, p2) => p1.name.localeCompare(p2.name);
-        case ProcessProperty.THREADS:
+        case ProcessProperty.Threads:
             return (p1, p2) => p2.threads - p1.threads;
-        case ProcessProperty.MEM:
+        case ProcessProperty.Memory:
             return (p1, p2) => p2.mem - p1.mem;
         case ProcessProperty.CPU:
             return (p1, p2) => p2.cpu_usage - p1.cpu_usage;
@@ -51,7 +51,7 @@ const cpuLabelDefault = "CPU";
 
 export default function Procs(props: ProcProps) {
     const [ordering, setOrdering] = useState<ProcessOrdering>({
-        ord: ProcessProperty.MEM,
+        ord: ProcessProperty.Memory,
         rev: false,
     });
     const [search, setSearch] = useState("");
@@ -101,7 +101,7 @@ export default function Procs(props: ProcProps) {
             return defaultPropertyLabel;
         }
 
-        if (prop === ProcessProperty.NAME) {
+        if (prop === ProcessProperty.Name) {
             return `${defaultPropertyLabel}${currentOrdering.rev ? "▲" : "▼"}`;
         } else {
             return `${currentOrdering.rev ? "▲" : "▼"}${defaultPropertyLabel}`;
@@ -160,17 +160,17 @@ export default function Procs(props: ProcProps) {
                 <div className="name-col proc-col d-flex flex-column">
                     <div
                         className="text-nowrap"
-                        onClick={() => sortProcessesBy(ProcessProperty.NAME)}
+                        onClick={() => sortProcessesBy(ProcessProperty.Name)}
                     >
                         <span
                             className={`col-content${
-                                ordering.ord === ProcessProperty.NAME
+                                ordering.ord === ProcessProperty.Name
                                     ? " text-decoration-underline"
                                     : ""
                             }`}
                         >
                             {propertyLabel(
-                                ProcessProperty.NAME,
+                                ProcessProperty.Name,
                                 ordering,
                                 nameLabelDefault,
                                 visibleProcs,
@@ -187,17 +187,17 @@ export default function Procs(props: ProcProps) {
                 <div className="threads-col proc-col d-flex flex-column">
                     <div
                         className="text-nowrap threads-label"
-                        onClick={() => sortProcessesBy(ProcessProperty.THREADS)}
+                        onClick={() => sortProcessesBy(ProcessProperty.Threads)}
                     >
                         <span
                             className={`col-content${
-                                ordering.ord === ProcessProperty.THREADS
+                                ordering.ord === ProcessProperty.Threads
                                     ? " text-decoration-underline"
                                     : ""
                             }`}
                         >
                             {propertyLabel(
-                                ProcessProperty.THREADS,
+                                ProcessProperty.Threads,
                                 ordering,
                                 threadsLabelDefault,
                                 visibleProcs,
@@ -214,17 +214,17 @@ export default function Procs(props: ProcProps) {
                 <div className="memory-col proc-col d-flex flex-column">
                     <div
                         className="text-nowrap mem-label"
-                        onClick={() => sortProcessesBy(ProcessProperty.MEM)}
+                        onClick={() => sortProcessesBy(ProcessProperty.Memory)}
                     >
                         <span
                             className={`col-content${
-                                ordering.ord === ProcessProperty.MEM
+                                ordering.ord === ProcessProperty.Memory
                                     ? " text-decoration-underline"
                                     : ""
                             }`}
                         >
                             {propertyLabel(
-                                ProcessProperty.MEM,
+                                ProcessProperty.Memory,
                                 ordering,
                                 memLabelDefault,
                                 visibleProcs,
