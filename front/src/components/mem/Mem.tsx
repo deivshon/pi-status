@@ -16,29 +16,29 @@ export default function Mem(props: MemProps) {
             <p>RAM {formatBytes(props.ram.total)}</p>
             <div className="w-100 d-flex flex-column align-items-center">
                 <Ram
-                    total={props.ram.total || 0}
-                    value={props.ram.used ? props.ram.used : 0}
+                    total={props.ram.total}
+                    value={props.ram.used}
                     label="Used"
                 />
             </div>
             <div className="w-100 d-flex flex-column align-items-center">
                 <Ram
-                    total={props.ram.total || 0}
-                    value={props.ram.available ? props.ram.available : 0}
+                    total={props.ram.total}
+                    value={props.ram.available}
                     label="Available"
                 />
             </div>
             <div className="w-100 d-flex flex-column align-items-center">
                 <Ram
-                    total={props.ram.total || 0}
-                    value={props.ram.free ? props.ram.free : 0}
+                    total={props.ram.total}
+                    value={props.ram.free}
                     label="Free"
                 />
             </div>
             <div className="w-100 d-flex flex-column align-items-center">
                 <Ram
-                    total={props.ram.total || 0}
-                    value={props.ram.cached ? props.ram.cached : 0}
+                    total={props.ram.total}
+                    value={props.ram.cached}
                     label="Cached"
                 />
             </div>
