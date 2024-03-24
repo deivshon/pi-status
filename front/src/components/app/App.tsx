@@ -67,10 +67,11 @@ export default function App() {
         for (const interfaceName in newNetSpeeds) {
             const interfaceSpeeds = newNetSpeeds[interfaceName];
 
-            newNetMaxes[interfaceName] = Math.max(
+            const interfaceMax = Math.max(
                 ...interfaceSpeeds.map((v) => v.download),
                 ...interfaceSpeeds.map((v) => v.upload),
             );
+            newNetMaxes[interfaceName] = interfaceMax + interfaceMax * (1 / 20);
         }
 
         setNetMaxes(newNetMaxes);
