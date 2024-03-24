@@ -13,6 +13,7 @@ import Net from "../net/Net";
 import Proc from "../procs/Procs";
 import "./App.css";
 import { ErrorBox } from "./ErrorBox";
+import { emptyCoreData, emptyNetValues, emptyRamData } from "./defaults";
 import { computeHostData } from "./updates/host";
 import {
     computeUpdatedNetStats,
@@ -36,13 +37,7 @@ export default function App() {
         string | null
     >(null);
     const [cpuUsage, setCpuUsage] = useState<CoreData[]>([]);
-    const [ramData, setRamData] = useState<RamData>({
-        available: 0,
-        cached: 0,
-        free: 0,
-        total: 0,
-        used: 0,
-    });
+    const [ramData, setRamData] = useState<RamData>(emptyRamData);
     const [disks, setDisks] = useState<DiskData[]>([]);
     const [processes, setProcesses] = useState<ProcessData[]>([]);
     const [dataParsingError, setDataParsingError] = useState<string | null>(
@@ -289,10 +284,7 @@ export default function App() {
                             selectedNetInterface &&
                             netTotals[selectedNetInterface]
                                 ? netTotals[selectedNetInterface]
-                                : {
-                                      download: 0,
-                                      upload: 0,
-                                  }
+                                : emptyNetValues
                         }
                     />
                 </div>
@@ -304,20 +296,7 @@ export default function App() {
                     <Proc
                         procs={processes}
                         mainCpuUsage={
-                            cpuUsage.length > 0
-                                ? cpuUsage[0]
-                                : {
-                                      user: 0,
-                                      nice: 0,
-                                      system: 0,
-                                      idle: 0,
-                                      iowait: 0,
-                                      irq: 0,
-                                      softirq: 0,
-                                      steal: 0,
-                                      guest: 0,
-                                      guest_nice: 0,
-                                  }
+                            cpuUsage.length > 0 ? cpuUsage[0] : emptyCoreData
                         }
                     />
                 </div>
