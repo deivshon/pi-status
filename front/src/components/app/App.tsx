@@ -47,7 +47,7 @@ export default function App() {
 
     useWebSocket(`ws://${window.location.host}/ws_data`, {
         onError: () => {
-            setError("Unknown WebSocket error occurred");
+            setError("Fatal error: unknown WebSocket error occurred");
         },
         onMessage: (event) => {
             if (!event) {
@@ -97,7 +97,7 @@ export default function App() {
 
         const parseResult = statusDataSchema.safeParse(rawData);
         if (!parseResult.success) {
-            setError(`Fatal error, malformed message: ${parseResult.error}`);
+            setError(`Fatal error: malformed message: ${parseResult.error}`);
             return;
         }
 
