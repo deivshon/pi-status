@@ -34,7 +34,7 @@ const orderingFromProperty = (
         case ProcessProperty.CPU:
             return (p1, p2) => p2.cpu_usage - p1.cpu_usage;
         default:
-            console.log(`Unknown ordering value passed: ${processProperty}`);
+            console.error(`Unknown ordering value passed: ${processProperty}`);
             return (_p1, _p2) => 0;
     }
 };

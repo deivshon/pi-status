@@ -11,5 +11,5 @@ if (root) {
         </React.StrictMode>,
     );
 } else {
-    console.log("No root element!");
+    console.error("No root element");
 }
