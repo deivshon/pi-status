@@ -44,6 +44,30 @@ export default function App() {
         null,
     );
 
+    const selectedNet = (() => {
+        if (!selectedNetInterface) {
+            return {
+                speeds: [],
+                max: 0,
+                totals: emptyNetValues,
+                allowBack: false,
+                allowForward: false,
+            };
+        }
+
+        const selectedNetInterfaceIndex = Object.keys(netTotals)
+            .sort()
+            .indexOf(selectedNetInterface);
+        return {
+            speeds: netSpeeds[selectedNetInterface] ?? [],
+            max: netMaxes[selectedNetInterface] ?? 0,
+            totals: netTotals[selectedNetInterface] ?? emptyNetValues,
+            allowBack: selectedNetInterfaceIndex !== 0,
+            allowForward:
+                selectedNetInterfaceIndex !== Object.keys(netTotals).length - 1,
+        };
+    })();
+
     const handleNewData = async (event: MessageEvent) => {
         if (dataParsingError) {
             return;
@@ -239,12 +263,7 @@ export default function App() {
                                 switchInterface(SwitchDirection.Back, netTotals)
                             }
                         >
-                            {selectedNetInterface !== null &&
-                            Object.keys(netTotals)
-                                .sort()
-                                .indexOf(selectedNetInterface) !== 0
-                                ? "ᐸ"
-                                : ""}
+                            {selectedNet.allowBack && "ᐸ"}
                         </button>
                         <span className="flex-grow-1 text-center">
                             {selectedNetInterface}
@@ -258,34 +277,13 @@ export default function App() {
                                 )
                             }
                         >
-                            {selectedNetInterface !== null &&
-                            Object.keys(netTotals)
-                                .sort()
-                                .indexOf(selectedNetInterface) !==
-                                Object.keys(netTotals).length - 1
-                                ? "ᐳ"
-                                : ""}
+                            {selectedNet.allowForward && "ᐳ"}
                         </button>
                     </div>
                     <Net
-                        netSpeeds={
-                            selectedNetInterface &&
-                            netSpeeds[selectedNetInterface]
-                                ? netSpeeds[selectedNetInterface]
-                                : []
-                        }
-                        netMax={
-                            selectedNetInterface &&
-                            netMaxes[selectedNetInterface]
-                                ? netMaxes[selectedNetInterface]
-                                : 0
-                        }
-                        netTotals={
-                            selectedNetInterface &&
-                            netTotals[selectedNetInterface]
-                                ? netTotals[selectedNetInterface]
-                                : emptyNetValues
-                        }
+                        netSpeeds={selectedNet.speeds}
+                        netMax={selectedNet.max}
+                        netTotals={selectedNet.totals}
                     />
                 </div>
                 <div
