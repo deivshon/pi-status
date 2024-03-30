@@ -6,10 +6,6 @@
     overflow-wrap: anywhere;
 }
 
-.proc-container::-webkit-scrollbar {
-    display: none !important;
-}
-
 .proc-col {
     text-align: left;
     margin: 0 2px;

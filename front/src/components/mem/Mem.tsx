@@ -10,7 +10,7 @@ type MemProps = {
 
 export default function Mem(props: MemProps) {
     return (
-        <div className="flex-column flex w-full gap-2">
+        <div className="flex w-full flex-col gap-2">
             <p className="mb-1">RAM {formatBytes(props.ram.total)}</p>
             <div className="flex w-full flex-col items-center">
                 <RamBar
@@ -40,7 +40,7 @@ export default function Mem(props: MemProps) {
                     label="Cached"
                 />
             </div>
-            <span className="mb-1 mt-2 md:mb-12">Disks</span>
+            <span className="mb-1 mt-2 md:mb-4">Disks</span>
             <table className="border-ayu-green border-[1px] text-left text-[0.5rem] md:text-base">
                 <tr>
                     <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">

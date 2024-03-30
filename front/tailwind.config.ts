@@ -1,3 +1,5 @@
+import tailwindcssRadix from "tailwindcss-radix";
+
 /** @type {import('tailwindcss').Config} */
 export default {
     content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
@@ -9,11 +11,11 @@ export default {
                 "ayu-red": "#F28779",
                 "ayu-cyan": "#6CCDFF",
                 "ayu-yellow": "#EEBA45",
-                "proc-search-bar": "#0B0E14",
+                "ayu-background": "#0B0E14",
                 lightgrey: "#D3D3D3",
                 progress: "#565B66",
             },
         },
     },
-    plugins: [],
+    plugins: [tailwindcssRadix],
 };

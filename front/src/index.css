@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}
+
 :root {
     font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
     font-size: 1.5rem;
@@ -30,10 +41,6 @@ p {
     display: flex;
     justify-content: center;
     gap: 2vw;
-}
-
-.progress {
-    background-color: #565b66 !important;
 }
 
 @media screen and (max-aspect-ratio: 4/5) {

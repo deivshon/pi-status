@@ -4,8 +4,7 @@ import { NetValues } from "@/models/net";
 import { ProcessData } from "@/models/proc";
 import { RamData } from "@/models/ram";
 import { statusDataSchema } from "@/models/ws";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import * as Tabs from "@radix-ui/react-tabs";
 import { useEffect, useState } from "react";
 import Cpu from "../cpu/Cpu";
 import Mem from "../mem/Mem";
@@ -173,90 +172,59 @@ export default function App() {
     }
 
     return (
-        <div>
+        <Tabs.Root defaultValue="cpu-tab">
             <div className="host-bar">
                 <p>{hostname}</p>
                 <p>Up {uptime}</p>
             </div>
-            <ul
-                className="nav nav-pills justify-content-center flex flex-wrap"
-                id="pills-tab"
-                role="tablist"
-            >
-                <li className="nav-item cpu-pill" role="presentation">
-                    <button
-                        className="nav-link active"
-                        id="pills-cpu-tab"
-                        data-bs-toggle="pill"
-                        data-bs-target="#pills-cpu"
-                        type="button"
-                        role="tab"
-                    >
-                        CPU
-                    </button>
-                </li>
-                <li className="nav-item mem-pill" role="presentation">
-                    <button
-                        className="nav-link"
-                        id="pills-mem-tab"
-                        data-bs-toggle="pill"
-                        data-bs-target="#pills-mem"
-                        type="button"
-                        role="tab"
-                    >
-                        MEM
-                    </button>
-                </li>
-                <li className="nav-item net-pill" role="presentation">
-                    <button
-                        className="nav-link"
-                        id="pills-net-tab"
-                        data-bs-toggle="pill"
-                        data-bs-target="#pills-net"
-                        type="button"
-                        role="tab"
-                    >
-                        NET
-                    </button>
-                </li>
-                <li className="nav-item proc-pill" role="presentation">
-                    <button
-                        className="nav-link"
-                        id="pills-proc-tab"
-                        data-bs-toggle="pill"
-                        data-bs-target="#pills-proc"
-                        type="button"
-                        role="tab"
-                    >
-                        PS
-                    </button>
-                </li>
-            </ul>
-            <div className="tab-content w-100" id="pills-tabContent">
-                <div
-                    className="tab-pane fade w-100 show active"
-                    id="pills-cpu"
-                    role="tabpanel"
+            <Tabs.List className="mb-2 flex flex-wrap justify-between px-2 py-0 md:mb-4 md:justify-center md:gap-2">
+                <Tabs.Trigger
+                    className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-purple radix-state-inactive:text-ayu-purple rounded-md px-3 py-2"
+                    value="cpu-tab"
+                    id="cpu-tab-selector"
+                >
+                    CPU
+                </Tabs.Trigger>
+                <Tabs.Trigger
+                    className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-green radix-state-inactive:text-ayu-green rounded-md px-3 py-2"
+                    value="mem-tab"
+                    id="mem-tab-selector"
+                >
+                    MEM
+                </Tabs.Trigger>
+                <Tabs.Trigger
+                    className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-red radix-state-inactive:text-ayu-red rounded-md px-3 py-2"
+                    value="net-tab"
+                    id="net-tab-selector"
+                >
+                    NET
+                </Tabs.Trigger>
+                <Tabs.Trigger
+                    className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-yellow radix-state-inactive:text-ayu-yellow rounded-md px-3 py-2"
+                    value="proc-tab"
+                    id="proc-tab-selector"
+                >
+                    PS
+                </Tabs.Trigger>
+            </Tabs.List>
+            <div className="tab-content w-full">
+                <Tabs.Content
+                    className="m-0 w-full px-2 md:px-4"
+                    value="cpu-tab"
                 >
                     <Cpu temp={temp} cpuUsage={cpuUsage} />
-                </div>
-                <div
-                    className="tab-pane fade w-100"
-                    id="pills-mem"
-                    role="tabpanel"
+                </Tabs.Content>
+                <Tabs.Content
+                    className="m-0 w-full px-2 md:px-4"
+                    value="mem-tab"
                 >
                     <Mem ram={ramData} disks={disks} />
-                </div>
-                <div
-                    className="tab-pane fade w-100"
-                    id="pills-net"
-                    role="tabpanel"
-                    aria-labelledby="pills-net-tab"
+                </Tabs.Content>
+                <Tabs.Content
+                    className="m-0 w-full px-2 md:px-4"
+                    value="net-tab"
                 >
-                    <div
-                        id="interface-selector"
-                        className="d-flex align-items-center justify-content-center"
-                    >
+                    <div className="mb-4 flex w-full items-center justify-between">
                         <button
                             id="net-interface-prev"
                             onClick={() =>
@@ -265,7 +233,7 @@ export default function App() {
                         >
                             {selectedNet.allowBack && "ᐸ"}
                         </button>
-                        <span className="flex-grow-1 text-center">
+                        <span className="text-center">
                             {selectedNetInterface}
                         </span>
                         <button
@@ -285,11 +253,10 @@ export default function App() {
                         netMax={selectedNet.max}
                         netTotals={selectedNet.totals}
                     />
-                </div>
-                <div
-                    className="tab-pane fade w-100"
-                    id="pills-proc"
-                    role="tabpanel"
+                </Tabs.Content>
+                <Tabs.Content
+                    className="m-0 w-full px-2 md:px-4"
+                    value="proc-tab"
                 >
                     <Proc
                         procs={processes}
@@ -297,8 +264,8 @@ export default function App() {
                             cpuUsage.length > 0 ? cpuUsage[0] : emptyCoreData
                         }
                     />
-                </div>
+                </Tabs.Content>
             </div>
-        </div>
+        </Tabs.Root>
     );
 }

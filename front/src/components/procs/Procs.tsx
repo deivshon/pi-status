@@ -121,12 +121,12 @@ export default function Procs(props: ProcProps) {
                     <input
                         type="text"
                         placeholder="Search..."
-                        className="bg-proc-search-bar text-lightgrey w-full rounded-none border-2 border-gray-400 px-2 py-1 text-start placeholder:text-gray-500"
+                        className="bg-ayu-background text-lightgrey w-full rounded-none border-2 border-gray-400 px-2 py-1 text-start placeholder:text-gray-500"
                         onChange={handleSearchChange}
                     />
                 </div>
             </div>
-            <div className="proc-container flex">
+            <div className="proc-container no-scrollbar flex">
                 <div className="pid-col proc-col">
                     <div
                         className="text-nowrap md:mb-2"
