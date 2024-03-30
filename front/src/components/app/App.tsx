@@ -1,9 +1,11 @@
+import { Tab } from "@/models/app";
 import { CoreData } from "@/models/cpu";
 import { DiskData } from "@/models/disk";
 import { NetValues } from "@/models/net";
 import { ProcessData } from "@/models/proc";
 import { RamData } from "@/models/ram";
 import { statusDataSchema } from "@/models/ws";
+import { useTabStore } from "@/store/tab";
 import * as Tabs from "@radix-ui/react-tabs";
 import { useState } from "react";
 import useWebSocket from "react-use-websocket";
@@ -41,6 +43,7 @@ export default function App() {
     const [disks, setDisks] = useState<DiskData[]>([]);
     const [processes, setProcesses] = useState<ProcessData[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const { selectedTab, setSelectedTab } = useTabStore();
 
     useWebSocket(`ws://${window.location.host}/ws_data`, {
         onError: () => {
@@ -172,7 +175,7 @@ export default function App() {
     }
 
     return (
-        <Tabs.Root defaultValue="cpu-tab">
+        <Tabs.Root defaultValue={selectedTab}>
             <div className="host-bar">
                 <p>{hostname}</p>
                 <p>Up {uptime}</p>
@@ -180,29 +183,29 @@ export default function App() {
             <Tabs.List className="mb-2 flex flex-wrap justify-between px-2 py-0 md:mb-4 md:justify-center md:gap-2">
                 <Tabs.Trigger
                     className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-purple radix-state-inactive:text-ayu-purple rounded-md px-3 py-2"
-                    value="cpu-tab"
-                    id="cpu-tab-selector"
+                    value={Tab.CPU}
+                    onClick={() => setSelectedTab(Tab.CPU)}
                 >
                     CPU
                 </Tabs.Trigger>
                 <Tabs.Trigger
                     className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-green radix-state-inactive:text-ayu-green rounded-md px-3 py-2"
-                    value="mem-tab"
-                    id="mem-tab-selector"
+                    value={Tab.Mem}
+                    onClick={() => setSelectedTab(Tab.Mem)}
                 >
                     MEM
                 </Tabs.Trigger>
                 <Tabs.Trigger
                     className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-red radix-state-inactive:text-ayu-red rounded-md px-3 py-2"
-                    value="net-tab"
-                    id="net-tab-selector"
+                    value={Tab.Net}
+                    onClick={() => setSelectedTab(Tab.Net)}
                 >
                     NET
                 </Tabs.Trigger>
                 <Tabs.Trigger
                     className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-yellow radix-state-inactive:text-ayu-yellow rounded-md px-3 py-2"
-                    value="proc-tab"
-                    id="proc-tab-selector"
+                    value={Tab.Proc}
+                    onClick={() => setSelectedTab(Tab.Proc)}
                 >
                     PS
                 </Tabs.Trigger>
@@ -210,19 +213,19 @@ export default function App() {
             <div className="tab-content w-full">
                 <Tabs.Content
                     className="m-0 w-full px-2 md:px-4"
-                    value="cpu-tab"
+                    value={Tab.CPU}
                 >
                     <Cpu temp={temp} cpuUsage={cpuUsage} />
                 </Tabs.Content>
                 <Tabs.Content
                     className="m-0 w-full px-2 md:px-4"
-                    value="mem-tab"
+                    value={Tab.Mem}
                 >
                     <Mem ram={ramData} disks={disks} />
                 </Tabs.Content>
                 <Tabs.Content
                     className="m-0 w-full px-2 md:px-4"
-                    value="net-tab"
+                    value={Tab.Net}
                 >
                     <div className="mb-4 flex w-full items-center justify-between">
                         <button
@@ -256,7 +259,7 @@ export default function App() {
                 </Tabs.Content>
                 <Tabs.Content
                     className="m-0 w-full px-2 md:px-4"
-                    value="proc-tab"
+                    value={Tab.Proc}
                 >
                     <Proc
                         procs={processes}

@@ -1,22 +1,10 @@
 import { formatBytes } from "@/lib/bytes";
 import { CoreData } from "@/models/cpu";
-import { ProcessData } from "@/models/proc";
+import { ProcessData, ProcessOrder, ProcessProperty } from "@/models/proc";
+import { useOrderStore } from "@/store/order";
 import classNames from "classnames";
 import { ChangeEvent, useState } from "react";
 import "./Procs.css";
-
-enum ProcessProperty {
-    PID = 0,
-    Name = 1,
-    Threads = 2,
-    Memory = 3,
-    CPU = 4,
-}
-
-type ProcessOrdering = {
-    ord: ProcessProperty;
-    rev: boolean;
-};
 
 type ProcessOrderingFunction = (p1: ProcessData, p2: ProcessData) => number;
 const orderingFromProperty = (
@@ -51,10 +39,7 @@ const memLabelDefault = "Mem";
 const cpuLabelDefault = "CPU";
 
 export default function Procs(props: ProcProps) {
-    const [ordering, setOrdering] = useState<ProcessOrdering>({
-        ord: ProcessProperty.Memory,
-        rev: false,
-    });
+    const { order, setOrder } = useOrderStore();
     const [search, setSearch] = useState("");
 
     const total =
@@ -75,22 +60,22 @@ export default function Procs(props: ProcProps) {
                 p.name.toLowerCase().includes(search.toLowerCase()) ||
                 p.pid.toString().startsWith(search),
         )
-        .sort(orderingFromProperty(ordering.ord));
+        .sort(orderingFromProperty(order.ord));
 
-    if (ordering.rev) {
+    if (order.rev) {
         visibleProcs.reverse();
     }
 
     const sortProcessesBy = (prop: ProcessProperty) => {
-        setOrdering({
+        setOrder({
             ord: prop,
-            rev: ordering.ord === prop ? !ordering.rev : false,
+            rev: order.ord === prop ? !order.rev : false,
         });
     };
 
     const propertyLabel = (
         prop: ProcessProperty,
-        currentOrdering: ProcessOrdering,
+        currentOrdering: ProcessOrder,
         defaultPropertyLabel: string,
         visibleProcs: ProcessData[],
     ): string => {
@@ -98,7 +83,7 @@ export default function Procs(props: ProcProps) {
             return "";
         }
 
-        if (ordering.ord !== prop) {
+        if (order.ord !== prop) {
             return defaultPropertyLabel;
         }
 
@@ -134,12 +119,12 @@ export default function Procs(props: ProcProps) {
                     >
                         <span
                             className={classNames("col-content", {
-                                underline: ordering.ord === ProcessProperty.PID,
+                                underline: order.ord === ProcessProperty.PID,
                             })}
                         >
                             {propertyLabel(
                                 ProcessProperty.PID,
-                                ordering,
+                                order,
                                 pidLabelDefault,
                                 visibleProcs,
                             )}
@@ -158,13 +143,12 @@ export default function Procs(props: ProcProps) {
                     >
                         <span
                             className={classNames("col-content", {
-                                underline:
-                                    ordering.ord === ProcessProperty.Name,
+                                underline: order.ord === ProcessProperty.Name,
                             })}
                         >
                             {propertyLabel(
                                 ProcessProperty.Name,
-                                ordering,
+                                order,
                                 nameLabelDefault,
                                 visibleProcs,
                             )}
@@ -185,12 +169,12 @@ export default function Procs(props: ProcProps) {
                         <span
                             className={classNames("col-content", {
                                 underline:
-                                    ordering.ord === ProcessProperty.Threads,
+                                    order.ord === ProcessProperty.Threads,
                             })}
                         >
                             {propertyLabel(
                                 ProcessProperty.Threads,
-                                ordering,
+                                order,
                                 threadsLabelDefault,
                                 visibleProcs,
                             )}
@@ -210,13 +194,12 @@ export default function Procs(props: ProcProps) {
                     >
                         <span
                             className={classNames("col-content", {
-                                underline:
-                                    ordering.ord === ProcessProperty.Memory,
+                                underline: order.ord === ProcessProperty.Memory,
                             })}
                         >
                             {propertyLabel(
                                 ProcessProperty.Memory,
-                                ordering,
+                                order,
                                 memLabelDefault,
                                 visibleProcs,
                             )}
@@ -242,12 +225,12 @@ export default function Procs(props: ProcProps) {
                     >
                         <span
                             className={classNames("col-content", {
-                                underline: ordering.ord === ProcessProperty.CPU,
+                                underline: order.ord === ProcessProperty.CPU,
                             })}
                         >
                             {propertyLabel(
                                 ProcessProperty.CPU,
-                                ordering,
+                                order,
                                 cpuLabelDefault,
                                 visibleProcs,
                             )}
