@@ -42,54 +42,58 @@ export default function Mem(props: MemProps) {
             </div>
             <span className="mb-1 mt-2 md:mb-4">Disks</span>
             <table className="border-ayu-green border-[1px] text-left text-[0.5rem] md:text-base">
-                <tr>
-                    <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                        Filesystem
-                    </th>
-                    <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                        Size
-                    </th>
-                    <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                        Avail
-                    </th>
-                    <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                        Use%
-                    </th>
-                    <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                        Mounted on
-                    </th>
-                </tr>
-                {props.disks.map((d, i) => (
-                    <tr key={i}>
-                        <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                            {d.filesystem}
-                        </td>
-                        <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                            {formatBytes(d.total, {
-                                short: true,
-                                space: false,
-                                roundingDigits: 0,
-                            })}
-                        </td>
-                        <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                            {formatBytes(d.available, {
-                                short: true,
-                                space: false,
-                                roundingDigits: 0,
-                            })}
-                        </td>
-                        <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                            {(
-                                ((d.total - d.available) / d.total) *
-                                100
-                            ).toFixed(0)}
-                            %
-                        </td>
-                        <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                            {d.mountpoint}
-                        </td>
+                <thead>
+                    <tr>
+                        <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                            Filesystem
+                        </th>
+                        <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                            Size
+                        </th>
+                        <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                            Avail
+                        </th>
+                        <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                            Use%
+                        </th>
+                        <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                            Mounted on
+                        </th>
                     </tr>
-                ))}
+                </thead>
+                <tbody>
+                    {props.disks.map((d, i) => (
+                        <tr key={i}>
+                            <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                                {d.filesystem}
+                            </td>
+                            <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                                {formatBytes(d.total, {
+                                    short: true,
+                                    space: false,
+                                    roundingDigits: 0,
+                                })}
+                            </td>
+                            <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                                {formatBytes(d.available, {
+                                    short: true,
+                                    space: false,
+                                    roundingDigits: 0,
+                                })}
+                            </td>
+                            <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                                {(
+                                    ((d.total - d.available) / d.total) *
+                                    100
+                                ).toFixed(0)}
+                                %
+                            </td>
+                            <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                                {d.mountpoint}
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
             </table>
         </div>
     );
