@@ -226,26 +226,26 @@ export default function App() {
                 >
                     <div className="mb-4 flex w-full items-center justify-between">
                         <button
-                            id="net-interface-prev"
+                            className="transition-all duration-75 hover:scale-110 disabled:text-gray-500 disabled:hover:scale-100"
                             onClick={() =>
                                 switchInterface(SwitchDirection.Back, netTotals)
                             }
+                            disabled={!selectedNet.allowBack}
                         >
-                            {selectedNet.allowBack && "ᐸ"}
+                            ᐸ
                         </button>
-                        <span className="text-center">
-                            {selectedNetInterface}
-                        </span>
+                        <p>{selectedNetInterface}</p>
                         <button
-                            id="net-interface-next"
+                            className="transition-all duration-75 hover:scale-110 disabled:text-gray-500 disabled:hover:scale-100"
                             onClick={() =>
                                 switchInterface(
                                     SwitchDirection.Forward,
                                     netTotals,
                                 )
                             }
+                            disabled={!selectedNet.allowForward}
                         >
-                            {selectedNet.allowForward && "ᐳ"}
+                            ᐳ
                         </button>
                     </div>
                     <Net
