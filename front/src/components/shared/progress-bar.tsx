@@ -9,7 +9,7 @@ export const ProgressBar = (props: ProgressBarProps) => {
     return (
         <div
             className={
-                "w-full overflow-hidden rounded-md " + props.className ?? ""
+                "w-full overflow-hidden rounded-md " + (props.className ?? "")
             }
             style={{ backgroundColor: props.bgColor }}
         >
