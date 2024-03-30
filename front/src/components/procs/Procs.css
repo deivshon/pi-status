@@ -20,7 +20,7 @@
 }
 
 .pid-col {
-    width: 4rem;
+    width: 4.25rem;
     text-align: right;
     margin-right: 0.5rem;
 }
@@ -60,6 +60,11 @@
     .proc-col {
         font-size: 0.5rem;
         width: 2rem;
+    }
+
+    .pid-col {
+        width: 2.25rem;
+        margin-right: 0.25rem;
     }
 }
 
