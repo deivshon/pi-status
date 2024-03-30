@@ -1,6 +1,5 @@
-export enum Tab {
-    CPU = "cpu-tab",
-    Mem = "mem-tab",
-    Net = "net-tab",
-    Proc = "proc-tab",
-}
+import { z } from "zod";
+
+export const tabSchema = z.enum(["cpu-tab", "mem-tab", "net-tab", "proc-tab"]);
+export const Tab = tabSchema.Values;
+export type Tab = z.infer<typeof tabSchema>;

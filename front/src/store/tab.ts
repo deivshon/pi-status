@@ -10,7 +10,7 @@ interface TabStore {
 export const useTabStore = create<TabStore>()(
     persist(
         (set, _) => ({
-            selectedTab: Tab.CPU,
+            selectedTab: "cpu-tab",
             setSelectedTab: (tab) => set({ selectedTab: tab }),
         }),
         {

@@ -1,4 +1,4 @@
-import { Tab } from "@/models/app";
+import { Tab, tabSchema } from "@/models/app";
 import { CoreData } from "@/models/cpu";
 import { DiskData } from "@/models/disk";
 import { NetValues } from "@/models/net";
@@ -57,6 +57,17 @@ export default function App() {
             handleNewData(event);
         },
     });
+
+    const handleTabChange = (rawTab: string) => {
+        const result = tabSchema.safeParse(rawTab);
+        if (!result.success) {
+            setError(`Fatal error: switched to unknown tab: ${rawTab}`);
+            return;
+        }
+
+        const tab = result.data;
+        setSelectedTab(tab);
+    };
 
     const selectedNet = (() => {
         if (!selectedNetInterface) {
@@ -175,7 +186,7 @@ export default function App() {
     }
 
     return (
-        <Tabs.Root defaultValue={selectedTab}>
+        <Tabs.Root defaultValue={selectedTab} onValueChange={handleTabChange}>
             <div className="host-bar">
                 <p>{hostname}</p>
                 <p>Up {uptime}</p>
@@ -183,29 +194,25 @@ export default function App() {
             <Tabs.List className="mb-2 flex flex-wrap justify-between px-2 py-0 md:mb-4 md:justify-center md:gap-2">
                 <Tabs.Trigger
                     className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-purple radix-state-inactive:text-ayu-purple rounded-md px-3 py-2"
-                    value={Tab.CPU}
-                    onClick={() => setSelectedTab(Tab.CPU)}
+                    value={Tab["cpu-tab"]}
                 >
                     CPU
                 </Tabs.Trigger>
                 <Tabs.Trigger
                     className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-green radix-state-inactive:text-ayu-green rounded-md px-3 py-2"
-                    value={Tab.Mem}
-                    onClick={() => setSelectedTab(Tab.Mem)}
+                    value={Tab["mem-tab"]}
                 >
                     MEM
                 </Tabs.Trigger>
                 <Tabs.Trigger
                     className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-red radix-state-inactive:text-ayu-red rounded-md px-3 py-2"
-                    value={Tab.Net}
-                    onClick={() => setSelectedTab(Tab.Net)}
+                    value={Tab["net-tab"]}
                 >
                     NET
                 </Tabs.Trigger>
                 <Tabs.Trigger
                     className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-yellow radix-state-inactive:text-ayu-yellow rounded-md px-3 py-2"
-                    value={Tab.Proc}
-                    onClick={() => setSelectedTab(Tab.Proc)}
+                    value={Tab["proc-tab"]}
                 >
                     PS
                 </Tabs.Trigger>
@@ -213,19 +220,19 @@ export default function App() {
             <div className="tab-content w-full">
                 <Tabs.Content
                     className="m-0 w-full px-2 md:px-4"
-                    value={Tab.CPU}
+                    value={Tab["cpu-tab"]}
                 >
                     <Cpu temp={temp} cpuUsage={cpuUsage} />
                 </Tabs.Content>
                 <Tabs.Content
                     className="m-0 w-full px-2 md:px-4"
-                    value={Tab.Mem}
+                    value={Tab["mem-tab"]}
                 >
                     <Mem ram={ramData} disks={disks} />
                 </Tabs.Content>
                 <Tabs.Content
                     className="m-0 w-full px-2 md:px-4"
-                    value={Tab.Net}
+                    value={Tab["net-tab"]}
                 >
                     <div className="mb-4 flex w-full items-center justify-between">
                         <button
@@ -259,7 +266,7 @@ export default function App() {
                 </Tabs.Content>
                 <Tabs.Content
                     className="m-0 w-full px-2 md:px-4"
-                    value={Tab.Proc}
+                    value={Tab["proc-tab"]}
                 >
                     <Proc
                         procs={processes}
