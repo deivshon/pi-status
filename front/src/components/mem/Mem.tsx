@@ -1,4 +1,4 @@
-import { formatBytes } from "@/lib/bytes";
+import { FormatBytesOpts, formatBytes } from "@/lib/bytes";
 import { DiskData } from "@/models/disk";
 import { RamData } from "@/models/ram";
 import RamBar from "./Ram";
@@ -8,7 +8,21 @@ type MemProps = {
     disks: DiskData[];
 };
 
+const diskSpaceFormat: FormatBytesOpts = {
+    short: true,
+    space: false,
+    roundingDigits: 0,
+};
+
 export default function Mem(props: MemProps) {
+    const disks = props.disks.map((d) => ({
+        filesystem: d.filesystem,
+        total: formatBytes(d.total, diskSpaceFormat),
+        available: formatBytes(d.available, diskSpaceFormat),
+        use: (((d.total - d.available) / d.total) * 100).toFixed(0),
+        mountpoint: d.mountpoint,
+    }));
+
     return (
         <div className="flex w-full flex-col gap-2">
             <p className="mb-1">RAM {formatBytes(props.ram.total)}</p>
@@ -62,34 +76,22 @@ export default function Mem(props: MemProps) {
                     </tr>
                 </thead>
                 <tbody>
-                    {props.disks.map((d, i) => (
-                        <tr key={i}>
+                    {disks.map((disk, idx) => (
+                        <tr key={idx}>
                             <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                                {d.filesystem}
+                                {disk.filesystem}
                             </td>
                             <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                                {formatBytes(d.total, {
-                                    short: true,
-                                    space: false,
-                                    roundingDigits: 0,
-                                })}
+                                {disk.total}
                             </td>
                             <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                                {formatBytes(d.available, {
-                                    short: true,
-                                    space: false,
-                                    roundingDigits: 0,
-                                })}
+                                {disk.available}
                             </td>
                             <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                                {(
-                                    ((d.total - d.available) / d.total) *
-                                    100
-                                ).toFixed(0)}
-                                %
+                                {disk.use}%
                             </td>
                             <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
-                                {d.mountpoint}
+                                {disk.mountpoint}
                             </td>
                         </tr>
                     ))}
