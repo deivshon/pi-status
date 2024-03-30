@@ -7,11 +7,11 @@ import { processDataSchema } from "./proc";
 import { ramDataSchema } from "./ram";
 
 export const statusDataSchema = z.object({
-    host: hostDataSchema.optional(),
-    temp: z.number().optional(),
-    net_stats: z.array(netDataSchema).optional(),
-    cpu_usage: z.array(coreDataSchema).optional(),
-    ram: ramDataSchema.optional(),
-    disk: z.array(diskDataSchema).optional(),
-    proc: z.array(processDataSchema).optional(),
+    host: hostDataSchema.nullable(),
+    temp: z.number().nullable(),
+    net_stats: z.array(netDataSchema).nullable(),
+    cpu_usage: z.array(coreDataSchema).nullable(),
+    ram: ramDataSchema.nullable(),
+    disk: z.array(diskDataSchema).nullable(),
+    proc: z.array(processDataSchema).nullable(),
 });
