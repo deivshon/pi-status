@@ -5,7 +5,8 @@ import { ProcessData } from "@/models/proc";
 import { RamData } from "@/models/ram";
 import { statusDataSchema } from "@/models/ws";
 import * as Tabs from "@radix-ui/react-tabs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useWebSocket from "react-use-websocket";
 import Cpu from "../cpu/Cpu";
 import Mem from "../mem/Mem";
 import Net from "../net/Net";
@@ -39,9 +40,20 @@ export default function App() {
     const [ramData, setRamData] = useState<RamData>(emptyRamData);
     const [disks, setDisks] = useState<DiskData[]>([]);
     const [processes, setProcesses] = useState<ProcessData[]>([]);
-    const [dataParsingError, setDataParsingError] = useState<string | null>(
-        null,
-    );
+    const [error, setError] = useState<string | null>(null);
+
+    useWebSocket(`ws://${window.location.host}/ws_data`, {
+        onError: () => {
+            setError("Unknown WebSocket error occurred");
+        },
+        onMessage: (event) => {
+            if (!event) {
+                return;
+            }
+
+            handleNewData(event);
+        },
+    });
 
     const selectedNet = (() => {
         if (!selectedNetInterface) {
@@ -68,7 +80,7 @@ export default function App() {
     })();
 
     const handleNewData = async (event: MessageEvent) => {
-        if (dataParsingError) {
+        if (error) {
             return;
         }
 
@@ -76,17 +88,13 @@ export default function App() {
         try {
             rawData = JSON.parse(event.data);
         } catch (error) {
-            setDataParsingError(
-                "Fatal error: WebSocket message is not valid JSON",
-            );
+            setError("Fatal error: WebSocket message is not valid JSON");
             return;
         }
 
         const parseResult = statusDataSchema.safeParse(rawData);
         if (!parseResult.success) {
-            setDataParsingError(
-                `Fatal error, malformed message: ${parseResult.error}`,
-            );
+            setError(`Fatal error, malformed message: ${parseResult.error}`);
             return;
         }
 
@@ -140,14 +148,6 @@ export default function App() {
         }
     };
 
-    useEffect(() => {
-        const socket = new WebSocket(`ws://${window.location.host}/ws_data`);
-
-        socket.addEventListener("message", handleNewData);
-
-        return () => socket.close();
-    }, []);
-
     const switchInterface = (
         direction: SwitchDirection,
         netTotals: Record<string, NetValues>,
@@ -167,8 +167,8 @@ export default function App() {
         });
     };
 
-    if (dataParsingError) {
-        return <ErrorBox error={dataParsingError} />;
+    if (error) {
+        return <ErrorBox error={error} />;
     }
 
     return (
