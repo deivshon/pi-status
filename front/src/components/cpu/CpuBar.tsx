@@ -1,5 +1,6 @@
+import { twColors } from "@/lib/consts";
 import { CoreData } from "@/models/cpu";
-import "./Cpu.css";
+import { ProgressBar } from "../shared/progress-bar";
 
 type CoreBarProps = {
     coreData: CoreData;
@@ -18,12 +19,11 @@ export default function CoreBar(props: CoreBarProps) {
     const usage = ((total - idle) / total) * 100;
 
     return (
-        <div className="progress w-100">
-            <div
-                className="progress-bar cpu-bar"
-                role="progressbar"
-                style={{ width: `${usage}%` }}
-            ></div>
-        </div>
+        <ProgressBar
+            percentage={usage}
+            className="h-3.5"
+            bgColor={twColors["progress"]}
+            fgColor={twColors["ayu-purple"]}
+        />
     );
 }

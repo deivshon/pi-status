@@ -142,7 +142,7 @@ export default function App() {
     };
 
     useEffect(() => {
-        const socket = new WebSocket(`ws://${window.location.host}/ws_data`);
+        const socket = new WebSocket(`ws://localhost:8080/ws_data`);
 
         socket.addEventListener("message", handleNewData);
 
@@ -179,7 +179,7 @@ export default function App() {
                 <p>Up {uptime}</p>
             </div>
             <ul
-                className="nav nav-pills flex flex-wrap justify-content-center"
+                className="nav nav-pills justify-content-center flex flex-wrap"
                 id="pills-tab"
                 role="tablist"
             >

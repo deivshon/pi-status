@@ -1,13 +1,12 @@
 import { NetTransferType, NetValues } from "@/models/net";
 import { Area, AreaChart, ResponsiveContainer, YAxis } from "recharts";
-import "./Net.css";
 
 type NetChartProps = {
     netSpeeds: NetValues[];
     netMax: number;
     dataKey: NetTransferType;
     color: string;
-    chartClass: string;
+    className?: string;
 };
 
 export default function NetChart(props: NetChartProps) {
@@ -15,7 +14,7 @@ export default function NetChart(props: NetChartProps) {
         <ResponsiveContainer
             width="100%"
             height="100%"
-            className={props.chartClass}
+            className={props.className ?? ""}
         >
             <AreaChart data={props.netSpeeds}>
                 <YAxis

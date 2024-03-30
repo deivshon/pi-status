@@ -1,6 +1,6 @@
 import { formatBytes } from "@/lib/bytes";
+import { twColors } from "@/lib/consts";
 import { NetTransferType, NetValues } from "@/models/net";
-import "./Net.css";
 import NetChart from "./NetChart";
 
 type NetProps = {
@@ -11,10 +11,10 @@ type NetProps = {
 
 export default function Net(props: NetProps) {
     return (
-        <div className="stats-container">
-            <div className="net-chart">
+        <div className="flex flex-col gap-3 md:flex-row">
+            <div className="mb-4 flex h-[25vh] w-[96vw] flex-col gap-1 md:h-[72vh] md:w-[50vw]">
                 {props.netSpeeds.length !== 0 && (
-                    <div className="net-stats-container">
+                    <div className="flex justify-between">
                         <p>
                             ▼{" "}
                             {formatBytes(
@@ -30,13 +30,13 @@ export default function Net(props: NetProps) {
                     netSpeeds={props.netSpeeds}
                     netMax={props.netMax}
                     dataKey={NetTransferType.Download}
-                    color="#f28779"
-                    chartClass="down-chart-container"
+                    color={twColors["ayu-red"]}
+                    className="border-ayu-red border-2"
                 />
             </div>
-            <div className="net-chart">
+            <div className="mb-4 flex h-[25vh] w-[96vw] flex-col gap-1 md:h-[72vh] md:w-[50vw]">
                 {props.netSpeeds.length !== 0 && (
-                    <div className="net-stats-container">
+                    <div className="flex justify-between">
                         <p>
                             ▲{" "}
                             {formatBytes(
@@ -52,8 +52,8 @@ export default function Net(props: NetProps) {
                     netSpeeds={props.netSpeeds}
                     netMax={props.netMax}
                     dataKey={NetTransferType.Upload}
-                    color="#6ccdff"
-                    chartClass="up-chart-container"
+                    color={twColors["ayu-cyan"]}
+                    className="border-ayu-cyan border-2"
                 />
             </div>
         </div>

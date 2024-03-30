@@ -1,6 +1,7 @@
 import { formatBytes } from "@/lib/bytes";
 import { CoreData } from "@/models/cpu";
 import { ProcessData } from "@/models/proc";
+import classNames from "classnames";
 import { ChangeEvent, useState } from "react";
 import "./Procs.css";
 
@@ -113,34 +114,28 @@ export default function Procs(props: ProcProps) {
     };
 
     return (
-        <div className="stats-container flex-column">
-            <div
-                id="proc-header-container"
-                className="d-flex justify-content-between"
-            >
+        <div className="flex flex-col gap-3">
+            <div>
                 <p>{props.procs.length} active processes</p>
-                <div className="search-bar-container">
+                <div className="mt-3">
                     <input
                         type="text"
-                        id="search-bar"
                         placeholder="Search..."
-                        className="form-control form-control-sm"
+                        className="bg-proc-search-bar text-lightgrey w-full rounded-none border-2 border-gray-400 px-2 py-1 text-start placeholder:text-gray-500"
                         onChange={handleSearchChange}
                     />
                 </div>
             </div>
-            <div className="proc-container d-flex flex-row">
-                <div className="pid-col proc-col d-flex flex-column">
+            <div className="proc-container flex">
+                <div className="pid-col proc-col">
                     <div
-                        className="text-nowrap"
+                        className="text-nowrap md:mb-2"
                         onClick={() => sortProcessesBy(ProcessProperty.PID)}
                     >
                         <span
-                            className={`col-content${
-                                ordering.ord === ProcessProperty.PID
-                                    ? " text-decoration-underline"
-                                    : ""
-                            }`}
+                            className={classNames("col-content", {
+                                underline: ordering.ord === ProcessProperty.PID,
+                            })}
                         >
                             {propertyLabel(
                                 ProcessProperty.PID,
@@ -150,24 +145,22 @@ export default function Procs(props: ProcProps) {
                             )}
                         </span>
                     </div>
-                    <div></div>
                     {visibleProcs.map((p, i) => (
                         <div className="col-content" key={i}>
                             {p.pid}
                         </div>
                     ))}
                 </div>
-                <div className="name-col proc-col d-flex flex-column">
+                <div className="name-col proc-col">
                     <div
-                        className="text-nowrap"
+                        className="text-nowrap md:mb-2"
                         onClick={() => sortProcessesBy(ProcessProperty.Name)}
                     >
                         <span
-                            className={`col-content${
-                                ordering.ord === ProcessProperty.Name
-                                    ? " text-decoration-underline"
-                                    : ""
-                            }`}
+                            className={classNames("col-content", {
+                                underline:
+                                    ordering.ord === ProcessProperty.Name,
+                            })}
                         >
                             {propertyLabel(
                                 ProcessProperty.Name,
@@ -184,17 +177,16 @@ export default function Procs(props: ProcProps) {
                         </p>
                     ))}
                 </div>
-                <div className="threads-col proc-col d-flex flex-column">
+                <div className="threads-col proc-col">
                     <div
-                        className="text-nowrap threads-label"
+                        className="threads-label text-nowrap md:mb-2"
                         onClick={() => sortProcessesBy(ProcessProperty.Threads)}
                     >
                         <span
-                            className={`col-content${
-                                ordering.ord === ProcessProperty.Threads
-                                    ? " text-decoration-underline"
-                                    : ""
-                            }`}
+                            className={classNames("col-content", {
+                                underline:
+                                    ordering.ord === ProcessProperty.Threads,
+                            })}
                         >
                             {propertyLabel(
                                 ProcessProperty.Threads,
@@ -211,17 +203,16 @@ export default function Procs(props: ProcProps) {
                         </p>
                     ))}
                 </div>
-                <div className="memory-col proc-col d-flex flex-column">
+                <div className="memory-col proc-col">
                     <div
-                        className="text-nowrap mem-label"
+                        className="mem-label text-nowrap md:mb-2"
                         onClick={() => sortProcessesBy(ProcessProperty.Memory)}
                     >
                         <span
-                            className={`col-content${
-                                ordering.ord === ProcessProperty.Memory
-                                    ? " text-decoration-underline"
-                                    : ""
-                            }`}
+                            className={classNames("col-content", {
+                                underline:
+                                    ordering.ord === ProcessProperty.Memory,
+                            })}
                         >
                             {propertyLabel(
                                 ProcessProperty.Memory,
@@ -244,17 +235,15 @@ export default function Procs(props: ProcProps) {
                         </p>
                     ))}
                 </div>
-                <div className="cpu-col proc-col d-flex flex-column">
+                <div className="cpu-col proc-col">
                     <div
-                        className="text-nowrap cpu-label"
+                        className="cpu-label text-nowrap md:mb-2"
                         onClick={() => sortProcessesBy(ProcessProperty.CPU)}
                     >
                         <span
-                            className={`col-content${
-                                ordering.ord === ProcessProperty.CPU
-                                    ? " text-decoration-underline"
-                                    : ""
-                            }`}
+                            className={classNames("col-content", {
+                                underline: ordering.ord === ProcessProperty.CPU,
+                            })}
                         >
                             {propertyLabel(
                                 ProcessProperty.CPU,

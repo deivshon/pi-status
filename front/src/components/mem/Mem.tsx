@@ -1,9 +1,7 @@
 import { formatBytes } from "@/lib/bytes";
 import { DiskData } from "@/models/disk";
 import { RamData } from "@/models/ram";
-import Ram from "./Ram";
-
-import "./Mem.css";
+import RamBar from "./Ram";
 
 type MemProps = {
     ram: RamData;
@@ -12,70 +10,84 @@ type MemProps = {
 
 export default function Mem(props: MemProps) {
     return (
-        <div className="stats-container flex-column align-items-center w-100">
-            <p>RAM {formatBytes(props.ram.total)}</p>
-            <div className="w-100 d-flex flex-column align-items-center">
-                <Ram
+        <div className="flex-column flex w-full gap-2">
+            <p className="mb-1">RAM {formatBytes(props.ram.total)}</p>
+            <div className="flex w-full flex-col items-center">
+                <RamBar
                     total={props.ram.total}
                     value={props.ram.used}
                     label="Used"
                 />
             </div>
-            <div className="w-100 d-flex flex-column align-items-center">
-                <Ram
+            <div className="flex w-full flex-col items-center">
+                <RamBar
                     total={props.ram.total}
                     value={props.ram.available}
                     label="Available"
                 />
             </div>
-            <div className="w-100 d-flex flex-column align-items-center">
-                <Ram
+            <div className="flex w-full flex-col items-center">
+                <RamBar
                     total={props.ram.total}
                     value={props.ram.free}
                     label="Free"
                 />
             </div>
-            <div className="w-100 d-flex flex-column align-items-center">
-                <Ram
+            <div className="flex w-full flex-col items-center">
+                <RamBar
                     total={props.ram.total}
                     value={props.ram.cached}
                     label="Cached"
                 />
             </div>
-            <span>Disks</span>
-            <table className="disks-container">
+            <span className="mb-1 mt-2 md:mb-12">Disks</span>
+            <table className="border-ayu-green border-[1px] text-left text-[0.5rem] md:text-base">
                 <tr>
-                    <th>Filesystem</th>
-                    <th>Size</th>
-                    <th>Avail</th>
-                    <th>Use%</th>
-                    <th>Mounted on</th>
+                    <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                        Filesystem
+                    </th>
+                    <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                        Size
+                    </th>
+                    <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                        Avail
+                    </th>
+                    <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                        Use%
+                    </th>
+                    <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                        Mounted on
+                    </th>
                 </tr>
                 {props.disks.map((d, i) => (
                     <tr key={i}>
-                        <td>{d.filesystem}</td>
-                        <td>
+                        <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                            {d.filesystem}
+                        </td>
+                        <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
                             {formatBytes(d.total, {
                                 short: true,
                                 space: false,
                                 roundingDigits: 0,
                             })}
                         </td>
-                        <td>
+                        <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
                             {formatBytes(d.available, {
                                 short: true,
                                 space: false,
                                 roundingDigits: 0,
                             })}
                         </td>
-                        <td>
+                        <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
                             {(
                                 ((d.total - d.available) / d.total) *
                                 100
                             ).toFixed(0)}
                             %
                         </td>
-                        <td>{d.mountpoint}</td>
+                        <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                            {d.mountpoint}
+                        </td>
                     </tr>
                 ))}
             </table>
