@@ -141,7 +141,7 @@ export default function App() {
     };
 
     useEffect(() => {
-        const socket = new WebSocket(`ws://localhost:8080/ws_data`);
+        const socket = new WebSocket(`ws://${window.location.host}/ws_data`);
 
         socket.addEventListener("message", handleNewData);
 
