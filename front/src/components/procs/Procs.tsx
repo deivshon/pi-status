@@ -247,6 +247,9 @@ export default function Procs(props: ProcProps) {
                     ))}
                 </div>
             </div>
+            <div className="flex w-full items-center justify-center md:justify-start">
+                <p>{search.length > 0 && `${visibleProcs.length} results`}</p>
+            </div>
         </div>
     );
 }
