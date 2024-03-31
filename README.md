@@ -16,8 +16,8 @@ You can choose to compile and run pi-status natively or build a Docker image and
 
 ### Requirements
 
--   Rust toolchain
--   NodeJS
+- Rust toolchain
+- NodeJS
 
 ### Compilation
 
@@ -49,8 +49,8 @@ If you want to cross compile for your RPi 3/4 that is also possible with `make a
 
 ### Requirements
 
--   Docker, including compose and buildx plugins
--   **If** cross compiling: `qemu-user-static` and `qemu-user-static-binfmt`
+- Docker, including compose and buildx plugins
+- **If** cross compiling: `qemu-user-static` and `qemu-user-static-binfmt`
 
 The quoted packages are found in Arch Linux repositories, you should find the corresponding ones for your distribution of choice
 
@@ -62,7 +62,7 @@ The second step depends on your Raspberry Pi target
 
 2. RPi 3/4: `make docker-arm64`
 
-    RPi 2: `make docker-armv7`
+   RPi 2: `make docker-armv7`
 
 If for some reason you want to try containerized pi-status on a amd64 machine, `make docker-amd64` is also available
 
@@ -74,5 +74,5 @@ After building the image and having it transferred to the target machine
 
 ## Endpoints
 
--   `/` -> the web page to view the monitored resources data
--   `/ws_data` -> WebSocket endpoint for monitored resources data in JSON format messages
+- `/` -> the web page to view the monitored resources data
+- `/ws_data` -> WebSocket endpoint for monitored resources data in JSON format messages
