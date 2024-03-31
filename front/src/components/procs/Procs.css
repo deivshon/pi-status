@@ -14,8 +14,8 @@
 }
 
 .col-content {
-    min-height: 2.8ex;
-    max-height: 2.8ex;
+    min-height: 3ex;
+    max-height: 3ex;
     overflow: hidden;
     white-space: nowrap;
 }
@@ -52,7 +52,7 @@
     white-space: pre;
 }
 
-@media screen and (max-aspect-ratio: 4/5) {
+@media screen and (max-width: 768px) {
     .proc-container {
         height: 55vh;
         padding: 0 0.5rem;
