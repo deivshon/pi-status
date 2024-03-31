@@ -43,11 +43,7 @@ p {
     gap: 2vw;
 }
 
-@media screen and (max-aspect-ratio: 4/5) {
-    body {
-        overflow: hidden;
-    }
-
+@media screen and (max-width: 768px) {
     .stats-container {
         flex-direction: column;
     }
