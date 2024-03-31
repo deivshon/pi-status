@@ -11,7 +11,7 @@ type NetProps = {
 
 export default function Net(props: NetProps) {
     return (
-        <div className="flex flex-col gap-3 md:flex-row">
+        <div className="flex flex-col gap-2 md:flex-row md:gap-4">
             <div className="mb-4 flex h-[25vh] w-[96vw] flex-col gap-1 md:h-[72vh] md:w-[50vw]">
                 {props.netSpeeds.length !== 0 && (
                     <div className="flex justify-between">
