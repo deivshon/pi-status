@@ -11,8 +11,8 @@ type NetProps = {
 
 export default function Net(props: NetProps) {
     return (
-        <div className="flex flex-col gap-2 md:flex-row md:gap-4">
-            <div className="mb-4 flex h-[25vh] w-[96vw] flex-col gap-1 md:h-[72vh] md:w-[50vw]">
+        <div className="flex flex-col items-center justify-center gap-2 md:flex-row md:gap-4">
+            <div className="mb-4 flex h-[25vh] w-full flex-col gap-1 md:h-[72vh] md:w-[50vw]">
                 {props.netSpeeds.length !== 0 && (
                     <div className="flex justify-between">
                         <p>
@@ -34,7 +34,7 @@ export default function Net(props: NetProps) {
                     className="border-2 border-ayu-red"
                 />
             </div>
-            <div className="mb-4 flex h-[25vh] w-[96vw] flex-col gap-1 md:h-[72vh] md:w-[50vw]">
+            <div className="mb-4 flex h-[25vh] w-full flex-col gap-1 md:h-[72vh] md:w-[50vw]">
                 {props.netSpeeds.length !== 0 && (
                     <div className="flex justify-between">
                         <p>
