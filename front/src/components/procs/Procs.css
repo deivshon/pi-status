@@ -15,6 +15,7 @@
 
 .col-content {
     min-height: 2.8ex;
+    max-height: 2.8ex;
     overflow: hidden;
     white-space: nowrap;
 }

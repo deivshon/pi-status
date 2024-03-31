@@ -142,9 +142,9 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </button>
                     {visibleProcs.map((p, i) => (
-                        <div className="col-content" key={i}>
+                        <span className="col-content" key={i}>
                             {p.pid}
-                        </div>
+                        </span>
                     ))}
                 </div>
                 <div className="name-col proc-col">
@@ -166,9 +166,9 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </button>
                     {visibleProcs.map((p, i) => (
-                        <p className="col-content" key={i}>
+                        <span className="col-content" key={i}>
                             {p.name}
-                        </p>
+                        </span>
                     ))}
                 </div>
                 <div className="threads-col proc-col">
@@ -191,9 +191,9 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </button>
                     {visibleProcs.map((p, i) => (
-                        <p className="col-content" key={i}>
+                        <span className="col-content" key={i}>
                             {p.threads}
-                        </p>
+                        </span>
                     ))}
                 </div>
                 <div className="memory-col proc-col">
@@ -215,7 +215,7 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </button>
                     {visibleProcs.map((p, i) => (
-                        <p className="col-content" key={i}>
+                        <span className="col-content" key={i}>
                             {formatBytes(p.mem, {
                                 short: true,
                                 space: false,
@@ -223,7 +223,7 @@ export default function Procs(props: ProcProps) {
                                 absoluteRoundTreshold: 1024 ** 3,
                                 roundingDigits: 1,
                             })}
-                        </p>
+                        </span>
                     ))}
                 </div>
                 <div className="cpu-col proc-col">
@@ -245,12 +245,12 @@ export default function Procs(props: ProcProps) {
                         </span>
                     </button>
                     {visibleProcs.map((p, i) => (
-                        <p className="col-content cpu-percs" key={i}>
+                        <span className="col-content cpu-percs" key={i}>
                             {((p.cpu_usage / total) * 100)
                                 .toFixed(1)
                                 .padStart(5, " ")}
                             %
-                        </p>
+                        </span>
                     ))}
                 </div>
             </div>
