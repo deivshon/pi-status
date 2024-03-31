@@ -154,7 +154,6 @@ export default function Procs(props: ProcProps) {
                             )}
                         </span>
                     </div>
-                    <div></div>
                     {visibleProcs.map((p, i) => (
                         <p className="col-content" key={i}>
                             {p.name}
@@ -180,7 +179,6 @@ export default function Procs(props: ProcProps) {
                             )}
                         </span>
                     </div>
-                    <div></div>
                     {visibleProcs.map((p, i) => (
                         <p className="col-content" key={i}>
                             {p.threads}
@@ -205,7 +203,6 @@ export default function Procs(props: ProcProps) {
                             )}
                         </span>
                     </div>
-                    <div></div>
                     {visibleProcs.map((p, i) => (
                         <p className="col-content" key={i}>
                             {formatBytes(p.mem, {
@@ -236,7 +233,6 @@ export default function Procs(props: ProcProps) {
                             )}
                         </span>
                     </div>
-                    <div></div>
                     {visibleProcs.map((p, i) => (
                         <p className="col-content cpu-percs" key={i}>
                             {((p.cpu_usage / total) * 100)
