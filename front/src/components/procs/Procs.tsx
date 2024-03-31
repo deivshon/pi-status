@@ -124,8 +124,8 @@ export default function Procs(props: ProcProps) {
             </div>
             <div className="proc-container no-scrollbar flex">
                 <div className="pid-col proc-col">
-                    <div
-                        className="text-nowrap md:mb-2"
+                    <button
+                        className="text-nowrap text-end md:mb-2"
                         onClick={() => sortProcessesBy(ProcessProperty.PID)}
                     >
                         <span
@@ -140,7 +140,7 @@ export default function Procs(props: ProcProps) {
                                 visibleProcs,
                             )}
                         </span>
-                    </div>
+                    </button>
                     {visibleProcs.map((p, i) => (
                         <div className="col-content" key={i}>
                             {p.pid}
@@ -148,8 +148,8 @@ export default function Procs(props: ProcProps) {
                     ))}
                 </div>
                 <div className="name-col proc-col">
-                    <div
-                        className="text-nowrap md:mb-2"
+                    <button
+                        className="text-nowrap text-start md:mb-2"
                         onClick={() => sortProcessesBy(ProcessProperty.Name)}
                     >
                         <span
@@ -164,7 +164,7 @@ export default function Procs(props: ProcProps) {
                                 visibleProcs,
                             )}
                         </span>
-                    </div>
+                    </button>
                     {visibleProcs.map((p, i) => (
                         <p className="col-content" key={i}>
                             {p.name}
@@ -172,8 +172,8 @@ export default function Procs(props: ProcProps) {
                     ))}
                 </div>
                 <div className="threads-col proc-col">
-                    <div
-                        className="threads-label text-nowrap md:mb-2"
+                    <button
+                        className="threads-label text-nowrap text-end md:mb-2"
                         onClick={() => sortProcessesBy(ProcessProperty.Threads)}
                     >
                         <span
@@ -189,7 +189,7 @@ export default function Procs(props: ProcProps) {
                                 visibleProcs,
                             )}
                         </span>
-                    </div>
+                    </button>
                     {visibleProcs.map((p, i) => (
                         <p className="col-content" key={i}>
                             {p.threads}
@@ -197,8 +197,8 @@ export default function Procs(props: ProcProps) {
                     ))}
                 </div>
                 <div className="memory-col proc-col">
-                    <div
-                        className="mem-label text-nowrap md:mb-2"
+                    <button
+                        className="mem-label text-nowrap text-end md:mb-2"
                         onClick={() => sortProcessesBy(ProcessProperty.Memory)}
                     >
                         <span
@@ -213,7 +213,7 @@ export default function Procs(props: ProcProps) {
                                 visibleProcs,
                             )}
                         </span>
-                    </div>
+                    </button>
                     {visibleProcs.map((p, i) => (
                         <p className="col-content" key={i}>
                             {formatBytes(p.mem, {
@@ -227,8 +227,8 @@ export default function Procs(props: ProcProps) {
                     ))}
                 </div>
                 <div className="cpu-col proc-col">
-                    <div
-                        className="cpu-label text-nowrap md:mb-2"
+                    <button
+                        className="cpu-label text-nowrap text-end md:mb-2"
                         onClick={() => sortProcessesBy(ProcessProperty.CPU)}
                     >
                         <span
@@ -243,7 +243,7 @@ export default function Procs(props: ProcProps) {
                                 visibleProcs,
                             )}
                         </span>
-                    </div>
+                    </button>
                     {visibleProcs.map((p, i) => (
                         <p className="col-content cpu-percs" key={i}>
                             {((p.cpu_usage / total) * 100)
