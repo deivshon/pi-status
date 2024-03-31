@@ -98,6 +98,17 @@ export default function Procs(props: ProcProps) {
         setSearch(event.target.value);
     };
 
+    const getResultsAmountText = (): string => {
+        switch (visibleProcs.length) {
+            case 0:
+                return "No results";
+            case 1:
+                return "1 result";
+            default:
+                return `${visibleProcs.length} results`;
+        }
+    };
+
     return (
         <div className="flex flex-col gap-3">
             <div>
@@ -244,7 +255,7 @@ export default function Procs(props: ProcProps) {
                 </div>
             </div>
             <div className="flex w-full items-center justify-center md:justify-start">
-                <p>{search.length > 0 && `${visibleProcs.length} results`}</p>
+                <p>{search.length > 0 && getResultsAmountText()}</p>
             </div>
         </div>
     );
