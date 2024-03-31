@@ -31,7 +31,7 @@ export default function Net(props: NetProps) {
                     netMax={props.netMax}
                     dataKey={NetTransferType.Download}
                     color={twColors["ayu-red"]}
-                    className="border-ayu-red border-2"
+                    className="border-2 border-ayu-red"
                 />
             </div>
             <div className="mb-4 flex h-[25vh] w-[96vw] flex-col gap-1 md:h-[72vh] md:w-[50vw]">
@@ -53,7 +53,7 @@ export default function Net(props: NetProps) {
                     netMax={props.netMax}
                     dataKey={NetTransferType.Upload}
                     color={twColors["ayu-cyan"]}
-                    className="border-ayu-cyan border-2"
+                    className="border-2 border-ayu-cyan"
                 />
             </div>
         </div>

@@ -55,22 +55,22 @@ export default function Mem(props: MemProps) {
                 />
             </div>
             <span className="mb-1 mt-2 md:mb-4">Disks</span>
-            <table className="border-ayu-green border-[1px] text-left text-[0.5rem] md:text-base">
+            <table className="border-[1px] border-ayu-green text-left text-[0.5rem] md:text-base">
                 <thead>
                     <tr>
-                        <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                        <th className="border-[1px] border-ayu-green px-[0.15rem] md:px-1">
                             Filesystem
                         </th>
-                        <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                        <th className="border-[1px] border-ayu-green px-[0.15rem] md:px-1">
                             Size
                         </th>
-                        <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                        <th className="border-[1px] border-ayu-green px-[0.15rem] md:px-1">
                             Avail
                         </th>
-                        <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                        <th className="border-[1px] border-ayu-green px-[0.15rem] md:px-1">
                             Use%
                         </th>
-                        <th className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                        <th className="border-[1px] border-ayu-green px-[0.15rem] md:px-1">
                             Mounted on
                         </th>
                     </tr>
@@ -78,19 +78,19 @@ export default function Mem(props: MemProps) {
                 <tbody>
                     {disks.map((disk, idx) => (
                         <tr key={idx}>
-                            <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                            <td className="border-[1px] border-ayu-green px-[0.15rem] md:px-1">
                                 {disk.filesystem}
                             </td>
-                            <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                            <td className="border-[1px] border-ayu-green px-[0.15rem] md:px-1">
                                 {disk.total}
                             </td>
-                            <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                            <td className="border-[1px] border-ayu-green px-[0.15rem] md:px-1">
                                 {disk.available}
                             </td>
-                            <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                            <td className="border-[1px] border-ayu-green px-[0.15rem] md:px-1">
                                 {disk.use}%
                             </td>
-                            <td className="border-ayu-green border-[1px] px-[0.15rem] md:px-1">
+                            <td className="border-[1px] border-ayu-green px-[0.15rem] md:px-1">
                                 {disk.mountpoint}
                             </td>
                         </tr>

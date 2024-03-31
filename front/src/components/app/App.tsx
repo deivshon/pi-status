@@ -193,25 +193,25 @@ export default function App() {
             </div>
             <Tabs.List className="mb-2 flex flex-wrap justify-between px-2 py-0 md:mb-4 md:justify-center md:gap-2">
                 <Tabs.Trigger
-                    className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-purple radix-state-inactive:text-ayu-purple rounded-md px-3 py-2"
+                    className="rounded-md px-3 py-2 radix-state-active:bg-ayu-purple radix-state-active:text-ayu-background radix-state-inactive:text-ayu-purple"
                     value={Tab["cpu-tab"]}
                 >
                     CPU
                 </Tabs.Trigger>
                 <Tabs.Trigger
-                    className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-green radix-state-inactive:text-ayu-green rounded-md px-3 py-2"
+                    className="rounded-md px-3 py-2 radix-state-active:bg-ayu-green radix-state-active:text-ayu-background radix-state-inactive:text-ayu-green"
                     value={Tab["mem-tab"]}
                 >
                     MEM
                 </Tabs.Trigger>
                 <Tabs.Trigger
-                    className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-red radix-state-inactive:text-ayu-red rounded-md px-3 py-2"
+                    className="rounded-md px-3 py-2 radix-state-active:bg-ayu-red radix-state-active:text-ayu-background radix-state-inactive:text-ayu-red"
                     value={Tab["net-tab"]}
                 >
                     NET
                 </Tabs.Trigger>
                 <Tabs.Trigger
-                    className="radix-state-active:text-ayu-background radix-state-active:bg-ayu-yellow radix-state-inactive:text-ayu-yellow rounded-md px-3 py-2"
+                    className="rounded-md px-3 py-2 radix-state-active:bg-ayu-yellow radix-state-active:text-ayu-background radix-state-inactive:text-ayu-yellow"
                     value={Tab["proc-tab"]}
                 >
                     PS

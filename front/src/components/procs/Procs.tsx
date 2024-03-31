@@ -106,7 +106,7 @@ export default function Procs(props: ProcProps) {
                     <input
                         type="text"
                         placeholder="Search..."
-                        className="bg-ayu-background text-lightgrey w-full rounded-none border-2 border-gray-400 px-2 py-1 text-start placeholder:text-gray-500"
+                        className="w-full rounded-none border-2 border-gray-400 bg-ayu-background px-2 py-1 text-start text-lightgrey placeholder:text-gray-500"
                         onChange={handleSearchChange}
                     />
                 </div>
